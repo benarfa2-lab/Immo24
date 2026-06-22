@@ -3368,6 +3368,32 @@ function openEditAnnonce(id) {
     </div>
 
     <div class="form-section">
+      <div class="form-section-title">Photos & médias</div>
+      <div class="form-group">
+        <label>Photos du bien <span style="font-size:11px;color:var(--gray-400);font-weight:400">(min. 3, max. 20 · La 1ère photo sera la photo principale)</span></label>
+        <div class="photo-drop" style="margin-top:6px" onclick="document.getElementById('ea-photo-input').click()" ondragover="event.preventDefault()" ondrop="eaHandleDrop(event)">
+          <i class="fas fa-cloud-upload-alt"></i>
+          <p>Glissez vos photos ici ou <strong style="color:var(--navy)">cliquez pour parcourir</strong></p>
+          <span>JPG, PNG, WebP — 10 Mo max</span>
+        </div>
+        <input type="file" id="ea-photo-input" accept="image/*" multiple style="display:none" onchange="eaAddPhotos(event)" />
+        <div class="photo-grid-preview" id="ea-photo-grid"></div>
+      </div>
+      <div class="form-group" style="margin-top:16px">
+        <label>Plan du bien <span style="font-size:11px;color:var(--gray-400);font-weight:400">— optionnel</span></label>
+        <div class="photo-drop" style="padding:16px;margin-top:6px" onclick="document.getElementById('ea-plan-input').click()">
+          <i class="fas fa-drafting-compass"></i>
+          <p>Télécharger le plan du bien</p>
+          <span>PDF, PNG, JPG — 20 Mo max</span>
+        </div>
+        <input type="file" id="ea-plan-input" accept=".pdf,.png,.jpg,.jpeg" style="display:none" onchange="eaHandlePlan(event)" />
+        <div id="ea-plan-name" style="font-size:12px;color:var(--navy);margin-top:6px;display:none">
+          <i class="fas fa-file-pdf" style="color:var(--red);margin-right:5px"></i><span></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-section">
       <div class="form-section-title">Caractéristiques</div>
       <div class="form-grid">
         <div class="form-group">
@@ -3455,6 +3481,8 @@ function openEditAnnonce(id) {
       </div>
     </div>`;
   openModal('modal-edit-annonce');
+  // Initialiser la grille photos après rendu du DOM
+  setTimeout(() => eaInitPhotos(a), 0);
 }
 
 function saveEditAnnonce() {
@@ -3493,6 +3521,9 @@ function saveEditAnnonce() {
   if (val('ea-description') !== undefined) a.description = val('ea-description');
   if (val('ea-visite360')   !== undefined) a.visite360   = val('ea-visite360');
   if (val('ea-proximites')  !== undefined) a.proximites  = val('ea-proximites');
+  // Photos & plan
+  a.photos = eaPhotos.slice();
+  if (eaPlanFile) { a.plan = eaPlanFile; eaPlanFile = null; }
   if (currentRole === 'admin') {
     a.statut    = val('ea-statut') ?? a.statut;
     if (val('ea-agent') !== undefined)     a.agent = val('ea-agent');
@@ -7550,6 +7581,66 @@ document.addEventListener('click', function(e){
   const dd = document.getElementById('notif-dropdown');
   if (dd && dd.classList.contains('open') && !e.target.closest('.topbar-actions')) dd.classList.remove('open');
 });
+
+/* ===================== EDIT ANNONCE — PHOTOS / PLAN ===================== */
+let eaPhotos = []; // { dataUrl, name } tableau des photos en édition
+
+function eaInitPhotos(a) {
+  eaPhotos = (a.photos || []).map(p => ({ dataUrl: p.dataUrl, name: p.name }));
+  eaRenderPhotoGrid();
+  // Plan
+  const planWrap = document.getElementById('ea-plan-name');
+  if (a.plan && planWrap) {
+    planWrap.style.display = 'block';
+    planWrap.querySelector('span').textContent = a.plan.name;
+  }
+}
+
+function eaRenderPhotoGrid() {
+  const grid = document.getElementById('ea-photo-grid');
+  if (!grid) return;
+  grid.innerHTML = eaPhotos.map((p, i) => `
+    <div class="photo-thumb">
+      <img src="${p.dataUrl}" alt="${p.name}" />
+      ${i === 0 ? '<div style="position:absolute;bottom:0;left:0;right:0;background:rgba(27,58,107,.75);color:#fff;font-size:9px;font-weight:700;text-align:center;padding:3px">PRINCIPALE</div>' : ''}
+      <button class="photo-thumb-remove" onclick="eaRemovePhoto(${i})"><i class="fas fa-times"></i></button>
+    </div>`).join('');
+}
+
+function eaAddPhotos(event) {
+  const files = [...event.target.files];
+  const remaining = 20 - eaPhotos.length;
+  files.slice(0, remaining).forEach(file => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      eaPhotos.push({ dataUrl: e.target.result, name: file.name });
+      eaRenderPhotoGrid();
+    };
+    reader.readAsDataURL(file);
+  });
+  event.target.value = '';
+}
+
+function eaHandleDrop(event) {
+  event.preventDefault();
+  const fakeEvent = { target: { files: [...event.dataTransfer.files], value: '' } };
+  eaAddPhotos(fakeEvent);
+}
+
+function eaRemovePhoto(i) {
+  eaPhotos.splice(i, 1);
+  eaRenderPhotoGrid();
+}
+
+function eaHandlePlan(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const wrap = document.getElementById('ea-plan-name');
+  if (wrap) { wrap.style.display = 'block'; wrap.querySelector('span').textContent = file.name; }
+  // Stocker le nom pour la sauvegarde
+  eaPlanFile = { name: file.name };
+}
+let eaPlanFile = null;
 
 /* ===================== MARK LOT (SUIVI VENTES) ===================== */
 function openMarkLotModal(projetId, ref) {
