@@ -1,0 +1,2624 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Immo24.tn – Recherche sur carte</title>
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
+  <!-- Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+  <style>
+    /* ===== TOKENS ===== */
+    :root {
+      --gold:      #E6A817;
+      --gold-dark: #C8900E;
+      --gold-light:#FFF3D6;
+      --navy:      #1B3A6B;
+      --navy-dark: #122952;
+      --navy-light:#EEF2F9;
+      --gray-50:   #F8F9FA;
+      --gray-100:  #F1F3F5;
+      --gray-200:  #E9ECEF;
+      --gray-400:  #ADB5BD;
+      --gray-600:  #6C757D;
+      --gray-800:  #343A40;
+      --white:     #FFFFFF;
+      --red:       #E63946;
+      --green:     #2A9D8F;
+      --radius-sm: 6px;
+      --radius:    10px;
+      --radius-lg: 16px;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,.08);
+      --shadow:    0 4px 16px rgba(0,0,0,.12);
+      --shadow-lg: 0 8px 32px rgba(0,0,0,.16);
+      --nav-h:     60px;
+      --ad-h:      0px; /* kept for calc compat but strip is removed */
+      --filter-h:  52px;
+    }
+
+    /* ===== RESET ===== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', sans-serif; color: var(--gray-800); background: var(--gray-50); }
+    a { text-decoration: none; color: inherit; }
+    button { cursor: pointer; font-family: inherit; border: none; background: none; }
+    img { display: block; max-width: 100%; }
+
+    /* NAVBAR */
+    .navbar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+      height: 60px;
+      display: flex; align-items: center;
+      padding: 0 32px; gap: 24px;
+      background: var(--navy);
+      box-shadow: 0 2px 16px rgba(0,0,0,.2);
+    }
+    .nav-logo { display: flex; align-items: center; flex-shrink: 0; text-decoration: none; }
+    .nav-ctas { display: flex; gap: 6px; margin-left: 8px; }
+    .nav-cta-btn { display: flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; color: rgba(255,255,255,.88); background: rgba(255,255,255,.10); border: 1px solid rgba(255,255,255,.18); transition: all .2s; white-space: nowrap; cursor: pointer; text-decoration: none; }
+    .nav-cta-btn:hover, .nav-cta-btn.active { background: var(--gold); color: var(--navy); border-color: var(--gold); }
+    .nav-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+    .nav-btn-outline { border: 1.5px solid rgba(255,255,255,.45); border-radius: 50px; padding: 7px 18px; font-size: 13px; font-weight: 500; color: var(--white); transition: all .2s; background: none; cursor: pointer; }
+    .nav-btn-outline:hover { background: rgba(255,255,255,.12); border-color: var(--white); }
+
+
+    /* ===== FILTER BAR ===== */
+    .filter-bar {
+      position: fixed; top: calc(var(--nav-h)); left: 0; right: 0; z-index: 900;
+      height: var(--filter-h);
+      background: var(--white);
+      border-bottom: 1px solid var(--gray-200);
+      display: flex; align-items: center;
+      padding: 0 12px;
+      gap: 6px;
+      overflow-x: auto;
+    }
+    .filter-bar::-webkit-scrollbar { display: none; }
+
+    .filter-select {
+      display: flex; align-items: center; gap: 5px;
+      border: 1.5px solid var(--gray-200);
+      border-radius: 50px;
+      padding: 0 12px;
+      height: 32px;
+      font-size: 12.5px; font-weight: 500;
+      color: var(--gray-800);
+      background: var(--white);
+      white-space: nowrap;
+      transition: all .2s;
+      flex-shrink: 0;
+    }
+    .filter-select:hover { border-color: var(--navy); }
+    .filter-select.active { border-color: var(--navy); background: var(--navy-light); color: var(--navy); }
+    .filter-select i { font-size: 10px; color: var(--gray-600); }
+
+    .filter-divider { width: 1px; height: 24px; background: var(--gray-200); flex-shrink: 0; }
+    /* filter kind pills */
+    .filter-kind-pills { display: flex; gap: 4px; flex-shrink: 0; }
+    .filter-kind-pill {
+      padding: 4px 12px; border-radius: 50px; font-size: 12px; font-weight: 600;
+      border: 1.5px solid var(--gray-200); color: var(--gray-600); background: var(--white);
+      cursor: pointer; transition: all .18s; white-space: nowrap;
+    }
+    .filter-kind-pill:hover { border-color: var(--navy); color: var(--navy); }
+    .filter-kind-pill.active { background: var(--navy); color: var(--white); border-color: var(--navy); }
+    .filter-kind-pill.active.neuf { background: var(--gold); color: var(--navy-dark); border-color: var(--gold); }
+    .filter-kind-pill.active.location { background: var(--green); color: var(--white); border-color: var(--green); }
+
+    .filter-btn-more {
+      display: flex; align-items: center; gap: 5px;
+      border: 1.5px solid var(--navy);
+      border-radius: 50px;
+      padding: 0 12px;
+      height: 32px;
+      font-size: 12.5px; font-weight: 600;
+      color: var(--navy);
+      background: var(--white);
+      white-space: nowrap;
+      transition: all .2s;
+      flex-shrink: 0;
+    }
+    .filter-btn-more:hover { background: var(--navy); color: var(--white); }
+
+    .filter-tag {
+      display: flex; align-items: center; gap: 6px;
+      background: var(--navy-light);
+      border: 1.5px solid var(--navy);
+      border-radius: 50px;
+      padding: 0 12px;
+      height: 36px;
+      font-size: 13px; font-weight: 500;
+      color: var(--navy);
+      flex-shrink: 0;
+    }
+    .filter-tag-x {
+      width: 18px; height: 18px;
+      background: var(--navy);
+      border-radius: 50%;
+      color: var(--white);
+      font-size: 10px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+    }
+
+    /* ===== MAIN LAYOUT ===== */
+    .main {
+      display: flex;
+      height: 100vh;
+      padding-top: calc(var(--nav-h) + var(--filter-h));
+    }
+
+    /* ===== LIST PANEL ===== */
+    .list-panel {
+      width: 400px;
+      min-width: 400px;
+      display: flex;
+      flex-direction: column;
+      background: var(--white);
+      border-left: 1px solid var(--gray-200);
+      overflow: hidden;
+      order: 2;
+    }
+
+    .list-header {
+      padding: 8px 12px;
+      background: var(--white);
+      border-bottom: 1px solid var(--gray-200);
+      flex-shrink: 0;
+      display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    }
+    .result-count {
+      font-size: 12.5px; color: var(--gray-600); white-space: nowrap;
+    }
+    .result-count strong { color: var(--gray-800); font-weight: 700; font-size: 13px; }
+
+    .list-header-right { display: flex; align-items: center; gap: 8px; }
+
+    /* Dropdown tri style SeLoger */
+    .sort-select-wrap {
+      display: flex; align-items: center; gap: 6px;
+      background: var(--gray-50); border: 1px solid var(--gray-200);
+      border-radius: 8px; padding: 5px 10px 5px 10px;
+    }
+    .sort-select-label { font-size: 11.5px; color: var(--gray-600); font-weight: 500; white-space: nowrap; }
+    .sort-select {
+      font-size: 12px; font-weight: 600; color: var(--gray-800);
+      background: transparent; border: none; outline: none;
+      cursor: pointer; font-family: inherit;
+      padding-right: 2px;
+    }
+    .sort-select:focus { outline: none; }
+
+    .view-toggle { display: flex; gap: 3px; }
+    .view-btn {
+      width: 28px; height: 28px;
+      border-radius: var(--radius-sm);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; color: var(--gray-400);
+      border: 1px solid var(--gray-200);
+      background: var(--white);
+      transition: all .15s;
+    }
+    .view-btn.active { color: var(--navy); border-color: var(--navy); background: var(--navy-light); }
+    .view-btn:hover { color: var(--navy); border-color: var(--navy); }
+
+    .sort-row { display: none; }
+    .sort-label { display: none; }
+    .sort-btn { display: none; }
+
+    /* ===== À LA UNE ===== */
+    .featured-section {
+      flex-shrink: 0;
+      background: var(--white);
+      border-bottom: 1px solid var(--gray-200);
+      position: relative;
+      overflow: hidden;
+      max-height: 32px;
+      transition: max-height .3s ease;
+    }
+    .featured-section.expanded {
+      max-height: 220px;
+      padding-bottom: 0;
+    }
+    .featured-section::after {
+      content: '';
+      position: absolute; top: 32px; right: 0; bottom: 0;
+      width: 48px; pointer-events: none;
+      background: linear-gradient(to left, rgba(255,255,255,.95) 0%, transparent 100%);
+      z-index: 2;
+    }
+    .featured-title {
+      display: flex; align-items: center; gap: 7px;
+      font-size: 11px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .8px; color: var(--navy);
+      padding: 0 12px; height: 32px; cursor: pointer;
+      user-select: none;
+    }
+    .featured-title:hover { background: var(--gray-50); }
+    .featured-title-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--gold); flex-shrink: 0;
+    }
+    .featured-title-chevron {
+      margin-left: auto; font-size: 10px; color: var(--gray-400);
+      transition: transform .25s;
+    }
+    .featured-section.expanded .featured-title-chevron { transform: rotate(180deg); }
+    .featured-scroll {
+      display: flex; gap: 8px;
+      overflow-x: scroll; padding: 8px 12px 12px;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+    }
+    .featured-scroll::-webkit-scrollbar { height: 3px; }
+    .featured-scroll::-webkit-scrollbar-track { background: var(--gray-100); }
+    .featured-scroll::-webkit-scrollbar-thumb { background: var(--navy-light); border-radius: 3px; }
+    .featured-card {
+      min-width: 142px; max-width: 142px;
+      scroll-snap-align: start;
+      border-radius: var(--radius); overflow: hidden;
+      border: 1.5px solid var(--gray-200);
+      cursor: pointer; flex-shrink: 0;
+      transition: box-shadow .2s, transform .2s;
+      background: var(--white);
+    }
+    .featured-card:hover { box-shadow: var(--shadow); transform: translateY(-2px); border-color: var(--navy); }
+    .featured-img { height: 88px; overflow: hidden; position: relative; }
+    .featured-img img { width: 100%; height: 100%; object-fit: cover; transition: transform .35s; }
+    .featured-card:hover .featured-img img { transform: scale(1.05); }
+    .featured-badge {
+      position: absolute; top: 6px; left: 6px;
+      font-size: 9px; font-weight: 700; padding: 2px 6px;
+      border-radius: 3px; text-transform: uppercase; letter-spacing: .3px;
+    }
+    .featured-badge-neuf  { background: var(--gold);  color: var(--navy-dark); }
+    .featured-badge-promo { background: #e53935; color: #fff; }
+    .featured-body { padding: 7px 9px 9px; }
+    .featured-price { font-size: 12.5px; font-weight: 800; color: var(--navy); margin-bottom: 2px; }
+    .featured-name { font-size: 11px; font-weight: 600; color: var(--gray-800); margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .featured-loc  { font-size: 10px; color: var(--gray-600); display: flex; align-items: center; gap: 3px; }
+    .featured-loc i { color: var(--gold); font-size: 9px; }
+    .featured-specs { display: flex; gap: 6px; margin-top: 5px; padding-top: 5px; border-top: 1px solid var(--gray-100); }
+    .featured-spec { font-size: 10px; color: var(--gray-600); display: flex; align-items: center; gap: 3px; }
+    .featured-spec i { color: var(--navy); font-size: 9px; }
+
+    /* ===== VUE LISTE ===== */
+    .main.list-view .map-panel { display: none !important; }
+    .main.list-view .list-panel {
+      width: 100% !important;
+      min-width: 0 !important;
+      border-left: none !important;
+    }
+    .main.list-view .list-scroll {
+      display: flex !important;
+      flex-direction: column !important;
+      gap: 10px !important;
+      padding: 14px 20px !important;
+      overflow-y: auto !important;
+      overflow-x: hidden !important;
+      flex: 1 !important;
+    }
+    .main.list-view .card {
+      display: flex !important;
+      flex-direction: row !important;
+      width: 100% !important;
+      min-height: 120px !important;
+      max-height: 140px !important;
+      flex-shrink: 0 !important;
+      border-radius: 10px !important;
+      overflow: hidden !important;
+    }
+    .main.list-view .card-img {
+      width: 200px !important;
+      min-width: 200px !important;
+      height: auto !important;
+      flex-shrink: 0 !important;
+    }
+    .main.list-view .card-body {
+      flex: 1 !important;
+      min-width: 0 !important;
+      padding: 10px 14px !important;
+    }
+    .main.list-view .card-logo-watermark { display: none !important; }
+    .main.list-view .inline-ad-card { width: 100% !important; max-height: none !important; min-height: 110px !important; }
+    .main.list-view .card-view-btn { display: none !important; }
+
+    /* Bouton Voir l'annonce */
+    .card-view-btn {
+      display: flex; align-items: center; justify-content: center; gap: 5px;
+      margin: 0 10px 10px;
+      padding: 7px 10px;
+      border-radius: 7px;
+      border: 1.5px solid var(--navy);
+      color: var(--navy);
+      font-size: 12px; font-weight: 700;
+      transition: all .2s; cursor: pointer;
+      background: var(--white);
+    }
+    .card-view-btn:hover { background: var(--navy); color: var(--white); }
+    .card-view-btn i { font-size: 10px; }
+
+    .sort-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    .sort-label { font-size: 12px; color: var(--gray-600); margin-right: 2px; }
+    .sort-btn {
+      font-size: 12px; font-weight: 500;
+      color: var(--gray-600);
+      border: 1px solid var(--gray-200);
+      border-radius: 4px;
+      padding: 3px 9px;
+      background: var(--white);
+      transition: all .15s;
+    }
+    .sort-btn.active { background: var(--navy); color: var(--white); border-color: var(--navy); }
+    .sort-btn:hover:not(.active) { border-color: var(--gray-400); color: var(--gray-800); }
+
+    .list-scroll {
+      flex: 1;
+      overflow-y: auto;
+      background: var(--gray-50);
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+    .list-scroll::-webkit-scrollbar { width: 5px; }
+    .list-scroll::-webkit-scrollbar-track { background: transparent; }
+    .list-scroll::-webkit-scrollbar-thumb { background: var(--gray-200); border-radius: 8px; }
+    .list-scroll::-webkit-scrollbar-thumb:hover { background: var(--gray-400); }
+
+    /* ===== PROPERTY CARD — layout horizontal compact ===== */
+    .card {
+      display: flex; flex-direction: row;
+      background: var(--white);
+      border-radius: var(--radius); overflow: hidden;
+      border: 1.5px solid var(--gray-200);
+      box-shadow: var(--shadow-sm); cursor: pointer;
+      transition: box-shadow .18s, transform .18s;
+      position: relative; flex-shrink: 0; min-height: 100px;
+    }
+    .card:hover { box-shadow: var(--shadow); transform: translateY(-1px); }
+    .card.active { border-color: var(--navy); box-shadow: 0 0 0 2px rgba(27,58,107,.2); }
+    .card.kind-neuf { border-left: 3px solid var(--gold); }
+
+    /* Thumbnail strip — desktop hidden, mobile only */
+    .card-thumbs-strip { display: none; }
+
+    /* IMAGE gauche */
+    .card-img {
+      width: 118px; flex-shrink: 0;
+      position: relative; overflow: hidden; background: var(--gray-100);
+    }
+    .card-img img { width: 100%; height: 100%; object-fit: cover; transition: transform .35s ease; }
+    .card:hover .card-img img { transform: scale(1.04); }
+
+    /* Badges sur l'image */
+    .card-badge {
+      position: absolute; top: 7px; left: 7px;
+      display: flex; flex-direction: column; gap: 4px;
+    }
+    .badge {
+      font-size: 9.5px; font-weight: 700; letter-spacing: .3px;
+      padding: 2px 7px; border-radius: 3px; text-transform: uppercase; line-height: 1.5;
+    }
+    .badge-new       { background: var(--gold);  color: #fff; }
+    .badge-promo     { background: #e53935;       color: #fff; }
+    .badge-livraison { background: var(--green);  color: #fff; }
+    .badge-exclusive { background: var(--navy);   color: #fff; }
+    .badge-vente     { background: rgba(27,58,107,.85); color: #fff; font-weight: 800; }
+    .badge-location  { background: rgba(42,157,143,.9);  color: #fff; font-weight: 800; }
+
+    /* Fav sur l'image */
+    .card-fav {
+      position: absolute; top: 7px; right: 7px;
+      width: 28px; height: 28px; background: rgba(255,255,255,.92); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; color: var(--gray-400);
+      box-shadow: 0 1px 4px rgba(0,0,0,.18); transition: all .2s; cursor: pointer;
+    }
+    .card-fav:hover { color: var(--red); transform: scale(1.1); }
+    .card-fav.active { color: var(--red); }
+
+    /* Compteur photos bas image */
+    .card-media-row {
+      position: absolute; bottom: 6px; right: 7px;
+      display: flex; align-items: center; gap: 5px;
+    }
+    .card-photo-count {
+      background: rgba(0,0,0,.55); color: #fff; font-size: 10px; font-weight: 500;
+      padding: 2px 6px; border-radius: 50px; display: flex; align-items: center; gap: 4px;
+    }
+    .card-vv {
+      background: rgba(0,0,0,.55); color: #fff; font-size: 10px;
+      padding: 2px 6px; border-radius: 50px; display: flex; align-items: center; gap: 4px;
+    }
+
+    /* Watermark */
+    .card-logo-watermark {
+      position: absolute; bottom: 6px; left: 7px;
+      background: rgba(255,255,255,.9); border-radius: 4px;
+      padding: 2px 6px; display: flex; align-items: center; line-height: 1;
+    }
+    .card-logo-watermark .lw-immo { font-size: 9px; font-weight: 800; color: var(--navy); letter-spacing: -.3px; }
+    .card-logo-watermark .lw-24   { font-size: 9px; font-weight: 800; color: var(--gold); letter-spacing: -.3px; }
+    .card-logo-watermark .lw-tn   { font-size: 7.5px; font-weight: 600; color: var(--navy); opacity: .7; margin-left: 1px; }
+
+    /* BODY droit */
+    .card-body {
+      flex: 1; min-width: 0;
+      padding: 8px 10px 7px 9px;
+      display: flex; flex-direction: column; justify-content: space-between;
+    }
+
+    /* Ligne type + tag */
+    .card-kind-row {
+      display: flex; align-items: center; justify-content: space-between; gap: 4px; margin-bottom: 3px;
+    }
+    .card-kind-tag {
+      font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px;
+      padding: 2px 6px; border-radius: 3px;
+    }
+    .card-kind-tag.neuf   { background: var(--gold-light); color: var(--gold-dark); border: 1px solid #f0c96a; }
+    .card-kind-tag.agence { background: var(--navy-light);  color: var(--navy);      border: 1px solid #C5D5EE; }
+    .card-type-label {
+      font-size: 11px; font-weight: 600; color: var(--gray-600); text-transform: uppercase; letter-spacing: .3px;
+    }
+
+    /* Prix */
+    .card-price-row { display: flex; align-items: baseline; gap: 4px; margin-bottom: 2px; }
+    .card-price { font-size: 14px; font-weight: 800; color: #1a1a1a; letter-spacing: -.2px; }
+    .card-price-m2 { font-size: 10px; color: var(--gray-500); }
+
+    /* Specs : 118 m² · 4 pièces · 2 SDB */
+    .card-specs {
+      font-size: 11px; font-weight: 500; color: var(--gray-700);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 2px;
+    }
+    .card-specs-sep { color: var(--gray-400); margin: 0 2px; }
+
+    /* Localisation */
+    .card-location {
+      font-size: 10.5px; color: var(--gray-500);
+      display: flex; align-items: center; gap: 3px;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-bottom: 3px;
+    }
+    .card-location .pin-svg { flex-shrink: 0; color: var(--navy); opacity: .6; }
+
+    .card-desc { display: none; }
+    .card-icons-row { display: none; }
+    .icon-chip { display: none; }
+
+    /* Footer promoteur + livraison */
+    .card-footer {
+      display: flex; align-items: center; justify-content: space-between; gap: 4px;
+      border-top: 1px solid var(--gray-100); padding-top: 5px; margin-top: auto;
+    }
+    .card-promoteur-badge {
+      display: flex; align-items: center; gap: 5px; min-width: 0; flex: 1;
+    }
+    .card-promoteur-avatar {
+      width: 20px; height: 20px; border-radius: 4px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 8px; font-weight: 800; flex-shrink: 0; letter-spacing: -.3px;
+    }
+    .avatar-neuf  { background: var(--navy); color: var(--gold); }
+    .avatar-agence { background: var(--gray-200); color: var(--navy); }
+    .card-promoteur-info { min-width: 0; }
+    .card-promoteur-role { font-size: 8px; font-weight: 600; color: var(--gray-400); text-transform: uppercase; letter-spacing: .4px; line-height: 1; }
+    .card-promoteur-name { font-size: 11px; font-weight: 700; color: var(--navy); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.3; }
+
+    .card-delivery {
+      flex-shrink: 0; font-size: 9.5px; font-weight: 600;
+      display: flex; align-items: center; gap: 3px;
+      padding: 2px 7px; border-radius: 4px;
+      background: #EDFAF6; border: 1px solid #B2E8DA; color: #1A7A63;
+    }
+    .card-delivery.soon   { background: #FFF8E6; border-color: #F5D98B; color: var(--gold-dark); }
+    .card-delivery.future { background: var(--navy-light); border-color: #C5D5EE; color: var(--navy); }
+    .card-delivery i { font-size: 9px; }
+
+    .card-view-btn { display: none; }
+
+    /* légende carte */
+    .map-legend {
+      position: absolute; bottom: 52px; left: 12px; z-index: 500;
+      background: var(--white); border-radius: var(--radius);
+      box-shadow: var(--shadow); padding: 10px 14px;
+      font-size: 11.5px; display: flex; flex-direction: column; gap: 6px;
+    }
+    .map-legend-title { font-weight: 700; color: var(--gray-600); font-size: 10px; text-transform: uppercase; letter-spacing: .6px; margin-bottom: 2px; }
+    .map-legend-item { display: flex; align-items: center; gap: 8px; font-weight: 500; color: var(--gray-800); }
+    .map-legend-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+    .map-legend-dot.vente    { background: var(--navy); }
+    .map-legend-dot.location { background: var(--green); }
+    .map-legend-dot.neuf     { background: var(--navy); border: 2px solid var(--gold); }
+
+    /* ===== MAP PANEL ===== */
+    .map-panel {
+      flex: 1;
+      position: relative;
+      order: 1;
+    }
+    #map { width: 100%; height: 100%; }
+
+    /* map controls */
+    .map-controls {
+      position: absolute; top: 12px; right: 12px; z-index: 500;
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .map-ctrl-btn {
+      width: 36px; height: 36px;
+      background: var(--white);
+      border-radius: var(--radius-sm);
+      box-shadow: var(--shadow);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; color: var(--navy);
+      transition: all .2s;
+    }
+    .map-ctrl-btn:hover { background: var(--navy-light); }
+
+    .map-layer-toggle {
+      position: absolute; bottom: 80px; right: 12px; z-index: 500;
+      display: flex; gap: 6px;
+    }
+    .layer-btn {
+      background: var(--white);
+      border-radius: var(--radius-sm);
+      box-shadow: var(--shadow);
+      padding: 6px 12px;
+      font-size: 12px; font-weight: 600;
+      color: var(--gray-600);
+      border: 2px solid transparent;
+      transition: all .2s;
+    }
+    .layer-btn.active { border-color: var(--navy); color: var(--navy); background: var(--navy-light); }
+
+    .map-count-bubble {
+      position: absolute; top: 12px; left: 50%; transform: translateX(-50%);
+      z-index: 510;
+      background: var(--navy);
+      color: var(--white);
+      font-size: 12px; font-weight: 600;
+      padding: 7px 16px;
+      border-radius: 50px;
+      box-shadow: 0 2px 12px rgba(15,36,68,.3);
+      display: flex; align-items: center; gap: 6px;
+      transition: background .2s, transform .2s, box-shadow .2s;
+      user-select: none; white-space: nowrap;
+    }
+    .map-count-bubble:hover { background: #0f2444; transform: translateX(-50%) translateY(-2px); box-shadow: 0 6px 20px rgba(15,36,68,.4); }
+    .map-count-bubble:hover::after { content: ' · voir tout'; font-size: 11px; opacity: .65; }
+    .map-count-bubble i { color: var(--gold); font-size: 11px; }
+
+    /* ===== MAP POPUP ===== */
+    .leaflet-popup-content-wrapper {
+      border-radius: var(--radius) !important;
+      box-shadow: var(--shadow-lg) !important;
+      padding: 0 !important;
+      overflow: hidden;
+      border: none !important;
+    }
+    .leaflet-popup-content {
+      margin: 0 !important; width: 260px !important;
+    }
+    .leaflet-popup-tip-container { display: none; }
+
+    .popup-card { width: 260px; position: relative; }
+    .popup-close-btn { position: absolute; top: 8px; right: 8px; z-index: 10; background: rgba(0,0,0,.45); border: none; color: #fff; width: 26px; height: 26px; border-radius: 50%; cursor: pointer; font-size: 15px; line-height: 1; display: flex; align-items: center; justify-content: center; transition: background .2s; }
+    .popup-close-btn:hover { background: rgba(0,0,0,.75); }
+    .popup-img { height: 140px; width: 100%; object-fit: cover; }
+    .popup-body { padding: 10px 12px 14px; }
+    .popup-price { font-size: 16px; font-weight: 700; color: var(--navy); }
+    .popup-title { font-size: 13px; font-weight: 500; margin: 2px 0 4px; color: var(--gray-800); }
+    .popup-loc { font-size: 12px; color: var(--gray-600); display: flex; align-items: center; gap: 4px; margin-bottom: 8px; }
+    .popup-loc i { color: var(--gold); }
+    .popup-specs { display: flex; gap: 10px; font-size: 12px; color: var(--gray-600); margin-bottom: 10px; }
+    .popup-specs i { color: var(--navy); }
+    .popup-btn {
+      width: 100%; padding: 8px;
+      background: var(--navy); color: var(--white) !important;
+      border-radius: var(--radius-sm);
+      font-size: 13px; font-weight: 600;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      transition: background .2s; text-decoration: none !important;
+    }
+    .popup-btn:hover { background: var(--navy-dark); color: var(--white) !important; }
+
+    /* custom pin — wrapper Leaflet */
+    .custom-pin-wrapper {
+      background: none !important;
+      border: none !important;
+      overflow: visible !important;
+    }
+    .pin-price {
+      font-size: 11px; font-weight: 700;
+      padding: 5px 10px;
+      border-radius: 50px;
+      white-space: nowrap;
+      box-shadow: 0 2px 8px rgba(0,0,0,.35);
+      border: 2px solid var(--white);
+      cursor: pointer;
+      transition: all .18s;
+      display: inline-flex; align-items: center; gap: 4px;
+      position: relative;
+    }
+    /* pin agence vente — navy */
+    .pin-price {
+      background: var(--navy); color: var(--white);
+    }
+    .pin-price::after {
+      content: ''; position: absolute;
+      bottom: -7px; left: 50%; transform: translateX(-50%);
+      border: 5px solid transparent; border-top-color: var(--navy);
+    }
+    .pin-price:hover, .pin-price.active {
+      background: var(--navy-dark);
+      transform: scale(1.12); z-index: 9999 !important;
+    }
+    .pin-price.active::after { border-top-color: var(--navy-dark); }
+
+    /* pin agence location — vert */
+    .pin-price.pin-location {
+      background: var(--green); color: var(--white);
+    }
+    .pin-price.pin-location::after { border-top-color: var(--green); }
+    .pin-price.pin-location:hover, .pin-price.pin-location.active {
+      background: #218f83;
+    }
+    .pin-price.pin-location.active::after { border-top-color: #218f83; }
+
+    /* ===== PIN PROGRAMME (projet neuf — plaque panneau) ===== */
+    .pin-programme {
+      display: flex; flex-direction: column; align-items: center;
+      cursor: pointer; filter: drop-shadow(0 2px 6px rgba(0,0,0,.30));
+      transition: transform .18s, filter .18s;
+    }
+    .pin-programme:hover, .pin-programme.active {
+      transform: scale(1.08); z-index: 9999 !important;
+      filter: drop-shadow(0 4px 12px rgba(230,168,23,.5));
+    }
+    .pin-programme-board {
+      background: var(--navy);
+      border: 2px solid rgba(255,255,255,.85);
+      border-radius: 4px;
+      min-width: 76px; max-width: 100px;
+      overflow: hidden;
+      position: relative;
+    }
+    /* pointe en haut */
+    .pin-programme-board::before {
+      content: '';
+      position: absolute; top: -9px; left: 50%;
+      transform: translateX(-50%);
+      border: 9px solid transparent;
+      border-bottom-color: rgba(255,255,255,.85);
+    }
+    .pin-programme-board::after {
+      content: '';
+      position: absolute; top: -6px; left: 50%;
+      transform: translateX(-50%);
+      border: 7px solid transparent;
+      border-bottom-color: var(--navy);
+    }
+    .pin-prog-header {
+      background: var(--gold);
+      color: var(--navy-dark);
+      font-size: 7px; font-weight: 900; letter-spacing: 1px;
+      text-transform: uppercase; text-align: center;
+      padding: 3px 5px 2px;
+      margin-top: 7px;
+    }
+    .pin-prog-name {
+      font-size: 8px; font-weight: 700; color: #fff;
+      text-align: center; padding: 4px 5px 5px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      line-height: 1.2;
+    }
+    /* tige verticale */
+    .pin-programme-stem {
+      width: 2px; height: 8px;
+      background: var(--gold);
+    }
+    /* bulle de prix en bas */
+    .pin-prog-price {
+      background: var(--gold); color: var(--navy-dark);
+      font-size: 9.5px; font-weight: 800;
+      padding: 2px 8px; border-radius: 50px;
+      white-space: nowrap; letter-spacing: .2px;
+    }
+
+    /* ===== ALERT WHATSAPP ===== */
+
+    /* ===== DROPDOWN PANEL ===== */
+    .dropdown-overlay {
+      display: none;
+      position: fixed; inset: 0;
+      z-index: 800;
+    }
+    .dropdown-overlay.open { display: block; }
+
+    .dropdown-panel {
+      display: none;
+      position: fixed;
+      top: calc(var(--nav-h) + var(--filter-h));
+      z-index: 850;
+      background: var(--white);
+      border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+      padding: 20px;
+      min-width: 320px;
+    }
+    .dropdown-panel.open { display: block; }
+
+    .dropdown-title { font-size: 13px; font-weight: 600; color: var(--navy); margin-bottom: 12px; }
+
+    .price-range {
+      display: flex; gap: 8px; align-items: center;
+    }
+    .price-input {
+      flex: 1; border: 1.5px solid var(--gray-200); border-radius: var(--radius-sm);
+      padding: 8px 12px; font-size: 13px; color: var(--gray-800);
+      outline: none;
+    }
+    .price-input:focus { border-color: var(--navy); }
+    .price-sep { color: var(--gray-400); font-size: 13px; }
+
+    .checkbox-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .checkbox-item {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 13px; cursor: pointer;
+    }
+    .checkbox-item input { accent-color: var(--navy); }
+
+    .apply-btn {
+      width: 100%; margin-top: 16px;
+      background: var(--navy); color: var(--white);
+      border-radius: var(--radius-sm);
+      padding: 10px;
+      font-size: 13px; font-weight: 600;
+      transition: background .2s;
+    }
+    .apply-btn:hover { background: var(--navy-dark); }
+
+    /* ===== FRESHNESS BADGE ===== */
+    .card-freshness {
+      display: inline-flex; align-items: center; gap: 3px;
+      font-size: 10px; font-weight: 600; padding: 2px 7px;
+      border-radius: 50px; margin-left: auto; flex-shrink: 0;
+    }
+    .card-freshness.fresh  { color: var(--green);    background: #EDFAF6; }
+    .card-freshness.recent { color: var(--gold-dark); background: var(--gold-light); }
+    .card-freshness.old    { color: var(--gray-400);  background: var(--gray-100); }
+
+    /* ===== EMPTY STATE ===== */
+    .empty-state {
+      display: flex; flex-direction: column; align-items: center;
+      padding: 52px 20px; text-align: center;
+    }
+    .empty-state-icon { font-size: 44px; color: var(--gray-400); margin-bottom: 16px; }
+    .empty-state-title { font-size: 16px; font-weight: 700; color: var(--navy-dark); margin-bottom: 8px; }
+    .empty-state-sub { font-size: 13px; color: var(--gray-600); line-height: 1.55; margin-bottom: 20px; max-width: 260px; }
+    .empty-state-cta {
+      display: inline-flex; align-items: center; gap: 7px;
+      background: var(--navy); color: var(--white); border: none; cursor: pointer;
+      padding: 11px 22px; border-radius: 50px; font-size: 13px; font-weight: 700;
+      transition: background .2s; font-family: inherit;
+    }
+    .empty-state-cta:hover { background: var(--navy-dark); }
+
+    /* ===== INLINE AD CARD ===== */
+    .inline-ad-card {
+      border: 1.5px dashed var(--gold);
+      border-radius: var(--radius);
+      background: var(--gold-light);
+      padding: 14px 14px 14px 16px;
+      position: relative; margin: 2px 0;
+    }
+    .inline-ad-label {
+      position: absolute; top: -9px; left: 14px;
+      background: var(--gold); color: var(--navy-dark);
+      font-size: 9px; font-weight: 800; letter-spacing: .8px;
+      padding: 2px 8px; border-radius: 3px; text-transform: uppercase;
+    }
+    .inline-ad-body { display: flex; align-items: center; gap: 12px; }
+    .inline-ad-logo {
+      width: 42px; height: 42px; border-radius: 8px; flex-shrink: 0;
+      background: var(--navy); color: var(--gold);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 900;
+    }
+    .inline-ad-content { flex: 1; min-width: 0; }
+    .inline-ad-sponsor { font-size: 10px; font-weight: 600; color: var(--gold-dark); text-transform: uppercase; letter-spacing: .4px; margin-bottom: 2px; }
+    .inline-ad-title { font-size: 12.5px; font-weight: 700; color: var(--navy-dark); margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .inline-ad-sub { font-size: 11.5px; color: var(--gray-600); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .inline-ad-cta {
+      flex-shrink: 0; background: var(--navy); color: var(--white);
+      padding: 7px 13px; border-radius: 7px; font-size: 12px; font-weight: 700;
+      text-decoration: none; transition: background .2s; white-space: nowrap;
+    }
+    .inline-ad-cta:hover { background: var(--navy-dark); }
+    .price-pills-label {
+      width: 100%; font-size: 10px; font-weight: 700; color: var(--gray-400);
+      letter-spacing: .5px; text-transform: uppercase; margin-bottom: 4px;
+    }
+
+    /* ===== CLUSTER ICONS ===== */
+    .cluster-pin {
+      width: 38px; height: 38px; border-radius: 50%;
+      background: var(--navy); border: 3px solid var(--gold);
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 2px 10px rgba(27,58,107,.4);
+    }
+    .cluster-pin span { font-size: 12px; font-weight: 800; color: var(--white); }
+
+    /* ===== PRICE RANGE PILLS ===== */
+    .price-range-pills { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 14px; }
+    .price-range-pill {
+      padding: 6px 13px; border-radius: 50px; font-size: 12.5px; font-weight: 600;
+      border: 1.5px solid var(--gray-200); color: var(--gray-700); background: var(--white);
+      cursor: pointer; transition: all .18s; white-space: nowrap;
+    }
+    .price-range-pill:hover { border-color: var(--navy); color: var(--navy); }
+    .price-range-pill.active { background: var(--navy); color: var(--white); border-color: var(--navy); }
+
+    /* ===== ZONE CHIPS ===== */
+    .zone-chips { display: flex; flex-wrap: wrap; gap: 7px; }
+    .zone-chip {
+      padding: 6px 13px; border-radius: 50px; font-size: 12.5px; font-weight: 600;
+      border: 1.5px solid var(--gray-200); color: var(--gray-700); background: var(--white);
+      cursor: pointer; transition: all .18s; white-space: nowrap;
+    }
+    .zone-chip:hover { border-color: var(--navy); color: var(--navy); }
+    .zone-chip.active { background: var(--navy); color: var(--white); border-color: var(--navy); }
+
+    /* ===== "RECHERCHER DANS CETTE ZONE" ===== */
+    .zone-search-btn {
+      position: absolute; top: 52px; left: 50%; transform: translateX(-50%);
+      z-index: 510;
+      background: var(--white); color: var(--navy);
+      font-size: 12.5px; font-weight: 700;
+      padding: 8px 18px; border-radius: 50px;
+      border: 2px solid var(--navy);
+      box-shadow: 0 3px 14px rgba(27,58,107,.22);
+      cursor: pointer; white-space: nowrap;
+      display: none; align-items: center; gap: 7px;
+      transition: background .2s, color .2s;
+    }
+    .zone-search-btn.visible { display: flex; animation: fadeSlideDown .25s ease; }
+    .zone-search-btn:hover { background: var(--navy); color: var(--white); }
+    .zone-search-btn.active-zone { background: var(--navy); color: var(--white); border-color: var(--navy); display: flex; }
+    .zone-search-btn.active-zone:hover { background: var(--navy-dark); }
+    @keyframes fadeSlideDown {
+      from { opacity: 0; transform: translateX(-50%) translateY(-8px); }
+      to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+    }
+
+    /* ===== POPUP WHATSAPP BTN ===== */
+    .popup-actions { display: flex; gap: 6px; }
+    .popup-btn { flex: 1; }
+    .popup-btn-wa {
+      flex-shrink: 0; width: 38px; height: 38px;
+      background: #25D366; color: #fff !important;
+      border-radius: var(--radius-sm);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; transition: background .2s;
+      text-decoration: none !important;
+    }
+    .popup-btn-wa:hover { background: #1ebe5a; }
+
+    /* ===== AGENCE FILTER DROPDOWN ===== */
+    .agence-search-input {
+      width: 100%; border: 1.5px solid var(--gray-200);
+      border-radius: var(--radius-sm); padding: 7px 11px;
+      font-size: 13px; outline: none; font-family: inherit; margin-bottom: 10px;
+    }
+    .agence-search-input:focus { border-color: var(--navy); }
+    .agence-list { display: flex; flex-direction: column; gap: 3px; max-height: 180px; overflow-y: auto; }
+    .agence-item {
+      display: flex; align-items: center; gap: 8px;
+      padding: 6px 8px; border-radius: 6px; cursor: pointer; transition: background .15s;
+    }
+    .agence-item:hover { background: var(--gray-50); }
+    .agence-item input { accent-color: var(--navy); flex-shrink: 0; }
+    .agence-item-name { font-size: 12.5px; font-weight: 500; flex: 1; }
+    .agence-item-count { font-size: 11px; color: var(--gray-400); }
+
+    /* terrain card — spec badge */
+    .card-terrain-specs {
+      display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 3px;
+    }
+    .terrain-chip {
+      display: inline-flex; align-items: center; gap: 4px;
+      font-size: 10.5px; font-weight: 600;
+      padding: 2px 8px; border-radius: 4px;
+    }
+    .terrain-chip.tf         { background: #EDFAF6; color: #1A7A63; border: 1px solid #B2E8DA; }
+    .terrain-chip.no-tf      { background: var(--gray-100); color: var(--gray-600); border: 1px solid var(--gray-200); }
+    .terrain-chip.construct  { background: var(--navy-light); color: var(--navy); border: 1px solid #C5D5EE; }
+    .terrain-chip.agricole   { background: var(--gold-light); color: var(--gold-dark); border: 1px solid #f0c96a; }
+
+    /* ── Mobile search bar (hidden on desktop) ── */
+    .mob-search-bar {
+      display: none;
+      position: fixed; top: var(--nav-h); left: 0; right: 0;
+      height: var(--filter-h); align-items: center;
+      background: #fff; border-bottom: 1px solid var(--gray-200);
+      padding: 0 12px; gap: 8px; z-index: 600;
+      box-shadow: 0 2px 10px rgba(0,0,0,.07);
+    }
+    .mob-search-loc {
+      flex: 1; display: flex; align-items: center; gap: 8px;
+      background: #fff; border: 1.5px solid var(--gray-300);
+      border-radius: 50px; padding: 8px 16px;
+      font-size: 13.5px; font-weight: 500; cursor: pointer;
+      color: var(--gray-800); overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+    }
+    .mob-search-loc i { color: var(--gray-500); flex-shrink: 0; font-size: 13px; }
+    .mob-filter-btn {
+      flex-shrink: 0; display: flex; align-items: center; gap: 6px;
+      background: #fff; border: 1.5px solid var(--gray-300);
+      border-radius: 50px; padding: 8px 16px;
+      font-size: 13.5px; font-weight: 600; cursor: pointer; font-family: inherit;
+    }
+    .mob-filter-btn i { font-size: 13px; color: var(--gray-600); }
+
+    /* ── Mobile bottom bar (hidden on desktop) ── */
+    .mob-view-bar { display: none; }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 900px) {
+      /* ── Layout principal ───────────────────── */
+      .main {
+        flex-direction: column;
+        height: calc(100vh - var(--nav-h) - var(--filter-h));
+        padding-bottom: 62px;
+        overflow: hidden;
+      }
+
+      /* Liste : plein écran par défaut */
+      .list-panel {
+        width: 100%; min-width: 0;
+        height: 100%; max-height: none;
+        border-left: none;
+        overflow-y: auto; -webkit-overflow-scrolling: touch;
+      }
+
+      /* Carte : masquée par défaut */
+      .map-panel { display: none; }
+
+      /* Mode carte */
+      .main.mob-carte .list-panel { display: none; }
+      .main.mob-carte .map-panel {
+        display: block; width: 100%;
+        height: calc(100vh - var(--nav-h) - var(--filter-h) - 62px);
+      }
+      .main.mob-carte #map { height: 100%; }
+
+      /* Remplacer filter-bar desktop par mob-search-bar */
+      .filter-bar { display: none !important; }
+      .mob-search-bar { display: flex; }
+
+      /* List header simplifié */
+      .list-header { padding: 10px 14px; gap: 8px; }
+      .view-toggle { display: none; }
+      .nav-tabs  { display: none; }
+      .result-count { font-size: 13px; }
+
+      /* ── Cartes verticales (SeLoger style) ─── */
+      .card {
+        flex-direction: column;
+        height: auto; min-height: unset;
+        border-radius: 0; border-left: none;
+        border-bottom: 1px solid var(--gray-200);
+        box-shadow: none;
+        margin: 0;
+      }
+      .card.kind-neuf { border-left: none; border-top: 3px solid var(--gold); }
+      .card:hover { transform: none; box-shadow: none; }
+
+      .card-img {
+        width: 100%; height: 210px;
+        border-radius: 0;
+        flex-shrink: 0;
+      }
+
+      /* Strip thumbnails sous la photo principale */
+      .card-thumbs-strip {
+        display: flex; gap: 3px;
+        padding: 3px 0 0; background: var(--gray-800);
+      }
+      .card-thumb-mini {
+        flex: 1; height: 52px; overflow: hidden; cursor: pointer;
+        opacity: .88; transition: opacity .15s;
+      }
+      .card-thumb-mini:hover { opacity: 1; }
+      .card-thumb-mini img { width: 100%; height: 100%; object-fit: cover; }
+      .card-thumb-more {
+        flex: 1; height: 52px;
+        background: rgba(0,0,0,.55);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 13px; font-weight: 700; color: #fff; cursor: pointer;
+      }
+
+      .card-body { padding: 12px 14px 6px; }
+      .card-kind-row { margin-bottom: 5px; }
+      .card-price { font-size: 20px; font-weight: 800; }
+      .card-price-m2 { font-size: 12px; }
+      .card-specs {
+        font-size: 13px; color: var(--gray-700);
+        display: flex; align-items: center; gap: 0;
+        margin-bottom: 5px;
+      }
+      .card-specs-sep { margin: 0 5px; color: var(--gray-400); }
+      .card-location { font-size: 12.5px; }
+      .card-footer { padding: 8px 14px 12px; }
+
+      /* Overrides pour list-view desktop (annulés sur mobile) */
+      .main.list-view .card            { flex-direction: column !important; }
+      .main.list-view .card-img        { width: 100% !important; height: 210px !important; }
+      .main.list-view .card-body       { max-width: 100% !important; }
+
+      /* ── Barre du bas (SeLoger style) ───────── */
+      .mob-view-bar {
+        display: flex !important;
+        position: fixed; bottom: 0; left: 0; right: 0;
+        background: #fff;
+        border-top: 1px solid var(--gray-200);
+        z-index: 800; padding: 10px 16px 14px;
+        justify-content: center;
+        box-shadow: 0 -2px 16px rgba(0,0,0,.08);
+      }
+      #mob-btn-carte {
+        flex-shrink: 0;
+        display: flex; align-items: center; gap: 7px;
+        padding: 11px 20px; border-radius: 50px;
+        font-size: 14px; font-weight: 600;
+        border: 1.5px solid var(--gray-300);
+        background: #fff; color: var(--gray-800);
+        cursor: pointer; font-family: inherit;
+        transition: all .2s; white-space: nowrap;
+      }
+      #mob-btn-carte i { font-size: 13px; }
+      #mob-btn-carte.is-carte {
+        border-color: var(--navy); color: var(--navy);
+        background: var(--navy-light);
+      }
+    }
+
+    @media (max-width: 560px) {
+      .card-img { height: 190px; }
+      .card-thumb-mini, .card-thumb-more { height: 46px; }
+      #mob-btn-carte { padding: 11px 14px; font-size: 13px; }
+      #mob-btn-save  { font-size: 13px; }
+    }
+
+    /* ===== FOOTER ===== */
+    footer { background: var(--navy-dark); padding: 20px 0 10px; color: rgba(255,255,255,.7); }
+    .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 20px; margin-bottom: 14px; }
+    .footer-logo { font-size: 20px; font-weight: 800; color: #fff; margin-bottom: 6px; }
+    .footer-logo span { color: var(--gold); }
+    .footer-desc { font-size: 12px; line-height: 1.6; margin-bottom: 10px; }
+    .footer-socials { display: flex; gap: 6px; }
+    .social-btn { width: 30px; height: 30px; background: rgba(255,255,255,.08); border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 12px; color: rgba(255,255,255,.7); transition: all .2s; }
+    .social-btn:hover { background: var(--gold); color: var(--navy); }
+    .footer-col-title { font-size: 12px; font-weight: 700; color: #fff; margin-bottom: 8px; letter-spacing: .3px; }
+    .footer-link { display: block; font-size: 12px; color: rgba(255,255,255,.55); padding: 2px 0; transition: color .2s; cursor: pointer; }
+    .footer-link:hover { color: var(--gold); }
+    .footer-bottom { border-top: 1px solid rgba(255,255,255,.08); padding-top: 12px; display: flex; align-items: center; justify-content: space-between; font-size: 11px; color: rgba(255,255,255,.35); }
+    .footer-bottom a { color: var(--gold); }
+  </style>
+<link rel="stylesheet" href="responsive.css" />
+</head>
+<body>
+
+<!-- ── NAVBAR ── -->
+<nav class="navbar" id="navbar">
+  <a class="nav-logo" href="index.html">
+    <img src="immo24-light-navbar.svg" height="54" alt="Immo24.tn" style="display:block" />
+  </a>
+  <div class="nav-ctas">
+    <a href="map-listings.html?type=neuf" class="nav-cta-btn"><i class="fas fa-building"></i> Projets neufs</a>
+    <a href="map-listings.html?type=annonces" class="nav-cta-btn"><i class="fas fa-user-tie"></i> Agences</a>
+    <a href="decoration.html" class="nav-cta-btn"><i class="fas fa-couch"></i> Décorer &amp; meubler</a>
+    <a href="#" class="nav-cta-btn"><i class="fas fa-hand-holding-usd"></i> Financer</a>
+  </div>
+  <div class="nav-right">
+    <a href="login.html" class="nav-btn-outline"><i class="fas fa-user-tie" style="font-size:11px;margin-right:5px"></i>Mon espace pro</a>
+  </div>
+  <button class="nav-hamburger" aria-label="Menu"><i class="fas fa-bars"></i></button>
+</nav>
+<div class="nav-mobile" id="nav-mobile">
+  <a href="map-listings.html?type=neuf" class="nav-mob-link"><i class="fas fa-building"></i> Projets neufs</a>
+  <a href="map-listings.html?type=annonces" class="nav-mob-link"><i class="fas fa-user-tie"></i> Agences</a>
+  <a href="decoration.html" class="nav-mob-link"><i class="fas fa-couch"></i> Décorer &amp; meubler</a>
+  <a href="#" class="nav-mob-link"><i class="fas fa-hand-holding-usd"></i> Financer</a>
+  <div class="nav-mob-divider"></div>
+  <div class="nav-mob-actions">
+    <a href="login.html" class="nav-mob-btn-outline">Mon espace pro</a>
+    <a href="inscription.html" class="nav-mob-btn-gold">Publier une annonce</a>
+  </div>
+</div>
+
+<!-- ===== AD STRIP ===== -->
+
+<!-- ===== FILTER BAR ===== -->
+<div class="filter-bar">
+  <!-- kind pills -->
+  <div class="filter-kind-pills" id="filter-kind-pills">
+    <button class="filter-kind-pill active" data-kind="" onclick="applyFilter('')">Tous</button>
+    <button class="filter-kind-pill" data-kind="vente" onclick="applyFilter('vente')">Vente</button>
+    <button class="filter-kind-pill" data-kind="location" onclick="applyFilter('location')">Location</button>
+    <button class="filter-kind-pill" data-kind="neuf" onclick="applyFilter('neuf')">Neuf</button>
+  </div>
+
+  <div class="filter-divider"></div>
+
+  <button class="filter-select" onclick="openDropdown('zone-panel', this)">
+    <i class="fas fa-map-marker-alt"></i>
+    Zone
+    <i class="fas fa-chevron-down"></i>
+  </button>
+
+  <button class="filter-select" onclick="openDropdown('type-panel', this)">
+    <i class="fas fa-home"></i>
+    Type de bien
+    <i class="fas fa-chevron-down"></i>
+  </button>
+
+  <button class="filter-select" onclick="openDropdown('prix-panel', this)">
+    <i class="fas fa-tag"></i>
+    Budget
+    <i class="fas fa-chevron-down"></i>
+  </button>
+
+  <button class="filter-select" onclick="openDropdown('surface-panel', this)">
+    <i class="fas fa-vector-square"></i>
+    Surface
+    <i class="fas fa-chevron-down"></i>
+  </button>
+
+  <button class="filter-select" onclick="openDropdown('pieces-panel', this)">
+    <i class="fas fa-door-open"></i>
+    Pièces
+    <i class="fas fa-chevron-down"></i>
+  </button>
+
+  <button class="filter-select" onclick="openDropdown('agence-panel', this)">
+    <i class="fas fa-building"></i>
+    Agence
+    <i class="fas fa-chevron-down"></i>
+  </button>
+
+  <div class="filter-divider"></div>
+
+  <button class="filter-btn-more" onclick="openDropdown('more-panel', this)">
+    <i class="fas fa-sliders-h"></i>
+    Plus de filtres
+  </button>
+</div>
+
+<!-- DROPDOWNS -->
+<div class="dropdown-overlay" id="overlay" onclick="closeAllDropdowns()"></div>
+
+<div class="dropdown-panel" id="type-panel" style="left:152px;">
+  <div class="dropdown-title">Type de bien</div>
+  <div class="checkbox-grid">
+    <label class="checkbox-item"><input type="checkbox" checked /> Appartement</label>
+    <label class="checkbox-item"><input type="checkbox" checked /> Villa</label>
+    <label class="checkbox-item"><input type="checkbox" /> Duplex</label>
+    <label class="checkbox-item"><input type="checkbox" /> Penthouse</label>
+    <label class="checkbox-item"><input type="checkbox" /> Bureau</label>
+    <label class="checkbox-item"><input type="checkbox" /> Local commercial</label>
+    <label class="checkbox-item"><input type="checkbox" /> Terrain</label>
+    <label class="checkbox-item"><input type="checkbox" /> Résidence côtière</label>
+  </div>
+  <button class="apply-btn" onclick="closeAllDropdowns()">Appliquer</button>
+</div>
+
+<div class="dropdown-panel" id="zone-panel" style="left:152px;width:300px;">
+  <div class="dropdown-title">Zone géographique</div>
+  <div class="zone-chips" style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+    <button class="zone-chip active" data-zone="" onclick="selectZone(this)" style="grid-column:1/-1">Toutes les zones</button>
+    <button class="zone-chip" data-zone="La Marsa" onclick="selectZone(this)">La Marsa</button>
+    <button class="zone-chip" data-zone="Sidi Bou Saïd" onclick="selectZone(this)">Sidi Bou Saïd</button>
+    <button class="zone-chip" data-zone="Lac 1" onclick="selectZone(this)">Lac 1</button>
+    <button class="zone-chip" data-zone="Lac 2" onclick="selectZone(this)">Lac 2</button>
+    <button class="zone-chip" data-zone="Carthage" onclick="selectZone(this)">Carthage</button>
+    <button class="zone-chip" data-zone="Ennasr" onclick="selectZone(this)">Ennasr</button>
+    <button class="zone-chip" data-zone="El Menzah" onclick="selectZone(this)">El Menzah</button>
+    <button class="zone-chip" data-zone="La Soukra" onclick="selectZone(this)">La Soukra</button>
+    <button class="zone-chip" data-zone="Centre Ville" onclick="selectZone(this)">Centre Ville</button>
+    <button class="zone-chip" data-zone="Hammamet" onclick="selectZone(this)">Hammamet</button>
+    <button class="zone-chip" data-zone="Sousse" onclick="selectZone(this)">Sousse</button>
+    <button class="zone-chip" data-zone="Gammarth" onclick="selectZone(this)">Gammarth</button>
+  </div>
+  <button class="apply-btn" style="margin-top:12px" onclick="closeAllDropdowns()">Appliquer</button>
+</div>
+
+<div class="dropdown-panel" id="prix-panel" style="left:270px; min-width:280px;">
+  <div class="dropdown-title">Budget (TND)</div>
+  <div class="price-range-pills" id="price-range-pills">
+    <!-- filled dynamically by updatePricePills() -->
+  </div>
+  <div style="font-size:11.5px;font-weight:600;color:var(--gray-600);margin-bottom:8px">Ou saisir manuellement</div>
+  <div class="price-range">
+    <input class="price-input" type="number" placeholder="Min" id="prix-min" oninput="clearPriceRangePills()" />
+    <span class="price-sep">—</span>
+    <input class="price-input" type="number" placeholder="Max" id="prix-max" oninput="clearPriceRangePills()" />
+  </div>
+  <button class="apply-btn" onclick="closeAllDropdowns()">Appliquer</button>
+</div>
+
+<div class="dropdown-panel" id="surface-panel" style="left:358px;">
+  <div class="dropdown-title">Surface (m²)</div>
+  <div class="price-range">
+    <input class="price-input" type="number" placeholder="Min" />
+    <span class="price-sep">—</span>
+    <input class="price-input" type="number" placeholder="Max" />
+  </div>
+  <button class="apply-btn" onclick="closeAllDropdowns()">Appliquer</button>
+</div>
+
+<div class="dropdown-panel" id="pieces-panel" style="left:450px;">
+  <div class="dropdown-title">Nombre de pièces</div>
+  <div class="checkbox-grid">
+    <label class="checkbox-item"><input type="checkbox" /> Studio</label>
+    <label class="checkbox-item"><input type="checkbox" /> S+1</label>
+    <label class="checkbox-item"><input type="checkbox" checked /> S+2</label>
+    <label class="checkbox-item"><input type="checkbox" checked /> S+3</label>
+    <label class="checkbox-item"><input type="checkbox" /> S+4</label>
+    <label class="checkbox-item"><input type="checkbox" /> S+5 et +</label>
+  </div>
+  <button class="apply-btn" onclick="closeAllDropdowns()">Appliquer</button>
+</div>
+
+<div class="dropdown-panel" id="agence-panel" style="left:550px; min-width:260px;">
+  <div class="dropdown-title">Agence / Promoteur</div>
+  <input class="agence-search-input" type="text" placeholder="Rechercher une agence…" oninput="filterAgenceList(this.value)" />
+  <div class="agence-list" id="agence-list">
+    <!-- injecté par JS -->
+  </div>
+  <button class="apply-btn" style="margin-top:12px" onclick="closeAllDropdowns()">Appliquer</button>
+</div>
+
+<div class="dropdown-panel" id="more-panel" style="right:16px;left:auto;">
+  <div class="dropdown-title">Plus de filtres</div>
+  <div style="font-size:11px;font-weight:700;color:var(--gray-400);text-transform:uppercase;letter-spacing:.4px;margin-bottom:8px">Standing</div>
+  <div class="checkbox-grid">
+    <label class="checkbox-item"><input type="checkbox" /> Économique</label>
+    <label class="checkbox-item"><input type="checkbox" /> Moyen standing</label>
+    <label class="checkbox-item"><input type="checkbox" /> Haut standing</label>
+    <label class="checkbox-item"><input type="checkbox" /> Luxe</label>
+  </div>
+  <div style="font-size:11px;font-weight:700;color:var(--gray-400);text-transform:uppercase;letter-spacing:.4px;margin:14px 0 8px">Vue</div>
+  <div class="checkbox-grid">
+    <label class="checkbox-item"><input type="checkbox" /> Vue mer</label>
+    <label class="checkbox-item"><input type="checkbox" /> Vue lac</label>
+    <label class="checkbox-item"><input type="checkbox" /> Vue jardin</label>
+    <label class="checkbox-item"><input type="checkbox" /> Vue ville</label>
+  </div>
+  <button class="apply-btn" onclick="closeAllDropdowns()">Appliquer</button>
+</div>
+
+<!-- ===== MOBILE SEARCH BAR ===== -->
+<div class="mob-search-bar" id="mob-search-bar">
+  <div class="mob-search-loc" onclick="document.querySelector('.filter-bar')?.scrollIntoView()">
+    <i class="fas fa-map-marker-alt"></i>
+    <span id="mob-loc-label">Tunis et environs</span>
+  </div>
+  <button class="mob-filter-btn" onclick="document.getElementById('price-panel')?.classList.toggle('open')">
+    <i class="fas fa-sliders-h"></i> Filtres
+  </button>
+</div>
+
+<!-- ===== MOBILE BOTTOM BAR ===== -->
+<div class="mob-view-bar" id="mob-view-bar">
+  <button id="mob-btn-carte" onclick="setMobView()">
+    <i class="fas fa-map"></i> Carte
+  </button>
+</div>
+
+<!-- ===== MAIN ===== -->
+<div class="main" id="main-layout">
+
+  <!-- LIST PANEL -->
+  <div class="list-panel">
+    <div class="list-header">
+      <div class="view-toggle">
+        <button class="view-btn active" id="btn-map-view" title="Vue carte + liste" onclick="setView('map')"><i class="fas fa-map"></i></button>
+        <button class="view-btn" id="btn-list-view" title="Vue liste" onclick="setView('list')"><i class="fas fa-list"></i></button>
+      </div>
+      <div class="result-count"><strong id="result-count-num">247</strong> annonces</div>
+      <div class="list-header-right">
+        <div class="sort-select-wrap">
+          <select class="sort-select" onchange="setSort(this.value)">
+            <option value="pertinence">Pertinence</option>
+            <option value="price-asc">Prix ↑</option>
+            <option value="price-desc">Prix ↓</option>
+            <option value="recent">Récents</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+
+    <div class="list-scroll" id="list-scroll">
+      <!-- cards injected by JS -->
+    </div>
+  </div>
+
+  <!-- MAP PANEL -->
+  <div class="map-panel">
+    <div id="map"></div>
+
+    <div class="map-controls">
+      <button class="map-ctrl-btn" onclick="map.zoomIn()" title="Zoom avant"><i class="fas fa-plus"></i></button>
+      <button class="map-ctrl-btn" onclick="map.zoomOut()" title="Zoom arrière"><i class="fas fa-minus"></i></button>
+    </div>
+
+    <div class="map-layer-toggle">
+      <button class="layer-btn active" onclick="setLayer('plan',this)">Plan</button>
+      <button class="layer-btn" onclick="setLayer('satellite',this)">Satellite</button>
+    </div>
+
+    <button class="zone-search-btn" id="zone-search-btn" onclick="toggleZoneSearch()">
+      <i class="fas fa-search" id="zone-search-icon"></i>
+      <span id="zone-search-label">Rechercher dans cette zone</span>
+    </button>
+
+    <div class="map-count-bubble" onclick="map.fitBounds(Object.values(markers).map(m=>m.getLatLng()),{padding:[40,40],animate:true})" style="cursor:pointer" title="Voir tous les biens">
+      <i class="fas fa-map-marker-alt"></i>
+      <span id="map-count-num">247</span> biens sur la carte
+    </div>
+
+    <div class="map-legend">
+      <div class="map-legend-title">Légende</div>
+      <div class="map-legend-item"><div class="map-legend-dot vente"></div> Vente</div>
+      <div class="map-legend-item"><div class="map-legend-dot location"></div> Location</div>
+      <div class="map-legend-item"><div class="map-legend-dot neuf"></div> Projet neuf</div>
+      <div class="map-legend-item"><div style="width:12px;height:12px;border-radius:50%;flex-shrink:0;background:rgba(230,168,23,.18);border:1.5px dashed var(--navy)"></div> Zone approximative</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== LEAFLET JS ===== -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+<script>
+
+/* ========================
+   DATA
+======================== */
+const properties = [
+  {
+    id: 1, kind: "neuf", transaction: "vente",
+    title: "The Pantheon Residence – Rte de la Marsa",
+    type: "Appartement & Duplex", price: 198000, surface: 65, rooms: 2, bathrooms: 1,
+    location: "Route de la Marsa, Tunis", promoteur: "Bullaregia Immobilière",
+    badge: ["new", "livraison"], img: "https://bullaregia-immobiliere.com/wp-content/uploads/2024/03/exterieur-7.jpg",
+    photos: 9, lat: 36.8968, lng: 10.3033, delivery: "Livraison imminente",
+    logo: "https://bullaregia-immobiliere.com/wp-content/uploads/2023/04/logo-pantheon-light.png",
+    date: "2j", zone: "La Marsa",
+  },
+  {
+    id: 2, kind: "agence", transaction: "vente",
+    title: "Villa de luxe avec piscine",
+    type: "Villa", price: 890000, surface: 320, rooms: 7, bathrooms: 4,
+    location: "Sidi Bou Saïd, Tunis", promoteur: "Prestige Immobilier",
+    badge: ["exclusive"], img: "https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=400&q=80",
+    photos: 24, lat: 36.8712, lng: 10.3416, delivery: "Livré",
+    date: "5j", zone: "Sidi Bou Saïd",
+  },
+  {
+    id: 3, kind: "agence", transaction: "location",
+    title: "Appartement S+2 vue mer panoramique",
+    type: "Appartement", price: 1800, surface: 85, rooms: 3, bathrooms: 1,
+    location: "Carthage, Tunis", promoteur: "Prestige Immobilier",
+    badge: ["promo"], img: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400&q=80",
+    photos: 9, lat: 36.8527, lng: 10.3279, delivery: "Disponible",
+    date: "1j", zone: "Carthage",
+  },
+  {
+    id: 4, kind: "neuf", transaction: "vente",
+    title: "Les Jardins du Lac – Odéon",
+    type: "Duplex", price: 420000, surface: 190, rooms: 5, bathrooms: 3,
+    location: "Les Berges du Lac II, Tunis", promoteur: "Odéon Immobilière",
+    badge: ["new", "livraison"], img: "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=400&q=80",
+    photos: 18, lat: 36.8370, lng: 10.2364, delivery: "Livraison imminente",
+    date: "3j", zone: "Lac 2",
+  },
+  {
+    id: 5, kind: "agence", transaction: "location",
+    title: "Studio meublé centre Tunis",
+    type: "Studio", price: 750, surface: 38, rooms: 1, bathrooms: 1,
+    location: "Centre Ville, Tunis", promoteur: "Alpha Immo",
+    badge: [], img: "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=400&q=80",
+    photos: 6, lat: 36.8065, lng: 10.1815, delivery: "Disponible",
+    date: "2s", zone: "Centre Ville",
+  },
+  {
+    id: 6, kind: "neuf", transaction: "vente",
+    title: "Résidence El Madina – Ennasr 2",
+    type: "Penthouse", price: 650000, surface: 250, rooms: 5, bathrooms: 3,
+    location: "Ennasr 2, Ariana", promoteur: "SPI El Madina",
+    badge: ["exclusive"], img: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=400&q=80",
+    photos: 20, lat: 36.8700, lng: 10.1900, delivery: "T1 2026",
+    date: "1s", zone: "Ennasr",
+  },
+  {
+    id: 7, kind: "neuf", transaction: "vente",
+    title: "Galaxy Résidence – El Menzah",
+    type: "Appartement", price: 240000, surface: 102, rooms: 4, bathrooms: 2,
+    location: "El Menzah, Ariana", promoteur: "Galaxy Groupe",
+    badge: ["new"], img: "https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=400&q=80",
+    photos: 11, lat: 36.8450, lng: 10.1650, delivery: "T3 2025",
+    date: "4j", zone: "El Menzah",
+  },
+  {
+    id: 8, kind: "agence", transaction: "vente",
+    title: "Villa mitoyenne S+3 avec jardin",
+    type: "Villa", price: 375000, surface: 160, rooms: 5, bathrooms: 2,
+    location: "La Soukra, Ariana", promoteur: "Prestige Immobilier",
+    badge: ["promo"], img: "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=400&q=80",
+    photos: 15, lat: 36.8920, lng: 10.1700, delivery: "Livré",
+    date: "3s", zone: "La Soukra",
+  },
+  {
+    id: 9, kind: "agence", transaction: "vente",
+    title: "Terrain constructible TF – Zone résidentielle",
+    type: "Terrain", price: 185000, surface: 450, rooms: 0, bathrooms: 0,
+    location: "Ain Zaghouan, Tunis", promoteur: "Foncier Pro",
+    badge: [], img: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=400&q=80",
+    photos: 6, lat: 36.8600, lng: 10.2100, delivery: "Disponible",
+    tf: true, constructible: true, nature: "Résidentiel",
+    date: "6j", zone: "Lac 1",
+  },
+  {
+    id: 10, kind: "agence", transaction: "vente",
+    title: "Terrain agricole avec titre foncier",
+    type: "Terrain", price: 98000, surface: 2000, rooms: 0, bathrooms: 0,
+    location: "Mornag, Ben Arous", promoteur: "Terra Immo",
+    badge: [], img: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=400&q=80",
+    photos: 4, lat: 36.7200, lng: 10.2800, delivery: "Disponible",
+    tf: true, constructible: false, nature: "Agricole",
+    date: "1m", zone: "Hammamet",
+  },
+  {
+    id: 11, kind: "agence", transaction: "vente",
+    title: "Bureau open space – Les Berges du Lac II",
+    type: "Bureau", price: 320000, surface: 145, rooms: 3, bathrooms: 2,
+    location: "Les Berges du Lac II, Tunis", promoteur: "LakePark Immo",
+    badge: ["new"], img: "https://images.unsplash.com/photo-1497366216548-37526070297c?w=400&q=80",
+    photos: 9, lat: 36.8380, lng: 10.2350, delivery: "Livré",
+    date: "1j", zone: "Lac 2",
+  },
+  {
+    id: 12, kind: "agence", transaction: "location",
+    title: "Bureau aménagé – Centre d'affaires Ennasr",
+    type: "Bureau", price: 1800, surface: 80, rooms: 2, bathrooms: 1,
+    location: "Ennasr 2, Ariana", promoteur: "BizCenter TN",
+    badge: [], img: "https://images.unsplash.com/photo-1604328698692-f76ea9498e76?w=400&q=80",
+    photos: 7, lat: 36.8850, lng: 10.1920, delivery: "Disponible",
+    date: "5j", zone: "Ennasr",
+  },
+  /* ── La Marsa ─────────────────────────────────── */
+  {
+    id: 13, kind: "agence", transaction: "vente",
+    title: "Villa S+4 jardin et piscine – Résidence Corniche",
+    type: "Villa", price: 1150000, surface: 380, rooms: 5, bathrooms: 4,
+    location: "La Marsa, Tunis", promoteur: "Prestige Immobilier",
+    badge: ["exclusive"], img: "https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=400&q=80",
+    photos: 28, lat: 36.8780, lng: 10.3220, delivery: "Livré",
+    date: "2j", zone: "La Marsa",
+  },
+  {
+    id: 14, kind: "agence", transaction: "vente",
+    title: "Appartement S+3 vue mer – Résidence Les Pins",
+    type: "Appartement", price: 395000, surface: 128, rooms: 4, bathrooms: 2,
+    location: "La Marsa, Tunis", promoteur: "Étoile Immobilier",
+    badge: ["new"], img: "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=400&q=80",
+    photos: 14, lat: 36.8760, lng: 10.3250, delivery: "Livré",
+    date: "1j", zone: "La Marsa",
+  },
+  {
+    id: 15, kind: "agence", transaction: "location",
+    title: "Duplex S+3 meublé – Résidence La Méditerranée",
+    type: "Duplex", price: 3500, surface: 165, rooms: 4, bathrooms: 3,
+    location: "La Marsa, Tunis", promoteur: "Prestige Immobilier",
+    badge: [], img: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400&q=80",
+    photos: 18, lat: 36.8800, lng: 10.3200, delivery: "Disponible",
+    date: "3j", zone: "La Marsa",
+  },
+  {
+    id: 16, kind: "agence", transaction: "vente",
+    title: "Terrain constructible TF – Zone résidentielle",
+    type: "Terrain", price: 275000, surface: 620, rooms: 0, bathrooms: 0,
+    location: "La Marsa, Tunis", promoteur: "Foncier Pro",
+    badge: [], img: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=400&q=80",
+    photos: 5, lat: 36.8740, lng: 10.3280, delivery: "Disponible",
+    tf: true, constructible: true, nature: "Résidentiel",
+    date: "4j", zone: "La Marsa",
+  },
+  /* ── Sidi Bou Saïd ────────────────────────────── */
+  {
+    id: 17, kind: "agence", transaction: "vente",
+    title: "Penthouse S+4 panorama mer & village",
+    type: "Penthouse", price: 980000, surface: 290, rooms: 5, bathrooms: 3,
+    location: "Sidi Bou Saïd, Tunis", promoteur: "Immob. du Golfe",
+    badge: ["exclusive"], img: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=400&q=80",
+    photos: 22, lat: 36.8690, lng: 10.3400, delivery: "Livré",
+    date: "5j", zone: "Sidi Bou Saïd",
+  },
+  {
+    id: 18, kind: "agence", transaction: "vente",
+    title: "Maison de caractère à rénover – Médina",
+    type: "Villa", price: 420000, surface: 200, rooms: 6, bathrooms: 2,
+    location: "Sidi Bou Saïd, Tunis", promoteur: "Carthage Immobilier",
+    badge: ["promo"], img: "https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=400&q=80",
+    photos: 11, lat: 36.8720, lng: 10.3380, delivery: "Livré",
+    date: "1s", zone: "Sidi Bou Saïd",
+  },
+  {
+    id: 19, kind: "agence", transaction: "location",
+    title: "Appartement S+2 vue mer meublé haut de gamme",
+    type: "Appartement", price: 2800, surface: 92, rooms: 3, bathrooms: 2,
+    location: "Sidi Bou Saïd, Tunis", promoteur: "Prestige Immobilier",
+    badge: [], img: "https://images.unsplash.com/photo-1493246507139-91e8fad9978e?w=400&q=80",
+    photos: 16, lat: 36.8700, lng: 10.3420, delivery: "Disponible",
+    date: "2j", zone: "Sidi Bou Saïd",
+  },
+  /* ── Lac 2 / Berges ───────────────────────────── */
+  {
+    id: 20, kind: "neuf", transaction: "vente",
+    title: "Résidence Lac Garden – Appartements S+2 à S+4",
+    type: "Appartement", price: 310000, surface: 110, rooms: 3, bathrooms: 2,
+    location: "Les Berges du Lac II, Tunis", promoteur: "Odéon Immobilière",
+    badge: ["new", "livraison"], img: "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=400&q=80",
+    photos: 20, lat: 36.8360, lng: 10.2380, delivery: "Livraison imminente",
+    date: "3j", zone: "Lac 2",
+  },
+  {
+    id: 21, kind: "agence", transaction: "vente",
+    title: "Duplex S+3 standing – Résidence Le Parc",
+    type: "Duplex", price: 540000, surface: 220, rooms: 4, bathrooms: 3,
+    location: "Les Berges du Lac II, Tunis", promoteur: "LakePark Immo",
+    badge: ["exclusive"], img: "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=400&q=80",
+    photos: 16, lat: 36.8390, lng: 10.2340, delivery: "Livré",
+    date: "4j", zone: "Lac 2",
+  },
+  {
+    id: 22, kind: "agence", transaction: "location",
+    title: "Bureau plateau – Tour des Berges",
+    type: "Bureau", price: 4200, surface: 190, rooms: 4, bathrooms: 2,
+    location: "Les Berges du Lac II, Tunis", promoteur: "BizCenter TN",
+    badge: ["new"], img: "https://images.unsplash.com/photo-1497366216548-37526070297c?w=400&q=80",
+    photos: 8, lat: 36.8370, lng: 10.2360, delivery: "Disponible",
+    date: "2j", zone: "Lac 2",
+  },
+  /* ── Carthage ─────────────────────────────────── */
+  {
+    id: 23, kind: "agence", transaction: "vente",
+    title: "Villa S+5 piscine vue mer – Carthage Salammbô",
+    type: "Villa", price: 1850000, surface: 450, rooms: 6, bathrooms: 4,
+    location: "Carthage, Tunis", promoteur: "Carthage Immobilier",
+    badge: ["exclusive"], img: "https://images.unsplash.com/photo-1583608205776-bfd35f0d9f83?w=400&q=80",
+    photos: 32, lat: 36.8500, lng: 10.3270, delivery: "Livré",
+    date: "6j", zone: "Carthage",
+  },
+  {
+    id: 24, kind: "agence", transaction: "vente",
+    title: "Appartement S+3 – Cité des Ambassadeurs",
+    type: "Appartement", price: 450000, surface: 155, rooms: 4, bathrooms: 2,
+    location: "Carthage, Tunis", promoteur: "Prestige Immobilier",
+    badge: [], img: "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=400&q=80",
+    photos: 12, lat: 36.8520, lng: 10.3290, delivery: "Livré",
+    date: "1s", zone: "Carthage",
+  },
+  {
+    id: 25, kind: "agence", transaction: "vente",
+    title: "Terrain vue mer TF – Zone villa",
+    type: "Terrain", price: 380000, surface: 800, rooms: 0, bathrooms: 0,
+    location: "Carthage, Tunis", promoteur: "Foncier Pro",
+    badge: ["promo"], img: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=400&q=80",
+    photos: 6, lat: 36.8540, lng: 10.3260, delivery: "Disponible",
+    tf: true, constructible: true, nature: "Résidentiel",
+    date: "3j", zone: "Carthage",
+  },
+  /* ── Ennasr / El Menzah ───────────────────────── */
+  {
+    id: 26, kind: "neuf", transaction: "vente",
+    title: "Les Résidences d'Ennasr – S+1 à S+3",
+    type: "Appartement", price: 185000, surface: 78, rooms: 2, bathrooms: 1,
+    location: "Ennasr 2, Ariana", promoteur: "Galaxy Groupe",
+    badge: ["new", "livraison"], img: "https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=400&q=80",
+    photos: 13, lat: 36.8720, lng: 10.1880, delivery: "Livraison imminente",
+    date: "2j", zone: "Ennasr",
+  },
+  {
+    id: 27, kind: "agence", transaction: "vente",
+    title: "Penthouse S+3 terrasse 80 m² – Ennasr",
+    type: "Penthouse", price: 420000, surface: 175, rooms: 4, bathrooms: 2,
+    location: "Ennasr, Ariana", promoteur: "SPI El Madina",
+    badge: ["exclusive"], img: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=400&q=80",
+    photos: 18, lat: 36.8680, lng: 10.1950, delivery: "Livré",
+    date: "5j", zone: "Ennasr",
+  },
+  {
+    id: 28, kind: "agence", transaction: "vente",
+    title: "Villa S+4 El Menzah 9 – Angle 2 rues",
+    type: "Villa", price: 680000, surface: 280, rooms: 5, bathrooms: 3,
+    location: "El Menzah 9, Ariana", promoteur: "Galaxy Groupe",
+    badge: [], img: "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=400&q=80",
+    photos: 21, lat: 36.8460, lng: 10.1640, delivery: "Livré",
+    date: "3j", zone: "El Menzah",
+  },
+  {
+    id: 29, kind: "agence", transaction: "location",
+    title: "Appartement S+2 meublé – El Menzah 6",
+    type: "Appartement", price: 1200, surface: 88, rooms: 3, bathrooms: 1,
+    location: "El Menzah, Ariana", promoteur: "Alpha Immo",
+    badge: [], img: "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=400&q=80",
+    photos: 9, lat: 36.8440, lng: 10.1660, delivery: "Disponible",
+    date: "1j", zone: "El Menzah",
+  },
+  /* ── Centre Ville / Gammarth ──────────────────── */
+  {
+    id: 30, kind: "agence", transaction: "vente",
+    title: "Appartement S+3 centre Tunis – Proche Bourguiba",
+    type: "Appartement", price: 220000, surface: 110, rooms: 4, bathrooms: 2,
+    location: "Centre Ville, Tunis", promoteur: "Alpha Immo",
+    badge: ["promo"], img: "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=400&q=80",
+    photos: 8, lat: 36.8070, lng: 10.1800, delivery: "Livré",
+    date: "4j", zone: "Centre Ville",
+  },
+  {
+    id: 31, kind: "agence", transaction: "vente",
+    title: "Villa Gammarth beach – Accès mer privé",
+    type: "Villa", price: 2200000, surface: 520, rooms: 7, bathrooms: 5,
+    location: "Gammarth, Tunis", promoteur: "Prestige Immobilier",
+    badge: ["exclusive"], img: "https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=400&q=80",
+    photos: 35, lat: 36.9050, lng: 10.2800, delivery: "Livré",
+    date: "1s", zone: "Gammarth",
+  },
+  {
+    id: 32, kind: "neuf", transaction: "vente",
+    title: "Gammarth Heights – Appartements de luxe",
+    type: "Appartement", price: 520000, surface: 145, rooms: 3, bathrooms: 2,
+    location: "Gammarth, Tunis", promoteur: "Bullaregia Immobilière",
+    badge: ["new", "livraison"], img: "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=400&q=80",
+    photos: 19, lat: 36.9020, lng: 10.2780, delivery: "Livraison imminente",
+    date: "2j", zone: "Gammarth",
+  },
+  {
+    id: 33, kind: "agence", transaction: "location",
+    title: "Local commercial 240 m² – Av. Habib Bourguiba",
+    type: "Bureau", price: 6500, surface: 240, rooms: 1, bathrooms: 2,
+    location: "Centre Ville, Tunis", promoteur: "LakePark Immo",
+    badge: ["new"], img: "https://images.unsplash.com/photo-1604328698692-f76ea9498e76?w=400&q=80",
+    photos: 10, lat: 36.8060, lng: 10.1830, delivery: "Disponible",
+    date: "3j", zone: "Centre Ville",
+  },
+  /* ── Lac 1 / La Soukra ────────────────────────── */
+  {
+    id: 34, kind: "agence", transaction: "vente",
+    title: "Appartement S+2 Lac 1 – Vue lac garantie",
+    type: "Appartement", price: 265000, surface: 98, rooms: 3, bathrooms: 1,
+    location: "Les Berges du Lac I, Tunis", promoteur: "LakePark Immo",
+    badge: [], img: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400&q=80",
+    photos: 11, lat: 36.8300, lng: 10.2100, delivery: "Livré",
+    date: "2j", zone: "Lac 1",
+  },
+  {
+    id: 35, kind: "agence", transaction: "vente",
+    title: "Terrain à bâtir – La Soukra Nord",
+    type: "Terrain", price: 145000, surface: 380, rooms: 0, bathrooms: 0,
+    location: "La Soukra, Ariana", promoteur: "Foncier Pro",
+    badge: [], img: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=400&q=80",
+    photos: 4, lat: 36.8940, lng: 10.1680, delivery: "Disponible",
+    tf: true, constructible: true, nature: "Résidentiel",
+    date: "6j", zone: "La Soukra",
+  },
+  {
+    id: 36, kind: "agence", transaction: "vente",
+    title: "Villa S+3 avec jardin 300 m² – La Soukra",
+    type: "Villa", price: 480000, surface: 210, rooms: 4, bathrooms: 3,
+    location: "La Soukra, Ariana", promoteur: "Soukra Résidences",
+    badge: ["promo"], img: "https://images.unsplash.com/photo-1583608205776-bfd35f0d9f83?w=400&q=80",
+    photos: 17, lat: 36.8900, lng: 10.1720, delivery: "Livré",
+    date: "1s", zone: "La Soukra",
+  },
+
+  /* ── LA MARSA (ids 37-52) ───────────────────────────────────── */
+  { id:37, kind:"agence", transaction:"vente", title:"Villa contemporaine avec piscine chauffée", type:"Villa", price:1150000, surface:380, rooms:7, bathrooms:4, location:"La Marsa, Tunis", promoteur:"Immob. du Golfe", badge:["exclusive"], img:"https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=400&q=80", photos:22, lat:36.8780, lng:10.3210, delivery:"Livré", date:"2j", zone:"La Marsa" },
+  { id:38, kind:"agence", transaction:"location", title:"Appartement S+2 standing résidence sécurisée", type:"Appartement", price:1600, surface:90, rooms:3, bathrooms:2, location:"La Marsa Corniche", promoteur:"Prestige Immobilier", badge:[], img:"https://images.unsplash.com/photo-1560185007-5f0bb1866cab?w=400&q=80", photos:11, lat:36.8790, lng:10.3240, delivery:"Disponible", date:"1j", zone:"La Marsa" },
+  { id:39, kind:"neuf", transaction:"vente", title:"Résidence Marina La Marsa – T3 & T4 neufs", type:"Appartement", price:285000, surface:110, rooms:3, bathrooms:2, location:"La Marsa, Tunis", promoteur:"Bullaregia Immobilière", badge:["new","livraison"], img:"https://images.unsplash.com/photo-1486325212027-8081e485255e?w=400&q=80", photos:16, lat:36.8800, lng:10.3180, delivery:"T4 2025", date:"4j", zone:"La Marsa" },
+  { id:40, kind:"agence", transaction:"vente", title:"Penthouse 4 faces – vue panoramique mer", type:"Penthouse", price:720000, surface:220, rooms:5, bathrooms:3, location:"La Marsa Plage", promoteur:"Immob. du Golfe", badge:["exclusive"], img:"https://images.unsplash.com/photo-1502672023488-70e25813eb80?w=400&q=80", photos:28, lat:36.8760, lng:10.3260, delivery:"Livré", date:"3j", zone:"La Marsa" },
+  { id:41, kind:"agence", transaction:"vente", title:"Duplex 250 m² terrasse 80 m²", type:"Duplex", price:490000, surface:250, rooms:5, bathrooms:3, location:"La Marsa, Tunis", promoteur:"Med Immo", badge:[], img:"https://images.unsplash.com/photo-1560185007-5f0bb1866cab?w=400&q=80", photos:14, lat:36.8770, lng:10.3200, delivery:"Livré", date:"5j", zone:"La Marsa" },
+  { id:42, kind:"agence", transaction:"location", title:"Bureau plateau 180 m² – zone tertiaire", type:"Bureau", price:3200, surface:180, rooms:0, bathrooms:2, location:"La Marsa Centre", promoteur:"Prestige Immobilier", badge:[], img:"https://images.unsplash.com/photo-1524758631624-e2822e304c36?w=400&q=80", photos:8, lat:36.8810, lng:10.3150, delivery:"Disponible", date:"2j", zone:"La Marsa" },
+  { id:43, kind:"agence", transaction:"vente", title:"Terrain constructible TF – 650 m²", type:"Terrain", price:320000, surface:650, rooms:0, bathrooms:0, location:"La Marsa, Tunis", promoteur:"Med Immo", badge:[], img:"https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=400&q=80", photos:5, lat:36.8820, lng:10.3170, delivery:"Disponible", date:"1s", zone:"La Marsa", tf:true },
+  { id:44, kind:"agence", transaction:"vente", title:"Appartement S+3 neuf – résidence avec piscine", type:"Appartement", price:395000, surface:140, rooms:4, bathrooms:2, location:"La Marsa Nord", promoteur:"Bullaregia Immobilière", badge:["new"], img:"https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=400&q=80", photos:13, lat:36.8850, lng:10.3130, delivery:"Livré", date:"6j", zone:"La Marsa" },
+  { id:45, kind:"agence", transaction:"location", title:"Villa meublée 6 pièces – jardin privatif", type:"Villa", price:4500, surface:280, rooms:6, bathrooms:3, location:"La Marsa, Tunis", promoteur:"Immob. du Golfe", badge:["promo"], img:"https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?w=400&q=80", photos:20, lat:36.8760, lng:10.3220, delivery:"Disponible", date:"3j", zone:"La Marsa" },
+  { id:46, kind:"agence", transaction:"vente", title:"S+1 pied-à-terre vue mer – 55 m²", type:"Appartement", price:145000, surface:55, rooms:2, bathrooms:1, location:"La Marsa Corniche", promoteur:"Med Immo", badge:[], img:"https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=400&q=80", photos:7, lat:36.8750, lng:10.3270, delivery:"Livré", date:"1s", zone:"La Marsa" },
+  { id:47, kind:"neuf", transaction:"vente", title:"Le Clos de La Marsa – Villas mitoyennes T5", type:"Villa", price:560000, surface:200, rooms:5, bathrooms:3, location:"La Marsa Sud", promoteur:"Bullaregia Immobilière", badge:["new","livraison"], img:"https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=400&q=80", photos:19, lat:36.8740, lng:10.3190, delivery:"T1 2026", date:"2j", zone:"La Marsa" },
+  { id:48, kind:"agence", transaction:"location", title:"Duplex meublé S+2 – terrasse 40 m²", type:"Duplex", price:2200, surface:120, rooms:3, bathrooms:2, location:"La Marsa, Tunis", promoteur:"Prestige Immobilier", badge:[], img:"https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=400&q=80", photos:10, lat:36.8800, lng:10.3250, delivery:"Disponible", date:"4j", zone:"La Marsa" },
+  { id:49, kind:"agence", transaction:"vente", title:"Local commercial 120 m² – rez-de-chaussée", type:"Bureau", price:280000, surface:120, rooms:0, bathrooms:1, location:"La Marsa Centre", promoteur:"Med Immo", badge:[], img:"https://images.unsplash.com/photo-1497366811353-6870744d04b2?w=400&q=80", photos:6, lat:36.8810, lng:10.3200, delivery:"Livré", date:"2s", zone:"La Marsa" },
+  { id:50, kind:"agence", transaction:"vente", title:"Villa S+4 classique – 450 m² terrain", type:"Villa", price:850000, surface:300, rooms:8, bathrooms:4, location:"La Marsa, Tunis", promoteur:"Immob. du Golfe", badge:["exclusive"], img:"https://images.unsplash.com/photo-1613977257363-707ba9348227?w=400&q=80", photos:25, lat:36.8770, lng:10.3140, delivery:"Livré", date:"1s", zone:"La Marsa" },
+  { id:51, kind:"agence", transaction:"location", title:"Appartement S+3 meublé vue mer – 130 m²", type:"Appartement", price:3000, surface:130, rooms:4, bathrooms:2, location:"La Marsa Plage", promoteur:"Prestige Immobilier", badge:["promo"], img:"https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=400&q=80", photos:15, lat:36.8760, lng:10.3260, delivery:"Disponible", date:"5j", zone:"La Marsa" },
+  { id:52, kind:"agence", transaction:"vente", title:"Terrain 900 m² zone villa – vue dégagée", type:"Terrain", price:480000, surface:900, rooms:0, bathrooms:0, location:"La Marsa Supérieure", promoteur:"Med Immo", badge:[], img:"https://images.unsplash.com/photo-1458433466023-d02e14fe11a0?w=400&q=80", photos:4, lat:36.8840, lng:10.3100, delivery:"Disponible", date:"1s", zone:"La Marsa", tf:true },
+
+  /* ── SIDI BOU SAÏD (ids 53-67) ──────────────────────────────── */
+  { id:53, kind:"agence", transaction:"vente", title:"Villa de prestige avec panorama sur Carthage", type:"Villa", price:2200000, surface:480, rooms:8, bathrooms:5, location:"Sidi Bou Saïd", promoteur:"Immob. du Golfe", badge:["exclusive"], img:"https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=400&q=80", photos:32, lat:36.8700, lng:10.3430, delivery:"Livré", date:"1j", zone:"Sidi Bou Saïd" },
+  { id:54, kind:"agence", transaction:"location", title:"Appartement S+2 vue golfe de Tunis", type:"Appartement", price:2800, surface:100, rooms:3, bathrooms:2, location:"Sidi Bou Saïd", promoteur:"Prestige Immobilier", badge:["promo"], img:"https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400&q=80", photos:12, lat:36.8710, lng:10.3410, delivery:"Disponible", date:"2j", zone:"Sidi Bou Saïd" },
+  { id:55, kind:"agence", transaction:"vente", title:"Duplex 3 niveaux – terrasse avec jacuzzi", type:"Duplex", price:980000, surface:300, rooms:6, bathrooms:4, location:"Sidi Bou Saïd Supérieur", promoteur:"Immob. du Golfe", badge:["exclusive"], img:"https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=400&q=80", photos:24, lat:36.8720, lng:10.3400, delivery:"Livré", date:"3j", zone:"Sidi Bou Saïd" },
+  { id:56, kind:"agence", transaction:"vente", title:"Penthouse dernier étage – 360° vue mer", type:"Penthouse", price:1350000, surface:280, rooms:5, bathrooms:3, location:"Sidi Bou Saïd", promoteur:"Elite Résidences", badge:["exclusive"], img:"https://images.unsplash.com/photo-1502672023488-70e25813eb80?w=400&q=80", photos:30, lat:36.8690, lng:10.3450, delivery:"Livré", date:"4j", zone:"Sidi Bou Saïd" },
+  { id:57, kind:"agence", transaction:"location", title:"Villa arabe meublée – piscine + personnel", type:"Villa", price:9500, surface:400, rooms:7, bathrooms:5, location:"Sidi Bou Saïd", promoteur:"Immob. du Golfe", badge:["exclusive"], img:"https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=400&q=80", photos:40, lat:36.8680, lng:10.3470, delivery:"Disponible", date:"1j", zone:"Sidi Bou Saïd" },
+  { id:58, kind:"agence", transaction:"vente", title:"Terrain à bâtir TF 550 m² – zone protégée", type:"Terrain", price:650000, surface:550, rooms:0, bathrooms:0, location:"Sidi Bou Saïd", promoteur:"Elite Résidences", badge:[], img:"https://images.unsplash.com/photo-1622547748225-3fc4abd2cca0?w=400&q=80", photos:6, lat:36.8730, lng:10.3390, delivery:"Disponible", date:"2s", zone:"Sidi Bou Saïd", tf:true },
+  { id:59, kind:"agence", transaction:"vente", title:"Appartement S+3 dans villa divisée", type:"Appartement", price:420000, surface:155, rooms:4, bathrooms:2, location:"Sidi Bou Saïd Bas", promoteur:"Prestige Immobilier", badge:[], img:"https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=400&q=80", photos:11, lat:36.8710, lng:10.3420, delivery:"Livré", date:"5j", zone:"Sidi Bou Saïd" },
+  { id:60, kind:"neuf", transaction:"vente", title:"Les Terrasses de Sidi Bou – programme neuf", type:"Appartement", price:550000, surface:175, rooms:4, bathrooms:3, location:"Sidi Bou Saïd", promoteur:"Bullaregia Immobilière", badge:["new","livraison"], img:"https://images.unsplash.com/photo-1467533003447-e295ff1b0435?w=400&q=80", photos:20, lat:36.8700, lng:10.3440, delivery:"T3 2025", date:"3j", zone:"Sidi Bou Saïd" },
+  { id:61, kind:"agence", transaction:"vente", title:"Villa rénovée 6 pièces – jardin 800 m²", type:"Villa", price:1800000, surface:420, rooms:6, bathrooms:4, location:"Sidi Bou Saïd", promoteur:"Elite Résidences", badge:["exclusive"], img:"https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?w=400&q=80", photos:35, lat:36.8670, lng:10.3480, delivery:"Livré", date:"1s", zone:"Sidi Bou Saïd" },
+  { id:62, kind:"agence", transaction:"location", title:"Appartement S+1 meublé – vue jardins", type:"Appartement", price:1200, surface:60, rooms:2, bathrooms:1, location:"Sidi Bou Saïd Médina", promoteur:"Prestige Immobilier", badge:[], img:"https://images.unsplash.com/photo-1560185127-6ed189bf02f4?w=400&q=80", photos:8, lat:36.8715, lng:10.3425, delivery:"Disponible", date:"6j", zone:"Sidi Bou Saïd" },
+  { id:63, kind:"agence", transaction:"vente", title:"Bureau prestige 90 m² – vue mer", type:"Bureau", price:380000, surface:90, rooms:0, bathrooms:1, location:"Sidi Bou Saïd", promoteur:"Elite Résidences", badge:[], img:"https://images.unsplash.com/photo-1497366216548-37526070297c?w=400&q=80", photos:9, lat:36.8725, lng:10.3405, delivery:"Livré", date:"2j", zone:"Sidi Bou Saïd" },
+  { id:64, kind:"agence", transaction:"vente", title:"Maison de caractère – architecture arabo-andalouse", type:"Villa", price:3500000, surface:600, rooms:10, bathrooms:6, location:"Sidi Bou Saïd", promoteur:"Immob. du Golfe", badge:["exclusive"], img:"https://images.unsplash.com/photo-1583608205776-bfd35f0d9f83?w=400&q=80", photos:45, lat:36.8660, lng:10.3490, delivery:"Livré", date:"2s", zone:"Sidi Bou Saïd" },
+  { id:65, kind:"agence", transaction:"location", title:"Duplex meublé haut de gamme 180 m²", type:"Duplex", price:5500, surface:180, rooms:4, bathrooms:3, location:"Sidi Bou Saïd", promoteur:"Immob. du Golfe", badge:["exclusive"], img:"https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=400&q=80", photos:18, lat:36.8705, lng:10.3445, delivery:"Disponible", date:"4j", zone:"Sidi Bou Saïd" },
+  { id:66, kind:"agence", transaction:"vente", title:"Appartement S+2 dernier étage – balcon filant", type:"Appartement", price:310000, surface:105, rooms:3, bathrooms:2, location:"Sidi Bou Saïd Bas", promoteur:"Prestige Immobilier", badge:[], img:"https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=400&q=80", photos:13, lat:36.8718, lng:10.3415, delivery:"Livré", date:"1s", zone:"Sidi Bou Saïd" },
+  { id:67, kind:"agence", transaction:"vente", title:"Terrain prestige 1200 m² – vue mer et jardins", type:"Terrain", price:1100000, surface:1200, rooms:0, bathrooms:0, location:"Sidi Bou Saïd Supérieur", promoteur:"Elite Résidences", badge:["exclusive"], img:"https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=400&q=80", photos:8, lat:36.8735, lng:10.3380, delivery:"Disponible", date:"3s", zone:"Sidi Bou Saïd", tf:true },
+
+  /* ── LAC 2 (ids 68-82) ──────────────────────────────────────── */
+  { id:68, kind:"agence", transaction:"vente", title:"Appartement S+3 standing – Berges du Lac II", type:"Appartement", price:480000, surface:155, rooms:4, bathrooms:2, location:"Les Berges du Lac II", promoteur:"Odéon Immobilière", badge:["new"], img:"https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=400&q=80", photos:16, lat:36.8380, lng:10.2380, delivery:"Livré", date:"2j", zone:"Lac 2" },
+  { id:69, kind:"agence", transaction:"location", title:"Bureau open-space 320 m² – Lac II Business", type:"Bureau", price:5800, surface:320, rooms:0, bathrooms:3, location:"Les Berges du Lac II", promoteur:"Luxury Homes", badge:[], img:"https://images.unsplash.com/photo-1524758631624-e2822e304c36?w=400&q=80", photos:11, lat:36.8360, lng:10.2400, delivery:"Disponible", date:"1j", zone:"Lac 2" },
+  { id:70, kind:"neuf", transaction:"vente", title:"Odéon Tower – Penthouse T5 neuf livraison 2025", type:"Penthouse", price:1200000, surface:310, rooms:5, bathrooms:4, location:"Les Berges du Lac II", promoteur:"Odéon Immobilière", badge:["new","livraison"], img:"https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=400&q=80", photos:28, lat:36.8390, lng:10.2350, delivery:"T2 2025", date:"3j", zone:"Lac 2" },
+  { id:71, kind:"agence", transaction:"vente", title:"Duplex T4 – double terrasse vue lac", type:"Duplex", price:620000, surface:200, rooms:5, bathrooms:3, location:"Lac II, Tunis", promoteur:"Étoile Immobilier", badge:["exclusive"], img:"https://images.unsplash.com/photo-1560185007-5f0bb1866cab?w=400&q=80", photos:20, lat:36.8375, lng:10.2370, delivery:"Livré", date:"4j", zone:"Lac 2" },
+  { id:72, kind:"agence", transaction:"location", title:"Appartement S+2 meublé haut de gamme", type:"Appartement", price:2400, surface:95, rooms:3, bathrooms:2, location:"Les Berges du Lac II", promoteur:"Luxury Homes", badge:["promo"], img:"https://images.unsplash.com/photo-1560185127-6ed189bf02f4?w=400&q=80", photos:12, lat:36.8365, lng:10.2390, delivery:"Disponible", date:"2j", zone:"Lac 2" },
+  { id:73, kind:"agence", transaction:"vente", title:"Plateau de bureaux 450 m² – immeuble A+", type:"Bureau", price:920000, surface:450, rooms:0, bathrooms:4, location:"Les Berges du Lac II", promoteur:"Odéon Immobilière", badge:[], img:"https://images.unsplash.com/photo-1497366811353-6870744d04b2?w=400&q=80", photos:14, lat:36.8385, lng:10.2360, delivery:"Livré", date:"5j", zone:"Lac 2" },
+  { id:74, kind:"agence", transaction:"vente", title:"Villa jumelée S+3 – résidence fermée gardée", type:"Villa", price:750000, surface:260, rooms:6, bathrooms:3, location:"Lac II, Ariana", promoteur:"Étoile Immobilier", badge:[], img:"https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=400&q=80", photos:18, lat:36.8370, lng:10.2410, delivery:"Livré", date:"1s", zone:"Lac 2" },
+  { id:75, kind:"neuf", transaction:"vente", title:"Jardins du Lac II – T3 vue sur l'eau", type:"Appartement", price:320000, surface:115, rooms:3, bathrooms:2, location:"Les Berges du Lac II", promoteur:"Odéon Immobilière", badge:["new","livraison"], img:"https://images.unsplash.com/photo-1486325212027-8081e485255e?w=400&q=80", photos:15, lat:36.8355, lng:10.2420, delivery:"T3 2025", date:"2j", zone:"Lac 2" },
+  { id:76, kind:"agence", transaction:"location", title:"Villa meublée 5 pièces – piscine privée", type:"Villa", price:7500, surface:300, rooms:5, bathrooms:3, location:"Lac II, Tunis", promoteur:"Luxury Homes", badge:["exclusive"], img:"https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=400&q=80", photos:24, lat:36.8400, lng:10.2330, delivery:"Disponible", date:"3j", zone:"Lac 2" },
+  { id:77, kind:"agence", transaction:"vente", title:"Appartement S+1 investissement locatif", type:"Appartement", price:185000, surface:65, rooms:2, bathrooms:1, location:"Les Berges du Lac II", promoteur:"Étoile Immobilier", badge:[], img:"https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=400&q=80", photos:7, lat:36.8360, lng:10.2380, delivery:"Livré", date:"6j", zone:"Lac 2" },
+  { id:78, kind:"agence", transaction:"location", title:"Bureau 200 m² avec salles de réunion", type:"Bureau", price:3600, surface:200, rooms:0, bathrooms:2, location:"Les Berges du Lac II", promoteur:"Luxury Homes", badge:[], img:"https://images.unsplash.com/photo-1497366216548-37526070297c?w=400&q=80", photos:9, lat:36.8370, lng:10.2400, delivery:"Disponible", date:"4j", zone:"Lac 2" },
+  { id:79, kind:"agence", transaction:"vente", title:"Penthouse S+4 – 4 terrasses + pool", type:"Penthouse", price:1450000, surface:350, rooms:6, bathrooms:4, location:"Lac II, Tunis", promoteur:"Odéon Immobilière", badge:["exclusive"], img:"https://images.unsplash.com/photo-1502672023488-70e25813eb80?w=400&q=80", photos:35, lat:36.8390, lng:10.2345, delivery:"Livré", date:"2s", zone:"Lac 2" },
+  { id:80, kind:"agence", transaction:"vente", title:"Duplex familial 220 m² – quartier calme", type:"Duplex", price:530000, surface:220, rooms:5, bathrooms:3, location:"Les Berges du Lac II", promoteur:"Étoile Immobilier", badge:[], img:"https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=400&q=80", photos:16, lat:36.8375, lng:10.2375, delivery:"Livré", date:"1s", zone:"Lac 2" },
+  { id:81, kind:"agence", transaction:"location", title:"Appartement S+3 non meublé – vue lac", type:"Appartement", price:1800, surface:130, rooms:4, bathrooms:2, location:"Les Berges du Lac II", promoteur:"Luxury Homes", badge:[], img:"https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=400&q=80", photos:10, lat:36.8365, lng:10.2390, delivery:"Disponible", date:"3j", zone:"Lac 2" },
+  { id:82, kind:"agence", transaction:"vente", title:"Villa 5 pièces avec sous-sol – Lac II", type:"Villa", price:920000, surface:340, rooms:7, bathrooms:4, location:"Lac II, Ariana", promoteur:"Odéon Immobilière", badge:["promo"], img:"https://images.unsplash.com/photo-1600585154526-990dced4db0d?w=400&q=80", photos:22, lat:36.8395, lng:10.2325, delivery:"Livré", date:"5j", zone:"Lac 2" },
+
+  /* ── CARTHAGE (ids 83-97) ───────────────────────────────────── */
+  { id:83, kind:"agence", transaction:"vente", title:"Villa impériale 8 pièces – domaine clos 2000 m²", type:"Villa", price:4500000, surface:650, rooms:8, bathrooms:6, location:"Carthage Présidence", promoteur:"Carthage Immobilier", badge:["exclusive"], img:"https://images.unsplash.com/photo-1613977257363-707ba9348227?w=400&q=80", photos:48, lat:36.8540, lng:10.3290, delivery:"Livré", date:"1j", zone:"Carthage" },
+  { id:84, kind:"agence", transaction:"location", title:"Appartement S+3 vue golfe et amphithéâtre", type:"Appartement", price:3200, surface:145, rooms:4, bathrooms:2, location:"Carthage Hannibal", promoteur:"Prestige Immobilier", badge:["promo"], img:"https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=400&q=80", photos:15, lat:36.8520, lng:10.3310, delivery:"Disponible", date:"2j", zone:"Carthage" },
+  { id:85, kind:"neuf", transaction:"vente", title:"Résidence Byrsa – T4 & T5 neufs vue mer", type:"Appartement", price:680000, surface:190, rooms:4, bathrooms:3, location:"Carthage Dermech", promoteur:"Réalco", badge:["new","livraison"], img:"https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=400&q=80", photos:22, lat:36.8530, lng:10.3280, delivery:"T2 2026", date:"3j", zone:"Carthage" },
+  { id:86, kind:"agence", transaction:"vente", title:"Penthouse unique – terrasse 150 m² vue site archéo", type:"Penthouse", price:1600000, surface:290, rooms:5, bathrooms:4, location:"Carthage, Tunis", promoteur:"Carthage Immobilier", badge:["exclusive"], img:"https://images.unsplash.com/photo-1502672023488-70e25813eb80?w=400&q=80", photos:32, lat:36.8515, lng:10.3320, delivery:"Livré", date:"4j", zone:"Carthage" },
+  { id:87, kind:"agence", transaction:"vente", title:"Duplex 240 m² – 3 terrasses panoramiques", type:"Duplex", price:870000, surface:240, rooms:5, bathrooms:3, location:"Carthage Salammbo", promoteur:"Prestige Immobilier", badge:["exclusive"], img:"https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=400&q=80", photos:26, lat:36.8505, lng:10.3330, delivery:"Livré", date:"5j", zone:"Carthage" },
+  { id:88, kind:"agence", transaction:"location", title:"Villa meublée 7 pièces – piscine et gardien", type:"Villa", price:12000, surface:450, rooms:7, bathrooms:5, location:"Carthage Présidence", promoteur:"Carthage Immobilier", badge:["exclusive"], img:"https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=400&q=80", photos:40, lat:36.8550, lng:10.3270, delivery:"Disponible", date:"1j", zone:"Carthage" },
+  { id:89, kind:"agence", transaction:"vente", title:"Appartement S+2 standing – résidence avec ascenseur", type:"Appartement", price:340000, surface:110, rooms:3, bathrooms:2, location:"Carthage, Tunis", promoteur:"Prestige Immobilier", badge:[], img:"https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400&q=80", photos:12, lat:36.8525, lng:10.3295, delivery:"Livré", date:"6j", zone:"Carthage" },
+  { id:90, kind:"agence", transaction:"vente", title:"Terrain classé vue mer 700 m² – rare", type:"Terrain", price:950000, surface:700, rooms:0, bathrooms:0, location:"Carthage Dermech", promoteur:"Carthage Immobilier", badge:["exclusive"], img:"https://images.unsplash.com/photo-1622547748225-3fc4abd2cca0?w=400&q=80", photos:7, lat:36.8510, lng:10.3340, delivery:"Disponible", date:"1s", zone:"Carthage", tf:true },
+  { id:91, kind:"agence", transaction:"location", title:"Appartement S+2 meublé tout neuf", type:"Appartement", price:1900, surface:85, rooms:3, bathrooms:2, location:"Carthage Hannibal", promoteur:"Prestige Immobilier", badge:[], img:"https://images.unsplash.com/photo-1560185127-6ed189bf02f4?w=400&q=80", photos:9, lat:36.8525, lng:10.3308, delivery:"Disponible", date:"3j", zone:"Carthage" },
+  { id:92, kind:"agence", transaction:"vente", title:"Villa S+3 – architecture moderne piscine", type:"Villa", price:1950000, surface:380, rooms:7, bathrooms:4, location:"Carthage Amilcar", promoteur:"Carthage Immobilier", badge:["exclusive"], img:"https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?w=400&q=80", photos:30, lat:36.8535, lng:10.3275, delivery:"Livré", date:"2s", zone:"Carthage" },
+  { id:93, kind:"agence", transaction:"vente", title:"Appartement S+1 – investissement locatif pur", type:"Appartement", price:160000, surface:58, rooms:2, bathrooms:1, location:"Carthage, Tunis", promoteur:"Prestige Immobilier", badge:[], img:"https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=400&q=80", photos:6, lat:36.8518, lng:10.3315, delivery:"Livré", date:"1s", zone:"Carthage" },
+  { id:94, kind:"agence", transaction:"location", title:"Bureau 140 m² – rez-de-villa avec parking 3 places", type:"Bureau", price:2500, surface:140, rooms:0, bathrooms:2, location:"Carthage, Tunis", promoteur:"Carthage Immobilier", badge:[], img:"https://images.unsplash.com/photo-1524758631624-e2822e304c36?w=400&q=80", photos:8, lat:36.8530, lng:10.3285, delivery:"Disponible", date:"4j", zone:"Carthage" },
+  { id:95, kind:"neuf", transaction:"vente", title:"Résidence Dido – Appartements T3 premium", type:"Appartement", price:520000, surface:162, rooms:4, bathrooms:2, location:"Carthage Salammbo", promoteur:"Réalco", badge:["new","livraison"], img:"https://images.unsplash.com/photo-1467533003447-e295ff1b0435?w=400&q=80", photos:18, lat:36.8505, lng:10.3325, delivery:"T4 2025", date:"5j", zone:"Carthage" },
+  { id:96, kind:"agence", transaction:"vente", title:"Maison bourgeoise 9 pièces – cave + grand jardin", type:"Villa", price:2800000, surface:520, rooms:9, bathrooms:5, location:"Carthage Présidence", promoteur:"Carthage Immobilier", badge:["exclusive"], img:"https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=400&q=80", photos:38, lat:36.8555, lng:10.3260, delivery:"Livré", date:"2s", zone:"Carthage" },
+  { id:97, kind:"agence", transaction:"location", title:"Duplex S+3 meublé haut de gamme 190 m²", type:"Duplex", price:6000, surface:190, rooms:4, bathrooms:3, location:"Carthage Hannibal", promoteur:"Prestige Immobilier", badge:["promo"], img:"https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=400&q=80", photos:20, lat:36.8522, lng:10.3305, delivery:"Disponible", date:"1j", zone:"Carthage" },
+
+  /* ── ENNASR (ids 98-113) ────────────────────────────────────── */
+  { id:98, kind:"agence", transaction:"vente", title:"Appartement S+3 neuf – résidence avec piscine", type:"Appartement", price:290000, surface:125, rooms:4, bathrooms:2, location:"Ennasr 2, Ariana", promoteur:"Prestige Dev.", badge:["new"], img:"https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=400&q=80", photos:14, lat:36.8890, lng:10.1940, delivery:"Livré", date:"1j", zone:"Ennasr" },
+  { id:99, kind:"agence", transaction:"vente", title:"Villa S+3 moderne – cuisine équipée piscine", type:"Villa", price:680000, surface:250, rooms:6, bathrooms:3, location:"Ennasr 1, Ariana", promoteur:"Étoile Immobilier", badge:[], img:"https://images.unsplash.com/photo-1600585154526-990dced4db0d?w=400&q=80", photos:20, lat:36.8870, lng:10.1960, delivery:"Livré", date:"3j", zone:"Ennasr" },
+  { id:100, kind:"neuf", transaction:"vente", title:"Les Résidences Ennasr – T2 à T4 neufs", type:"Appartement", price:195000, surface:85, rooms:3, bathrooms:1, location:"Ennasr, Ariana", promoteur:"Prestige Dev.", badge:["new","livraison"], img:"https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=400&q=80", photos:18, lat:36.8880, lng:10.1950, delivery:"T1 2026", date:"2j", zone:"Ennasr" },
+  { id:101, kind:"agence", transaction:"location", title:"Appartement S+2 tout équipé – proximité métro", type:"Appartement", price:900, surface:80, rooms:3, bathrooms:1, location:"Ennasr, Ariana", promoteur:"Capital Immo", badge:[], img:"https://images.unsplash.com/photo-1560185007-5f0bb1866cab?w=400&q=80", photos:8, lat:36.8895, lng:10.1930, delivery:"Disponible", date:"4j", zone:"Ennasr" },
+  { id:102, kind:"agence", transaction:"vente", title:"Duplex S+3 – terrasse 60 m² vue panoramique", type:"Duplex", price:370000, surface:165, rooms:4, bathrooms:2, location:"Ennasr 2, Ariana", promoteur:"Étoile Immobilier", badge:["promo"], img:"https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=400&q=80", photos:16, lat:36.8885, lng:10.1945, delivery:"Livré", date:"5j", zone:"Ennasr" },
+  { id:103, kind:"agence", transaction:"vente", title:"Terrain résidentiel 400 m² – TF constructible", type:"Terrain", price:180000, surface:400, rooms:0, bathrooms:0, location:"Ennasr, Ariana", promoteur:"Capital Immo", badge:[], img:"https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=400&q=80", photos:4, lat:36.8900, lng:10.1920, delivery:"Disponible", date:"2s", zone:"Ennasr", tf:true },
+  { id:104, kind:"agence", transaction:"location", title:"Bureau 120 m² – immeubles tertiaires Zone 1", type:"Bureau", price:2000, surface:120, rooms:0, bathrooms:1, location:"Ennasr 1, Ariana", promoteur:"Prestige Dev.", badge:[], img:"https://images.unsplash.com/photo-1497366216548-37526070297c?w=400&q=80", photos:7, lat:36.8875, lng:10.1965, delivery:"Disponible", date:"3j", zone:"Ennasr" },
+  { id:105, kind:"agence", transaction:"vente", title:"Villa jumelée S+3 – jardin 200 m²", type:"Villa", price:520000, surface:200, rooms:5, bathrooms:3, location:"Ennasr 2, Ariana", promoteur:"Étoile Immobilier", badge:[], img:"https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=400&q=80", photos:17, lat:36.8865, lng:10.1975, delivery:"Livré", date:"6j", zone:"Ennasr" },
+  { id:106, kind:"agence", transaction:"vente", title:"Penthouse S+3 – 4e étage terrasse 100 m²", type:"Penthouse", price:580000, surface:210, rooms:5, bathrooms:3, location:"Ennasr, Ariana", promoteur:"Prestige Dev.", badge:["exclusive"], img:"https://images.unsplash.com/photo-1502672023488-70e25813eb80?w=400&q=80", photos:21, lat:36.8892, lng:10.1935, delivery:"Livré", date:"1s", zone:"Ennasr" },
+  { id:107, kind:"agence", transaction:"location", title:"Villa 6 pièces meublée – garage double", type:"Villa", price:3800, surface:280, rooms:6, bathrooms:3, location:"Ennasr 1, Ariana", promoteur:"Capital Immo", badge:[], img:"https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?w=400&q=80", photos:22, lat:36.8862, lng:10.1980, delivery:"Disponible", date:"2j", zone:"Ennasr" },
+  { id:108, kind:"agence", transaction:"vente", title:"Appartement S+2 – 3e étage vue dégagée", type:"Appartement", price:220000, surface:95, rooms:3, bathrooms:1, location:"Ennasr 2, Ariana", promoteur:"Étoile Immobilier", badge:[], img:"https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400&q=80", photos:9, lat:36.8882, lng:10.1952, delivery:"Livré", date:"4j", zone:"Ennasr" },
+  { id:109, kind:"neuf", transaction:"vente", title:"Parc Ennasr Résidences – T3 avec parking", type:"Appartement", price:255000, surface:105, rooms:3, bathrooms:2, location:"Ennasr, Ariana", promoteur:"Prestige Dev.", badge:["new","livraison"], img:"https://images.unsplash.com/photo-1486325212027-8081e485255e?w=400&q=80", photos:15, lat:36.8878, lng:10.1958, delivery:"T2 2026", date:"3j", zone:"Ennasr" },
+  { id:110, kind:"agence", transaction:"location", title:"Appartement S+3 non meublé – calme absolu", type:"Appartement", price:1100, surface:120, rooms:4, bathrooms:2, location:"Ennasr 1, Ariana", promoteur:"Capital Immo", badge:[], img:"https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=400&q=80", photos:8, lat:36.8870, lng:10.1968, delivery:"Disponible", date:"5j", zone:"Ennasr" },
+  { id:111, kind:"agence", transaction:"vente", title:"Appartement S+1 – 55 m² coup de cœur", type:"Appartement", price:148000, surface:55, rooms:2, bathrooms:1, location:"Ennasr, Ariana", promoteur:"Étoile Immobilier", badge:["promo"], img:"https://images.unsplash.com/photo-1560185127-6ed189bf02f4?w=400&q=80", photos:7, lat:36.8898, lng:10.1915, delivery:"Livré", date:"1s", zone:"Ennasr" },
+  { id:112, kind:"agence", transaction:"vente", title:"Bureau plateau nu 250 m² – accès indépendant", type:"Bureau", price:480000, surface:250, rooms:0, bathrooms:2, location:"Ennasr 2, Ariana", promoteur:"Prestige Dev.", badge:[], img:"https://images.unsplash.com/photo-1497366811353-6870744d04b2?w=400&q=80", photos:10, lat:36.8860, lng:10.1985, delivery:"Livré", date:"2s", zone:"Ennasr" },
+  { id:113, kind:"agence", transaction:"vente", title:"Villa individuelle S+4 – piscine et sous-sol", type:"Villa", price:890000, surface:340, rooms:7, bathrooms:4, location:"Ennasr 1, Ariana", promoteur:"Capital Immo", badge:["exclusive"], img:"https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=400&q=80", photos:28, lat:36.8855, lng:10.1990, delivery:"Livré", date:"6j", zone:"Ennasr" },
+
+  /* ── EL MENZAH (ids 114-129) ────────────────────────────────── */
+  { id:114, kind:"agence", transaction:"vente", title:"Villa S+3 – architecture neo-classique 350 m²", type:"Villa", price:720000, surface:350, rooms:7, bathrooms:4, location:"El Menzah 6, Ariana", promoteur:"Étoile Immobilier", badge:[], img:"https://images.unsplash.com/photo-1583608205776-bfd35f0d9f83?w=400&q=80", photos:22, lat:36.8440, lng:10.1900, delivery:"Livré", date:"2j", zone:"El Menzah" },
+  { id:115, kind:"agence", transaction:"vente", title:"Appartement S+2 rénové – résidence calme", type:"Appartement", price:195000, surface:85, rooms:3, bathrooms:1, location:"El Menzah 1, Tunis", promoteur:"Azur Immobilier", badge:[], img:"https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=400&q=80", photos:10, lat:36.8420, lng:10.1920, delivery:"Livré", date:"3j", zone:"El Menzah" },
+  { id:116, kind:"neuf", transaction:"vente", title:"Résidence Menzah Park – T3 & T4 neufs", type:"Appartement", price:265000, surface:112, rooms:3, bathrooms:2, location:"El Menzah, Ariana", promoteur:"Étoile Immobilier", badge:["new","livraison"], img:"https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=400&q=80", photos:16, lat:36.8430, lng:10.1910, delivery:"T3 2025", date:"4j", zone:"El Menzah" },
+  { id:117, kind:"agence", transaction:"location", title:"Appartement S+3 non meublé – calme résidentiel", type:"Appartement", price:950, surface:120, rooms:4, bathrooms:2, location:"El Menzah 9, Ariana", promoteur:"Azur Immobilier", badge:[], img:"https://images.unsplash.com/photo-1560185127-6ed189bf02f4?w=400&q=80", photos:8, lat:36.8450, lng:10.1885, delivery:"Disponible", date:"5j", zone:"El Menzah" },
+  { id:118, kind:"agence", transaction:"vente", title:"Duplex 190 m² – double salon + grande terrasse", type:"Duplex", price:395000, surface:190, rooms:5, bathrooms:3, location:"El Menzah 7, Ariana", promoteur:"Étoile Immobilier", badge:["promo"], img:"https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=400&q=80", photos:17, lat:36.8435, lng:10.1905, delivery:"Livré", date:"1j", zone:"El Menzah" },
+  { id:119, kind:"agence", transaction:"vente", title:"Villa familiale S+4 – parc 600 m²", type:"Villa", price:950000, surface:380, rooms:8, bathrooms:4, location:"El Menzah 5, Tunis", promoteur:"Med Immo", badge:["exclusive"], img:"https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=400&q=80", photos:28, lat:36.8460, lng:10.1870, delivery:"Livré", date:"2j", zone:"El Menzah" },
+  { id:120, kind:"agence", transaction:"location", title:"Bureau 160 m² – hall d'accueil parking", type:"Bureau", price:2800, surface:160, rooms:0, bathrooms:2, location:"El Menzah, Ariana", promoteur:"Azur Immobilier", badge:[], img:"https://images.unsplash.com/photo-1524758631624-e2822e304c36?w=400&q=80", photos:9, lat:36.8425, lng:10.1915, delivery:"Disponible", date:"3j", zone:"El Menzah" },
+  { id:121, kind:"agence", transaction:"vente", title:"Terrain résidentiel 350 m² – eau & gaz en façade", type:"Terrain", price:160000, surface:350, rooms:0, bathrooms:0, location:"El Menzah 9, Ariana", promoteur:"Med Immo", badge:[], img:"https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=400&q=80", photos:4, lat:36.8445, lng:10.1895, delivery:"Disponible", date:"2s", zone:"El Menzah", tf:true },
+  { id:122, kind:"agence", transaction:"vente", title:"Penthouse S+3 – terrasse 80 m² avec pergola", type:"Penthouse", price:620000, surface:200, rooms:4, bathrooms:3, location:"El Menzah 6, Ariana", promoteur:"Étoile Immobilier", badge:[], img:"https://images.unsplash.com/photo-1502672023488-70e25813eb80?w=400&q=80", photos:20, lat:36.8438, lng:10.1902, delivery:"Livré", date:"6j", zone:"El Menzah" },
+  { id:123, kind:"agence", transaction:"location", title:"Villa 5 pièces meublée – résidence gardée", type:"Villa", price:3200, surface:240, rooms:5, bathrooms:3, location:"El Menzah 7, Ariana", promoteur:"Azur Immobilier", badge:[], img:"https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=400&q=80", photos:18, lat:36.8455, lng:10.1875, delivery:"Disponible", date:"4j", zone:"El Menzah" },
+  { id:124, kind:"agence", transaction:"vente", title:"Appartement S+2 1er étage – copropriété luxe", type:"Appartement", price:248000, surface:98, rooms:3, bathrooms:2, location:"El Menzah 1, Tunis", promoteur:"Azur Immobilier", badge:[], img:"https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=400&q=80", photos:11, lat:36.8415, lng:10.1930, delivery:"Livré", date:"5j", zone:"El Menzah" },
+  { id:125, kind:"agence", transaction:"vente", title:"Villa S+3 avec studio indépendant", type:"Villa", price:820000, surface:310, rooms:8, bathrooms:4, location:"El Menzah 5, Tunis", promoteur:"Med Immo", badge:["promo"], img:"https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?w=400&q=80", photos:25, lat:36.8465, lng:10.1860, delivery:"Livré", date:"1s", zone:"El Menzah" },
+  { id:126, kind:"neuf", transaction:"vente", title:"Menzah Business Park – bureaux neuf A+", type:"Bureau", price:650000, surface:280, rooms:0, bathrooms:3, location:"El Menzah, Ariana", promoteur:"Étoile Immobilier", badge:["new","livraison"], img:"https://images.unsplash.com/photo-1467533003447-e295ff1b0435?w=400&q=80", photos:14, lat:36.8428, lng:10.1918, delivery:"T4 2025", date:"2s", zone:"El Menzah" },
+  { id:127, kind:"agence", transaction:"location", title:"Appartement S+2 meublé haut standing", type:"Appartement", price:1400, surface:90, rooms:3, bathrooms:1, location:"El Menzah 6, Ariana", promoteur:"Azur Immobilier", badge:[], img:"https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400&q=80", photos:10, lat:36.8442, lng:10.1898, delivery:"Disponible", date:"3j", zone:"El Menzah" },
+  { id:128, kind:"agence", transaction:"vente", title:"Duplex 170 m² – garden flat avec accès direct", type:"Duplex", price:342000, surface:170, rooms:4, bathrooms:2, location:"El Menzah 9, Ariana", promoteur:"Med Immo", badge:[], img:"https://images.unsplash.com/photo-1560185007-5f0bb1866cab?w=400&q=80", photos:13, lat:36.8448, lng:10.1890, delivery:"Livré", date:"4j", zone:"El Menzah" },
+  { id:129, kind:"agence", transaction:"vente", title:"Appartement S+3 – vue dégagée, RDJ jardinet", type:"Appartement", price:310000, surface:130, rooms:4, bathrooms:2, location:"El Menzah 7, Ariana", promoteur:"Étoile Immobilier", badge:[], img:"https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=400&q=80", photos:12, lat:36.8432, lng:10.1908, delivery:"Livré", date:"6j", zone:"El Menzah" },
+
+  /* ── GAMMARTH (ids 130-147) ─────────────────────────────────── */
+  { id:130, kind:"agence", transaction:"vente", title:"Villa front de mer – accès plage privée", type:"Villa", price:3800000, surface:550, rooms:9, bathrooms:6, location:"Gammarth, Tunis", promoteur:"Immob. du Golfe", badge:["exclusive"], img:"https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=400&q=80", photos:45, lat:36.9120, lng:10.2870, delivery:"Livré", date:"1j", zone:"Gammarth" },
+  { id:131, kind:"agence", transaction:"location", title:"Villa meublée 7 pièces piscine chauffée", type:"Villa", price:15000, surface:480, rooms:7, bathrooms:5, location:"Gammarth Supérieur", promoteur:"Immob. du Golfe", badge:["exclusive"], img:"https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=400&q=80", photos:40, lat:36.9140, lng:10.2840, delivery:"Disponible", date:"2j", zone:"Gammarth" },
+  { id:132, kind:"agence", transaction:"vente", title:"Appartement S+3 résidence de luxe vue mer", type:"Appartement", price:590000, surface:165, rooms:4, bathrooms:3, location:"Gammarth, Tunis", promoteur:"Azur Immobilier", badge:["exclusive"], img:"https://images.unsplash.com/photo-1502672023488-70e25813eb80?w=400&q=80", photos:22, lat:36.9110, lng:10.2890, delivery:"Livré", date:"3j", zone:"Gammarth" },
+  { id:133, kind:"neuf", transaction:"vente", title:"Les Cimes de Gammarth – Penthouse T5", type:"Penthouse", price:1800000, surface:380, rooms:6, bathrooms:4, location:"Gammarth Supérieur", promoteur:"Bullaregia Immobilière", badge:["new","livraison"], img:"https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=400&q=80", photos:30, lat:36.9150, lng:10.2820, delivery:"T3 2025", date:"2j", zone:"Gammarth" },
+  { id:134, kind:"agence", transaction:"vente", title:"Villa contemporaine 6 pièces – piscine à débordement", type:"Villa", price:2600000, surface:450, rooms:7, bathrooms:5, location:"Gammarth, Tunis", promoteur:"Azur Immobilier", badge:["exclusive"], img:"https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=400&q=80", photos:36, lat:36.9130, lng:10.2860, delivery:"Livré", date:"4j", zone:"Gammarth" },
+  { id:135, kind:"agence", transaction:"vente", title:"Terrain vue mer 1500 m² – Gammarth Supérieur", type:"Terrain", price:1800000, surface:1500, rooms:0, bathrooms:0, location:"Gammarth Supérieur", promoteur:"Immob. du Golfe", badge:["exclusive"], img:"https://images.unsplash.com/photo-1622547748225-3fc4abd2cca0?w=400&q=80", photos:10, lat:36.9160, lng:10.2800, delivery:"Disponible", date:"3s", zone:"Gammarth", tf:true },
+  { id:136, kind:"agence", transaction:"location", title:"Appartement S+2 meublé – résidence sécurisée", type:"Appartement", price:2600, surface:95, rooms:3, bathrooms:2, location:"Gammarth, Tunis", promoteur:"Azur Immobilier", badge:[], img:"https://images.unsplash.com/photo-1560185127-6ed189bf02f4?w=400&q=80", photos:12, lat:36.9105, lng:10.2900, delivery:"Disponible", date:"5j", zone:"Gammarth" },
+  { id:137, kind:"agence", transaction:"vente", title:"Duplex 3 niveaux vue panoramique golfe", type:"Duplex", price:1100000, surface:280, rooms:5, bathrooms:4, location:"Gammarth Supérieur", promoteur:"Immob. du Golfe", badge:["exclusive"], img:"https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=400&q=80", photos:25, lat:36.9145, lng:10.2830, delivery:"Livré", date:"1s", zone:"Gammarth" },
+  { id:138, kind:"agence", transaction:"vente", title:"Appartement S+1 – investissement bord de mer", type:"Appartement", price:210000, surface:62, rooms:2, bathrooms:1, location:"Gammarth Plage", promoteur:"Azur Immobilier", badge:[], img:"https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=400&q=80", photos:8, lat:36.9100, lng:10.2910, delivery:"Livré", date:"2s", zone:"Gammarth" },
+  { id:139, kind:"agence", transaction:"location", title:"Villa luxe meublée 8 pièces – domaine sécurisé", type:"Villa", price:20000, surface:600, rooms:8, bathrooms:6, location:"Gammarth Supérieur", promoteur:"Immob. du Golfe", badge:["exclusive"], img:"https://images.unsplash.com/photo-1613977257363-707ba9348227?w=400&q=80", photos:50, lat:36.9155, lng:10.2810, delivery:"Disponible", date:"1j", zone:"Gammarth" },
+  { id:140, kind:"neuf", transaction:"vente", title:"Villa Gammarth Park – programme 12 villas", type:"Villa", price:1950000, surface:400, rooms:7, bathrooms:4, location:"Gammarth, Tunis", promoteur:"Bullaregia Immobilière", badge:["new","livraison"], img:"https://images.unsplash.com/photo-1486325212027-8081e485255e?w=400&q=80", photos:28, lat:36.9125, lng:10.2875, delivery:"T2 2026", date:"3j", zone:"Gammarth" },
+  { id:141, kind:"agence", transaction:"vente", title:"Appartement S+4 – 230 m² terrasse 90 m²", type:"Appartement", price:880000, surface:230, rooms:5, bathrooms:3, location:"Gammarth, Tunis", promoteur:"Azur Immobilier", badge:["exclusive"], img:"https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=400&q=80", photos:26, lat:36.9108, lng:10.2895, delivery:"Livré", date:"4j", zone:"Gammarth" },
+  { id:142, kind:"agence", transaction:"location", title:"Duplex meublé haut de gamme 200 m²", type:"Duplex", price:8000, surface:200, rooms:4, bathrooms:3, location:"Gammarth Supérieur", promoteur:"Immob. du Golfe", badge:["promo"], img:"https://images.unsplash.com/photo-1560185007-5f0bb1866cab?w=400&q=80", photos:20, lat:36.9148, lng:10.2825, delivery:"Disponible", date:"5j", zone:"Gammarth" },
+  { id:143, kind:"agence", transaction:"vente", title:"Villa 5 pièces – jardin 400 m² vue mer lointaine", type:"Villa", price:1450000, surface:320, rooms:6, bathrooms:4, location:"Gammarth, Tunis", promoteur:"Azur Immobilier", badge:[], img:"https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?w=400&q=80", photos:30, lat:36.9118, lng:10.2882, delivery:"Livré", date:"1s", zone:"Gammarth" },
+  { id:144, kind:"agence", transaction:"vente", title:"Terrain 2000 m² bord de mer constructible", type:"Terrain", price:3200000, surface:2000, rooms:0, bathrooms:0, location:"Gammarth Plage", promoteur:"Immob. du Golfe", badge:["exclusive"], img:"https://images.unsplash.com/photo-1458433466023-d02e14fe11a0?w=400&q=80", photos:12, lat:36.9095, lng:10.2920, delivery:"Disponible", date:"2s", zone:"Gammarth", tf:true },
+  { id:145, kind:"agence", transaction:"location", title:"Appartement S+3 standing bord de mer", type:"Appartement", price:4500, surface:145, rooms:4, bathrooms:2, location:"Gammarth Plage", promoteur:"Azur Immobilier", badge:["promo"], img:"https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400&q=80", photos:16, lat:36.9102, lng:10.2905, delivery:"Disponible", date:"6j", zone:"Gammarth" },
+  { id:146, kind:"agence", transaction:"vente", title:"Penthouse 4 faces – 320 m² vue 360° mer", type:"Penthouse", price:2400000, surface:320, rooms:6, bathrooms:4, location:"Gammarth Supérieur", promoteur:"Immob. du Golfe", badge:["exclusive"], img:"https://images.unsplash.com/photo-1502672023488-70e25813eb80?w=400&q=80", photos:42, lat:36.9152, lng:10.2815, delivery:"Livré", date:"3s", zone:"Gammarth" },
+  { id:147, kind:"agence", transaction:"vente", title:"Appartement S+2 résidence balnéaire neuve", type:"Appartement", price:320000, surface:105, rooms:3, bathrooms:2, location:"Gammarth, Tunis", promoteur:"Azur Immobilier", badge:["new"], img:"https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=400&q=80", photos:14, lat:36.9112, lng:10.2888, delivery:"Livré", date:"4j", zone:"Gammarth" },
+
+  /* ── CENTRE VILLE (ids 148-163) ─────────────────────────────── */
+  { id:148, kind:"agence", transaction:"vente", title:"Appartement haussmannien rénové – Av. Bourguiba", type:"Appartement", price:380000, surface:160, rooms:5, bathrooms:2, location:"Centre Ville, Tunis", promoteur:"TunisPromo", badge:["exclusive"], img:"https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=400&q=80", photos:18, lat:36.8190, lng:10.1820, delivery:"Livré", date:"2j", zone:"Centre Ville" },
+  { id:149, kind:"agence", transaction:"location", title:"Bureau 200 m² – immeuble classe A centre", type:"Bureau", price:3500, surface:200, rooms:0, bathrooms:2, location:"Centre Ville, Tunis", promoteur:"Capital Immo", badge:[], img:"https://images.unsplash.com/photo-1497366216548-37526070297c?w=400&q=80", photos:10, lat:36.8195, lng:10.1830, delivery:"Disponible", date:"3j", zone:"Centre Ville" },
+  { id:150, kind:"neuf", transaction:"vente", title:"Medina Loft – lofts design en réhabilitation", type:"Appartement", price:420000, surface:140, rooms:3, bathrooms:2, location:"Médina, Tunis", promoteur:"TunisPromo", badge:["new","livraison"], img:"https://images.unsplash.com/photo-1467533003447-e295ff1b0435?w=400&q=80", photos:20, lat:36.8200, lng:10.1780, delivery:"T1 2026", date:"4j", zone:"Centre Ville" },
+  { id:151, kind:"agence", transaction:"vente", title:"Immeuble de rapport 6 appartements", type:"Appartement", price:1800000, surface:800, rooms:18, bathrooms:6, location:"Centre Ville, Tunis", promoteur:"Capital Immo", badge:["exclusive"], img:"https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=400&q=80", photos:24, lat:36.8185, lng:10.1840, delivery:"Livré", date:"5j", zone:"Centre Ville" },
+  { id:152, kind:"agence", transaction:"location", title:"Appartement S+3 central – proximité Parlement", type:"Appartement", price:1200, surface:115, rooms:4, bathrooms:2, location:"Centre Ville, Tunis", promoteur:"TunisPromo", badge:[], img:"https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400&q=80", photos:9, lat:36.8192, lng:10.1825, delivery:"Disponible", date:"1j", zone:"Centre Ville" },
+  { id:153, kind:"agence", transaction:"vente", title:"Local commercial 80 m² – rez-de-rue animée", type:"Bureau", price:340000, surface:80, rooms:0, bathrooms:1, location:"Av. Bourguiba, Tunis", promoteur:"Capital Immo", badge:[], img:"https://images.unsplash.com/photo-1497366811353-6870744d04b2?w=400&q=80", photos:8, lat:36.8198, lng:10.1812, delivery:"Livré", date:"2j", zone:"Centre Ville" },
+  { id:154, kind:"agence", transaction:"vente", title:"Appartement S+2 vue basilique Carthage-style", type:"Appartement", price:220000, surface:88, rooms:3, bathrooms:1, location:"Lafayette, Tunis", promoteur:"TunisPromo", badge:[], img:"https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=400&q=80", photos:11, lat:36.8180, lng:10.1850, delivery:"Livré", date:"6j", zone:"Centre Ville" },
+  { id:155, kind:"agence", transaction:"location", title:"Plateau bureau 350 m² – zone diplomatique", type:"Bureau", price:6000, surface:350, rooms:0, bathrooms:3, location:"Centre Ville, Tunis", promoteur:"Capital Immo", badge:[], img:"https://images.unsplash.com/photo-1524758631624-e2822e304c36?w=400&q=80", photos:12, lat:36.8188, lng:10.1845, delivery:"Disponible", date:"4j", zone:"Centre Ville" },
+  { id:156, kind:"agence", transaction:"vente", title:"Duplex 160 m² – rooftop privatif en surélévation", type:"Duplex", price:510000, surface:160, rooms:4, bathrooms:3, location:"Centre Ville, Tunis", promoteur:"TunisPromo", badge:["exclusive"], img:"https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=400&q=80", photos:16, lat:36.8194, lng:10.1818, delivery:"Livré", date:"3j", zone:"Centre Ville" },
+  { id:157, kind:"agence", transaction:"vente", title:"Appartement S+1 – Belvedere quartier vert", type:"Appartement", price:165000, surface:62, rooms:2, bathrooms:1, location:"Belvédère, Tunis", promoteur:"Capital Immo", badge:[], img:"https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=400&q=80", photos:7, lat:36.8210, lng:10.1760, delivery:"Livré", date:"1s", zone:"Centre Ville" },
+  { id:158, kind:"agence", transaction:"location", title:"Appartement S+2 meublé – centre animé", type:"Appartement", price:1000, surface:78, rooms:3, bathrooms:1, location:"Centre Ville, Tunis", promoteur:"TunisPromo", badge:[], img:"https://images.unsplash.com/photo-1560185007-5f0bb1866cab?w=400&q=80", photos:8, lat:36.8190, lng:10.1835, delivery:"Disponible", date:"5j", zone:"Centre Ville" },
+  { id:159, kind:"agence", transaction:"vente", title:"Appartement S+3 – terrasse 50 m² vue ville", type:"Appartement", price:295000, surface:125, rooms:4, bathrooms:2, location:"Montplaisir, Tunis", promoteur:"Capital Immo", badge:[], img:"https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400&q=80", photos:13, lat:36.8175, lng:10.1870, delivery:"Livré", date:"2s", zone:"Centre Ville" },
+  { id:160, kind:"neuf", transaction:"vente", title:"Tunis Business Center – bureaux premium livrés", type:"Bureau", price:780000, surface:340, rooms:0, bathrooms:3, location:"Centre Ville, Tunis", promoteur:"TunisPromo", badge:["new","livraison"], img:"https://images.unsplash.com/photo-1486325212027-8081e485255e?w=400&q=80", photos:20, lat:36.8200, lng:10.1800, delivery:"Livré", date:"1s", zone:"Centre Ville" },
+  { id:161, kind:"agence", transaction:"vente", title:"Penthouse centre-ville 250 m² – terrasse XXL", type:"Penthouse", price:750000, surface:250, rooms:5, bathrooms:3, location:"Centre Ville, Tunis", promoteur:"TunisPromo", badge:["exclusive"], img:"https://images.unsplash.com/photo-1502672023488-70e25813eb80?w=400&q=80", photos:24, lat:36.8188, lng:10.1828, delivery:"Livré", date:"4j", zone:"Centre Ville" },
+  { id:162, kind:"agence", transaction:"location", title:"Local commercial 150 m² – fort passage piéton", type:"Bureau", price:4200, surface:150, rooms:0, bathrooms:1, location:"Av. Habib Bourguiba", promoteur:"Capital Immo", badge:[], img:"https://images.unsplash.com/photo-1497366216548-37526070297c?w=400&q=80", photos:7, lat:36.8198, lng:10.1808, delivery:"Disponible", date:"3j", zone:"Centre Ville" },
+  { id:163, kind:"agence", transaction:"vente", title:"Appartement S+4 familial – 2 parkings sous-sol", type:"Appartement", price:430000, surface:180, rooms:5, bathrooms:3, location:"Lafayette, Tunis", promoteur:"TunisPromo", badge:[], img:"https://images.unsplash.com/photo-1560185127-6ed189bf02f4?w=400&q=80", photos:15, lat:36.8178, lng:10.1862, delivery:"Livré", date:"6j", zone:"Centre Ville" },
+
+  /* ── LAC 1 (ids 164-179) ────────────────────────────────────── */
+  { id:164, kind:"agence", transaction:"vente", title:"Appartement S+3 – vue sur le lac 1", type:"Appartement", price:350000, surface:130, rooms:4, bathrooms:2, location:"Les Berges du Lac I", promoteur:"Luxury Homes", badge:[], img:"https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=400&q=80", photos:14, lat:36.8420, lng:10.2260, delivery:"Livré", date:"2j", zone:"Lac 1" },
+  { id:165, kind:"neuf", transaction:"vente", title:"Lac 1 Premium Tower – T4 à T6 neufs", type:"Appartement", price:580000, surface:195, rooms:5, bathrooms:3, location:"Les Berges du Lac I", promoteur:"Odéon Immobilière", badge:["new","livraison"], img:"https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=400&q=80", photos:22, lat:36.8430, lng:10.2240, delivery:"T4 2025", date:"1j", zone:"Lac 1" },
+  { id:166, kind:"agence", transaction:"location", title:"Bureau 180 m² – Lac 1 Business District", type:"Bureau", price:3200, surface:180, rooms:0, bathrooms:2, location:"Les Berges du Lac I", promoteur:"Luxury Homes", badge:[], img:"https://images.unsplash.com/photo-1524758631624-e2822e304c36?w=400&q=80", photos:9, lat:36.8415, lng:10.2275, delivery:"Disponible", date:"3j", zone:"Lac 1" },
+  { id:167, kind:"agence", transaction:"vente", title:"Penthouse S+4 – derniers étages vue lacustre", type:"Penthouse", price:1100000, surface:280, rooms:5, bathrooms:4, location:"Les Berges du Lac I", promoteur:"Prestige Immobilier", badge:["exclusive"], img:"https://images.unsplash.com/photo-1502672023488-70e25813eb80?w=400&q=80", photos:30, lat:36.8425, lng:10.2250, delivery:"Livré", date:"4j", zone:"Lac 1" },
+  { id:168, kind:"agence", transaction:"location", title:"Appartement S+2 meublé haut de gamme", type:"Appartement", price:2000, surface:88, rooms:3, bathrooms:2, location:"Les Berges du Lac I", promoteur:"Luxury Homes", badge:[], img:"https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400&q=80", photos:11, lat:36.8418, lng:10.2268, delivery:"Disponible", date:"5j", zone:"Lac 1" },
+  { id:169, kind:"agence", transaction:"vente", title:"Duplex vue lac – double terrasse 70 m²", type:"Duplex", price:680000, surface:210, rooms:4, bathrooms:3, location:"Lac I, Tunis", promoteur:"Prestige Immobilier", badge:["exclusive"], img:"https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=400&q=80", photos:20, lat:36.8428, lng:10.2245, delivery:"Livré", date:"6j", zone:"Lac 1" },
+  { id:170, kind:"agence", transaction:"vente", title:"Villa jumelée S+3 – résidence clôturée", type:"Villa", price:820000, surface:270, rooms:6, bathrooms:3, location:"Les Berges du Lac I", promoteur:"Luxury Homes", badge:[], img:"https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=400&q=80", photos:18, lat:36.8435, lng:10.2232, delivery:"Livré", date:"1s", zone:"Lac 1" },
+  { id:171, kind:"agence", transaction:"location", title:"Plateau de bureaux 400 m² – standing premium", type:"Bureau", price:7200, surface:400, rooms:0, bathrooms:4, location:"Les Berges du Lac I", promoteur:"Prestige Immobilier", badge:[], img:"https://images.unsplash.com/photo-1497366811353-6870744d04b2?w=400&q=80", photos:13, lat:36.8422, lng:10.2258, delivery:"Disponible", date:"2j", zone:"Lac 1" },
+  { id:172, kind:"agence", transaction:"vente", title:"Appartement S+1 – 65 m² investissement", type:"Appartement", price:190000, surface:65, rooms:2, bathrooms:1, location:"Lac I, Tunis", promoteur:"Luxury Homes", badge:[], img:"https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=400&q=80", photos:7, lat:36.8412, lng:10.2280, delivery:"Livré", date:"3j", zone:"Lac 1" },
+  { id:173, kind:"agence", transaction:"vente", title:"Appartement S+3 résidence gardée – standing", type:"Appartement", price:410000, surface:145, rooms:4, bathrooms:2, location:"Les Berges du Lac I", promoteur:"Prestige Immobilier", badge:["promo"], img:"https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=400&q=80", photos:15, lat:36.8420, lng:10.2260, delivery:"Livré", date:"4j", zone:"Lac 1" },
+  { id:174, kind:"agence", transaction:"location", title:"Villa meublée 5 pièces – piscine + garage", type:"Villa", price:6500, surface:300, rooms:5, bathrooms:3, location:"Lac I, Tunis", promoteur:"Luxury Homes", badge:["promo"], img:"https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=400&q=80", photos:25, lat:36.8438, lng:10.2228, delivery:"Disponible", date:"5j", zone:"Lac 1" },
+  { id:175, kind:"neuf", transaction:"vente", title:"Lac Résidences – programme mixte T3 à T5", type:"Appartement", price:425000, surface:155, rooms:4, bathrooms:2, location:"Les Berges du Lac I", promoteur:"Odéon Immobilière", badge:["new","livraison"], img:"https://images.unsplash.com/photo-1486325212027-8081e485255e?w=400&q=80", photos:19, lat:36.8424, lng:10.2252, delivery:"T2 2026", date:"2j", zone:"Lac 1" },
+  { id:176, kind:"agence", transaction:"vente", title:"Terrain constructible 500 m² – Lac I bord eau", type:"Terrain", price:420000, surface:500, rooms:0, bathrooms:0, location:"Les Berges du Lac I", promoteur:"Prestige Immobilier", badge:["exclusive"], img:"https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=400&q=80", photos:6, lat:36.8440, lng:10.2220, delivery:"Disponible", date:"2s", zone:"Lac 1", tf:true },
+  { id:177, kind:"agence", transaction:"location", title:"Appartement S+3 non meublé – vue lac panoramique", type:"Appartement", price:1700, surface:125, rooms:4, bathrooms:2, location:"Les Berges du Lac I", promoteur:"Luxury Homes", badge:[], img:"https://images.unsplash.com/photo-1560185127-6ed189bf02f4?w=400&q=80", photos:10, lat:36.8416, lng:10.2272, delivery:"Disponible", date:"6j", zone:"Lac 1" },
+  { id:178, kind:"agence", transaction:"vente", title:"Appartement S+2 3e étage – balcon filant vue lac", type:"Appartement", price:278000, surface:98, rooms:3, bathrooms:2, location:"Lac I, Tunis", promoteur:"Prestige Immobilier", badge:[], img:"https://images.unsplash.com/photo-1560185007-5f0bb1866cab?w=400&q=80", photos:12, lat:36.8426, lng:10.2248, delivery:"Livré", date:"1s", zone:"Lac 1" },
+  { id:179, kind:"agence", transaction:"vente", title:"Villa individuelle S+4 – garage 3 voitures", type:"Villa", price:1200000, surface:400, rooms:8, bathrooms:4, location:"Les Berges du Lac I", promoteur:"Luxury Homes", badge:["exclusive"], img:"https://images.unsplash.com/photo-1600585154526-990dced4db0d?w=400&q=80", photos:28, lat:36.8440, lng:10.2225, delivery:"Livré", date:"3s", zone:"Lac 1" },
+
+  /* ── LA SOUKRA (ids 180-195) ────────────────────────────────── */
+  { id:180, kind:"agence", transaction:"vente", title:"Villa S+3 – terrain 400 m² quartier calme", type:"Villa", price:560000, surface:230, rooms:6, bathrooms:3, location:"La Soukra, Ariana", promoteur:"Prestige Dev.", badge:[], img:"https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?w=400&q=80", photos:18, lat:36.8950, lng:10.1680, delivery:"Livré", date:"2j", zone:"La Soukra" },
+  { id:181, kind:"agence", transaction:"vente", title:"Appartement S+3 résidence récente avec ascenseur", type:"Appartement", price:240000, surface:105, rooms:4, bathrooms:2, location:"La Soukra, Ariana", promoteur:"Soukra Résidences", badge:[], img:"https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=400&q=80", photos:11, lat:36.8930, lng:10.1700, delivery:"Livré", date:"3j", zone:"La Soukra" },
+  { id:182, kind:"neuf", transaction:"vente", title:"Cité Verte Soukra – villas T4 & T5 neuves", type:"Villa", price:680000, surface:260, rooms:5, bathrooms:3, location:"La Soukra, Ariana", promoteur:"Prestige Dev.", badge:["new","livraison"], img:"https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=400&q=80", photos:20, lat:36.8960, lng:10.1660, delivery:"T2 2026", date:"1j", zone:"La Soukra" },
+  { id:183, kind:"agence", transaction:"location", title:"Villa S+3 meublée – grand jardin avec piscine", type:"Villa", price:3500, surface:260, rooms:5, bathrooms:3, location:"La Soukra, Ariana", promoteur:"Soukra Résidences", badge:[], img:"https://images.unsplash.com/photo-1583608205776-bfd35f0d9f83?w=400&q=80", photos:22, lat:36.8920, lng:10.1720, delivery:"Disponible", date:"4j", zone:"La Soukra" },
+  { id:184, kind:"agence", transaction:"vente", title:"Duplex S+3 finitions haut de gamme", type:"Duplex", price:415000, surface:175, rooms:4, bathrooms:3, location:"La Soukra, Ariana", promoteur:"Prestige Dev.", badge:["promo"], img:"https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=400&q=80", photos:15, lat:36.8940, lng:10.1695, delivery:"Livré", date:"5j", zone:"La Soukra" },
+  { id:185, kind:"agence", transaction:"vente", title:"Terrain résidentiel 450 m² – viabilisé", type:"Terrain", price:195000, surface:450, rooms:0, bathrooms:0, location:"La Soukra, Ariana", promoteur:"Med Immo", badge:[], img:"https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=400&q=80", photos:5, lat:36.8970, lng:10.1650, delivery:"Disponible", date:"1s", zone:"La Soukra", tf:true },
+  { id:186, kind:"agence", transaction:"location", title:"Appartement S+2 au calme – 2e étage", type:"Appartement", price:750, surface:75, rooms:3, bathrooms:1, location:"La Soukra, Ariana", promoteur:"Soukra Résidences", badge:[], img:"https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400&q=80", photos:7, lat:36.8925, lng:10.1715, delivery:"Disponible", date:"6j", zone:"La Soukra" },
+  { id:187, kind:"agence", transaction:"vente", title:"Appartement S+2 – rez-de-jardin 100 m²", type:"Appartement", price:195000, surface:100, rooms:3, bathrooms:1, location:"La Soukra, Ariana", promoteur:"Med Immo", badge:[], img:"https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=400&q=80", photos:9, lat:36.8945, lng:10.1688, delivery:"Livré", date:"2j", zone:"La Soukra" },
+  { id:188, kind:"agence", transaction:"vente", title:"Villa individuelle S+4 – 500 m² de terrain", type:"Villa", price:750000, surface:290, rooms:7, bathrooms:4, location:"La Soukra Supérieure", promoteur:"Prestige Dev.", badge:["exclusive"], img:"https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=400&q=80", photos:24, lat:36.8978, lng:10.1638, delivery:"Livré", date:"3j", zone:"La Soukra" },
+  { id:189, kind:"agence", transaction:"location", title:"Bureau 100 m² – zone activités La Soukra", type:"Bureau", price:1600, surface:100, rooms:0, bathrooms:1, location:"La Soukra, Ariana", promoteur:"Soukra Résidences", badge:[], img:"https://images.unsplash.com/photo-1497366811353-6870744d04b2?w=400&q=80", photos:6, lat:36.8935, lng:10.1705, delivery:"Disponible", date:"4j", zone:"La Soukra" },
+  { id:190, kind:"agence", transaction:"vente", title:"Appartement S+3 – 3e étage ascenseur parking", type:"Appartement", price:268000, surface:115, rooms:4, bathrooms:2, location:"La Soukra, Ariana", promoteur:"Med Immo", badge:[], img:"https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=400&q=80", photos:10, lat:36.8942, lng:10.1693, delivery:"Livré", date:"5j", zone:"La Soukra" },
+  { id:191, kind:"neuf", transaction:"vente", title:"Soukra Green Résidences – T3 avec espaces verts", type:"Appartement", price:225000, surface:95, rooms:3, bathrooms:2, location:"La Soukra, Ariana", promoteur:"Prestige Dev.", badge:["new","livraison"], img:"https://images.unsplash.com/photo-1486325212027-8081e485255e?w=400&q=80", photos:16, lat:36.8955, lng:10.1668, delivery:"T3 2025", date:"2j", zone:"La Soukra" },
+  { id:192, kind:"agence", transaction:"location", title:"Villa 4 pièces non meublée – quartier résidentiel", type:"Villa", price:2200, surface:200, rooms:4, bathrooms:2, location:"La Soukra, Ariana", promoteur:"Med Immo", badge:[], img:"https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=400&q=80", photos:14, lat:36.8918, lng:10.1728, delivery:"Disponible", date:"1s", zone:"La Soukra" },
+  { id:193, kind:"agence", transaction:"vente", title:"Penthouse S+3 – vue dégagée terrasse 90 m²", type:"Penthouse", price:495000, surface:195, rooms:4, bathrooms:3, location:"La Soukra, Ariana", promoteur:"Soukra Résidences", badge:[], img:"https://images.unsplash.com/photo-1502672023488-70e25813eb80?w=400&q=80", photos:17, lat:36.8948, lng:10.1682, delivery:"Livré", date:"6j", zone:"La Soukra" },
+  { id:194, kind:"agence", transaction:"vente", title:"Terrain 600 m² zone villa – toutes commodités", type:"Terrain", price:255000, surface:600, rooms:0, bathrooms:0, location:"La Soukra Supérieure", promoteur:"Prestige Dev.", badge:[], img:"https://images.unsplash.com/photo-1458433466023-d02e14fe11a0?w=400&q=80", photos:5, lat:36.8980, lng:10.1632, delivery:"Disponible", date:"2s", zone:"La Soukra", tf:true },
+  { id:195, kind:"agence", transaction:"vente", title:"Duplex familial 200 m² – sous-sol + jardin", type:"Duplex", price:450000, surface:200, rooms:5, bathrooms:3, location:"La Soukra, Ariana", promoteur:"Med Immo", badge:["promo"], img:"https://images.unsplash.com/photo-1560185007-5f0bb1866cab?w=400&q=80", photos:19, lat:36.8938, lng:10.1700, delivery:"Livré", date:"4j", zone:"La Soukra" },
+];
+
+const badgeLabels = {
+  livraison: { text: "Livraison imminente", cls: "badge-livraison" },
+};
+
+function formatPrice(p) {
+  return p.toLocaleString('fr-TN') + ' TND';
+}
+
+/* ========================
+   RENDER CARDS
+======================== */
+let activeId = null;
+
+const descriptions = [
+  "Beau ${type} situé dans une résidence sécurisée avec gardien, parking sous-sol et espaces verts. Proche de toutes commodités.",
+  "Spacieux ${type} traversant, lumineux, avec balcon filant vue dégagée. Cuisine équipée, double vitrage, ascenseur.",
+  "Magnifique ${type} neuf livré clé en main. Finitions haut de gamme, marbre au sol, menuiserie aluminium.",
+  "Idéal investissement ou résidence principale. ${type} en étage élevé, calme et sécurisé, gardien 24h/24.",
+  "${type} avec terrasse privative de 25 m². Résidence avec piscine commune, conciergerie et vidéosurveillance.",
+];
+
+function getDesc(p) {
+  const tpl = descriptions[p.id % descriptions.length];
+  return tpl.replace('${type}', p.type.toLowerCase());
+}
+
+function buildCardHtml(p) {
+  const isLivré = p.delivery === 'Livré';
+  const isSoon  = p.delivery === 'Livraison imminente';
+  const deliveryClass = isLivré ? '' : isSoon ? 'soon' : '';
+  const deliveryIcon  = isLivré ? 'fa-check-circle' : isSoon ? 'fa-clock' : 'fa-calendar-alt';
+  const initials = p.promoteur.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+  const hasVV = p.id % 3 === 0;
+  return `
+  <div class="card kind-${p.kind}" id="card-${p.id}" onclick="window.location='${p.kind === 'neuf' ? 'projet-neuf.html' : p.type === 'Terrain' ? 'terrain.html' : 'listing.html'}'">
+    <div class="card-img">
+      <img src="${p.img}" alt="${p.title}" loading="lazy" />
+      <div class="card-badge">
+        <span class="badge ${p.transaction === 'location' ? 'badge-location' : 'badge-vente'}">${p.transaction === 'location' ? 'Location' : 'Vente'}</span>
+        ${p.badge.filter(b => badgeLabels[b] && b !== 'livraison').map(b => `<span class="badge ${badgeLabels[b].cls}">${badgeLabels[b].text}</span>`).join('')}
+      </div>
+      <button class="card-fav" onclick="toggleFav(event,this)" aria-label="Favoris"><i class="fas fa-heart"></i></button>
+      <div class="card-media-row">
+        ${hasVV ? `<div class="card-vv"><i class="fas fa-vr-cardboard"></i></div>` : ''}
+        <div class="card-photo-count"><i class="fas fa-camera"></i> 1/${p.photos}</div>
+      </div>
+    </div>
+    ${p.photos >= 3 ? `
+    <div class="card-thumbs-strip">
+      <div class="card-thumb-mini"><img src="${p.img}" alt="" loading="lazy" /></div>
+      <div class="card-thumb-mini"><img src="${p.img}" alt="" loading="lazy" style="filter:brightness(.92) saturate(1.1)" /></div>
+      ${p.photos > 3 ? `<div class="card-thumb-more">+${p.photos - 2}</div>` : `<div class="card-thumb-mini"><img src="${p.img}" alt="" loading="lazy" style="filter:brightness(.85)" /></div>`}
+    </div>` : ''}
+    <div class="card-body">
+      <div>
+        <div class="card-kind-row">
+          <span class="card-type-label">${p.type}</span>
+          <span class="card-kind-tag ${p.kind}">${p.kind === 'neuf' ? '★ Projet neuf' : '🏢 Agence'}</span>
+        </div>
+        <div class="card-price-row">
+          <span class="card-price">${p.transaction === 'location' ? p.price.toLocaleString('fr-TN') + ' TND<span style="font-size:12px;font-weight:500"> /mois</span>' : (p.kind === 'neuf' ? '<span style="font-size:11px;font-weight:600;color:var(--gray-600)">À partir de </span>' : '') + formatPrice(p.price)}</span>
+          ${p.transaction !== 'location' ? `<span class="card-price-m2">${Math.round(p.price/p.surface).toLocaleString()} TND/m²</span>` : ''}
+        </div>
+        ${p.type === 'Terrain' ? `
+        <div class="card-terrain-specs">
+          <span class="terrain-chip ${p.tf ? 'tf' : 'no-tf'}"><i class="fas fa-file-alt"></i> ${p.tf ? 'Titre foncier' : 'Sans TF'}</span>
+          <span class="terrain-chip ${p.constructible ? 'construct' : 'agricole'}"><i class="fas fa-${p.constructible ? 'hard-hat' : 'seedling'}"></i> ${p.constructible ? 'Constructible' : p.nature || 'Agricole'}</span>
+          <span class="terrain-chip no-tf"><i class="fas fa-ruler-combined"></i> ${p.surface} m²</span>
+        </div>` : `
+        <div class="card-specs">
+          ${p.surface} m²${p.rooms > 0 ? `<span class="card-specs-sep">·</span>${p.rooms <= 1 ? 'Studio' : 'S+' + (p.rooms - 1)}` : ''}${p.bathrooms > 0 ? `<span class="card-specs-sep">·</span>${p.bathrooms} SDB` : ''}
+        </div>`}
+        <div class="card-location">
+          <svg class="pin-svg" width="11" height="14" viewBox="0 0 24 28" fill="currentColor">
+            <path d="M12 0C7.032 0 3 4.032 3 9c0 6.75 9 17 9 17s9-10.25 9-17c0-4.968-4.032-9-9-9zm0 12a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/>
+          </svg>
+          ${p.location}
+        </div>
+      </div>
+      <div class="card-footer">
+        <div class="card-promoteur-badge" onclick="event.stopPropagation();window.location='${p.kind === 'neuf' ? 'promoteur.html' : 'agence.html'}'" style="cursor:pointer" title="Voir la fiche ${p.kind === 'neuf' ? 'promoteur' : 'agence'}">
+          <div class="card-promoteur-avatar ${p.kind === 'neuf' ? 'avatar-neuf' : 'avatar-agence'}">${initials}</div>
+          <div class="card-promoteur-info">
+            <div class="card-promoteur-role">${p.kind === 'neuf' ? 'Promoteur' : 'Agence'}</div>
+            <div class="card-promoteur-name" style="text-decoration:underline;text-underline-offset:2px;">${p.promoteur}</div>
+          </div>
+        </div>
+        ${p.kind === 'neuf' ? `<div class="card-delivery ${deliveryClass}"><i class="fas ${deliveryIcon}"></i> ${p.delivery}</div>` : ''}
+        ${freshnessChip(p.date)}
+      </div>
+    </div>
+  </div>`;
+}
+
+/* Ads rotate randomly */
+const ADS = [
+  {
+    img: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80',
+    cat: 'Déménagement',
+    brand: 'Karray Déménagement',
+    title: 'Déménagez sereinement à Tunis',
+    sub: 'Devis gratuit en 2 min · Équipe professionnelle · Assurance incluse',
+    cta: 'Devis gratuit', href: '#',
+    overlay: 'rgba(15,30,60,.72)',
+  },
+  {
+    img: 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800&q=80',
+    cat: 'Assurance',
+    brand: 'Assurance Maison Pro',
+    title: 'Protégez votre bien immobilier',
+    sub: 'Multirisque habitation · À partir de 12 TND/mois · Souscription 100% en ligne',
+    cta: 'Souscrire en ligne', href: '#',
+    overlay: 'rgba(42,90,50,.72)',
+  },
+  {
+    img: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=800&q=80',
+    cat: 'Financement',
+    brand: 'BH Bank · Crédit Immobilier',
+    title: 'Financez votre projet immobilier',
+    sub: 'Simulation gratuite · Taux à partir de 7,5% · Réponse sous 48h',
+    cta: 'Simuler mon crédit', href: '#',
+    overlay: 'rgba(10,20,60,.75)',
+  },
+];
+const _ad = ADS[Math.floor(Math.random() * ADS.length)];
+const INLINE_AD_HTML = `
+<div class="inline-ad-card" style="padding:0;border:none;border-radius:var(--radius);overflow:hidden;position:relative;min-height:100px;">
+  <img src="${_ad.img}" alt="${_ad.brand}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;" />
+  <div style="position:absolute;inset:0;background:${_ad.overlay};"></div>
+  <div style="position:absolute;top:8px;right:10px;background:rgba(0,0,0,.45);color:rgba(255,255,255,.75);font-size:9px;font-weight:700;padding:2px 8px;border-radius:3px;letter-spacing:.6px;text-transform:uppercase;">Annonce</div>
+  <div style="position:relative;z-index:1;padding:16px 18px;display:flex;align-items:center;gap:16px;min-height:100px;">
+    <div style="flex:1;min-width:0;">
+      <div style="font-size:10px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">${_ad.cat} · ${_ad.brand}</div>
+      <div style="font-size:14px;font-weight:800;color:#fff;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${_ad.title}</div>
+      <div style="font-size:11.5px;color:rgba(255,255,255,.78);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${_ad.sub}</div>
+    </div>
+    <a href="${_ad.href}" onclick="event.stopPropagation()" style="flex-shrink:0;background:var(--gold);color:var(--navy-dark);font-size:12px;font-weight:800;padding:10px 16px;border-radius:8px;text-decoration:none;white-space:nowrap;transition:background .2s;">${_ad.cta} →</a>
+  </div>
+</div>`;
+
+function renderCards() {
+  const container = document.getElementById('list-scroll');
+  const filtered = getFiltered();
+
+  /* update count displays */
+  const countEl = document.getElementById('result-count-num');
+  if (countEl) countEl.textContent = filtered.length;
+  const mapCountEl = document.getElementById('map-count-num');
+  if (mapCountEl) mapCountEl.textContent = filtered.length;
+
+  /* empty state */
+  if (filtered.length === 0) {
+    container.innerHTML = `
+    <div class="empty-state">
+      <div class="empty-state-icon"><i class="fas fa-search-location"></i></div>
+      <div class="empty-state-title">Aucun bien trouvé</div>
+      <p class="empty-state-sub">Essayez d'élargir votre zone de recherche ou d'ajuster vos filtres.</p>
+      <button class="empty-state-cta" onclick="createAlert()">
+        <i class="fas fa-bell"></i> Créer une alerte pour ces critères
+      </button>
+    </div>`;
+    return;
+  }
+
+  /* build cards, insert inline ad after 4th */
+  const parts = filtered.map(p => buildCardHtml(p));
+  if (parts.length > 4) parts.splice(4, 0, INLINE_AD_HTML);
+  container.innerHTML = parts.join('');
+}
+
+function setView(mode) {
+  const main = document.querySelector('.main');
+  const btnMap  = document.getElementById('btn-map-view');
+  const btnList = document.getElementById('btn-list-view');
+  if (mode === 'list') {
+    main.classList.add('list-view');
+    btnList.classList.add('active');
+    btnMap.classList.remove('active');
+  } else {
+    main.classList.remove('list-view');
+    btnMap.classList.add('active');
+    btnList.classList.remove('active');
+    if (window._map) window._map.invalidateSize();
+  }
+}
+
+function toggleFav(e, btn) {
+  e.stopPropagation();
+  btn.classList.toggle('active');
+}
+
+function selectProperty(id) {
+  if (activeId) {
+    const prev = document.getElementById('card-' + activeId);
+    if (prev) prev.classList.remove('active');
+    if (markers[activeId]) markers[activeId]._icon.classList.remove('active');
+  }
+  activeId = id;
+  const card = document.getElementById('card-' + id);
+  if (card) {
+    card.classList.add('active');
+    card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+  if (markers[id]) {
+    markers[id]._icon.classList.add('active');
+    const p = properties.find(p => p.id === id);
+    const zoom = 14;
+    /* Décale le centre vers le bas pour que le popup (au-dessus du pin) soit entièrement visible */
+    const pt = map.project([p.lat, p.lng], zoom);
+    pt.y += map.getSize().y * 0.22;
+    map.setView(map.unproject(pt, zoom), zoom, { animate: true });
+    markers[id].openPopup();
+  }
+}
+
+/* ========================
+   MAP
+======================== */
+const planTile     = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
+const satTile      = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
+
+let currentLayer = 'plan';
+let tileLayer;
+const markers = {};
+let markerCluster = null;
+let approxCircles = [];   // cercles « zone approximative » (occasion + terrains)
+
+/* ── Localisation approximative (RG-GEO) ──────────────────────────────
+   Le neuf garde l'adresse EXACTE. L'occasion et les terrains n'exposent
+   au public qu'un CERCLE de zone, jamais un pin précis trompeur.
+   Le décalage est aléatoire mais FIGÉ par annonce (seed = id) : la vraie
+   position ne « bouge » pas d'un rechargement à l'autre (anti-triangulation).
+   Les coordonnées exactes restent en base (recherche/distance) — non exposées. */
+function _seededRand(seed) { const x = Math.sin(seed * 9301 + 49297) * 233280; return x - Math.floor(x); }
+function isApprox(p) { return p.kind !== 'neuf'; }   // neuf = exact ; reste = approx
+function approxRadius(p) {
+  if (p.type === 'Terrain') return 750;                                   // terrains : 500 m – 1 km
+  const txt = ((p.zone || '') + ' ' + (p.location || '')).toLowerCase();
+  const periUrbain = ['soukra','gammarth','banlieue','hammamet','nabeul','sahloul'];
+  const urbainDense = ['lac','menzah','marsa','ariana','ennasr','manar','centre'];
+  if (p.type === 'Villa' || periUrbain.some(z => txt.includes(z))) return 450; // péri-urbain / villas : 300–500 m
+  if (urbainDense.some(z => txt.includes(z))) return 250;                       // urbain dense : 200–300 m
+  return 300;
+}
+function approxCenter(p) {
+  const r = approxRadius(p);
+  const angle = _seededRand(p.id) * 2 * Math.PI;
+  const dist  = _seededRand(p.id + 9999) * r * 0.6;     // < rayon → vraie position reste dans le cercle
+  const dLat = (dist * Math.cos(angle)) / 111320;
+  const dLng = (dist * Math.sin(angle)) / (111320 * Math.cos(p.lat * Math.PI / 180));
+  return { lat: p.lat + dLat, lng: p.lng + dLng, radius: r };
+}
+
+const map = L.map('map', {
+  center: [36.82, 10.18],
+  zoom: 12,
+  zoomControl: false,
+});
+
+tileLayer = L.tileLayer(planTile, {
+  attribution: '&copy; <a href="https://carto.com/">CARTO</a>',
+  maxZoom: 19,
+}).addTo(map);
+
+function setLayer(type, btn) {
+  document.querySelectorAll('.layer-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  currentLayer = type;
+  map.removeLayer(tileLayer);
+  tileLayer = L.tileLayer(type === 'satellite' ? satTile : planTile, {
+    attribution: type === 'satellite' ? '&copy; Esri' : '&copy; CARTO',
+    maxZoom: 19,
+  }).addTo(map);
+}
+
+function buildPopup(p) {
+  return `<div class="popup-card">
+    <button class="popup-close-btn" onclick="map.closePopup()" title="Fermer">×</button>
+    <img class="popup-img" src="${p.img}" alt="${p.title}" />
+    <div class="popup-body">
+      <div class="popup-price">${p.kind === 'neuf' ? '<span style="font-size:11px;font-weight:500;color:var(--gray-600)">À partir de </span>' : ''}${formatPrice(p.price)}${p.transaction === 'location' ? '<span style="font-size:12px;font-weight:500;color:var(--gray-600)"> / mois</span>' : ''}</div>
+      <div class="popup-title">${p.title}</div>
+      <div class="popup-loc"><i class="fas fa-map-marker-alt"></i>${p.location}</div>
+      ${isApprox(p) ? `<div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--navy);background:#EEF2F9;border:1px solid #d6e0f0;border-radius:6px;padding:3px 8px;margin-top:6px"><i class="fas fa-draw-polygon" style="color:var(--gold)"></i> Localisation approximative · zone ~${approxRadius(p)} m</div>` : ''}
+      <div class="popup-specs">
+        ${p.type === 'Terrain'
+          ? `<span><i class="fas fa-ruler-combined"></i> ${p.surface} m²</span><span><i class="fas fa-file-alt"></i> ${p.tf ? 'TF' : 'Sans TF'}</span><span><i class="fas fa-hard-hat"></i> ${p.constructible ? 'Constructible' : p.nature||'Agricole'}</span>`
+          : `<span><i class="fas fa-vector-square"></i> ${p.surface} m²</span><span><i class="fas fa-door-open"></i> ${p.rooms<=1?'Studio':'S+'+(p.rooms-1)}</span>${p.bathrooms>0?`<span><i class="fas fa-bath"></i> ${p.bathrooms} SDB</span>`:''}`}
+      </div>
+      <div class="popup-actions">
+        <a href="${p.kind === 'neuf' ? 'projet-neuf.html' : p.type === 'Terrain' ? 'terrain.html' : 'listing.html'}" class="popup-btn">
+          <i class="fas fa-eye"></i> ${p.kind === 'neuf' ? 'Voir le projet' : p.type === 'Terrain' ? 'Voir le terrain' : "Voir l'annonce"}
+        </a>
+        <a href="https://wa.me/21698000000?text=${encodeURIComponent('Bonjour, je suis intéressé par : '+p.title+' — Immo24.tn')}" target="_blank" class="popup-btn-wa" title="Contacter sur WhatsApp">
+          <i class="fab fa-whatsapp"></i>
+        </a>
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ===== FRESHNESS CHIP ===== */
+function freshnessChip(date) {
+  if (!date) return '';
+  const isFresh  = date.endsWith('j') && parseInt(date) <= 3;
+  const isRecent = (date.endsWith('j') && parseInt(date) <= 7) || date === '1s';
+  const cls = isFresh ? 'fresh' : isRecent ? 'recent' : 'old';
+  const icon = isFresh ? 'fa-circle' : 'fa-clock';
+  return `<span class="card-freshness ${cls}"><i class="fas ${icon}" style="font-size:7px"></i> ${date}</span>`;
+}
+
+/* ===== ZONE FILTER ===== */
+function selectZone(btn) {
+  document.querySelectorAll('.zone-chip').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  window.__filterZone = btn.dataset.zone || '';
+  renderCards();
+  renderMarkers();
+}
+
+/* ===== PRICE RANGE FILTER ===== */
+function selectPriceRange(btn) {
+  document.querySelectorAll('.price-range-pill').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  window.__priceMin = +btn.dataset.min;
+  window.__priceMax = +btn.dataset.max;
+  document.getElementById('prix-min').value = '';
+  document.getElementById('prix-max').value = '';
+  renderCards(); renderMarkers();
+}
+function clearPriceRangePills() {
+  document.querySelectorAll('.price-range-pill').forEach(p => p.classList.remove('active'));
+  window.__priceMin = null; window.__priceMax = null;
+}
+
+/* ===== AGENCE FILTER ===== */
+function renderAgenceList(query) {
+  const q = (query || '').toLowerCase();
+  const agencies = [...new Set(properties.map(p => p.promoteur))].sort();
+  const filtered = agencies.filter(a => a.toLowerCase().includes(q));
+  document.getElementById('agence-list').innerHTML = filtered.map(a => {
+    const count = properties.filter(p => p.promoteur === a).length;
+    const checked = (window.__filterAgences || []).includes(a);
+    return `<label class="agence-item">
+      <input type="checkbox" ${checked ? 'checked' : ''} onchange="toggleAgence('${a.replace(/'/g,"\\'")}', this.checked)" />
+      <span class="agence-item-name">${a}</span>
+      <span class="agence-item-count">${count}</span>
+    </label>`;
+  }).join('');
+}
+function filterAgenceList(q) { renderAgenceList(q); }
+function toggleAgence(name, checked) {
+  if (!window.__filterAgences) window.__filterAgences = [];
+  if (checked) { if (!window.__filterAgences.includes(name)) window.__filterAgences.push(name); }
+  else { window.__filterAgences = window.__filterAgences.filter(a => a !== name); }
+  renderCards(); renderMarkers();
+}
+
+/* ===== RECHERCHER DANS CETTE ZONE ===== */
+function toggleZoneSearch() {
+  if (window.__mapBounds) {
+    /* reset */
+    window.__mapBounds = null;
+    const btn = document.getElementById('zone-search-btn');
+    btn.classList.remove('visible', 'active-zone');
+    document.getElementById('zone-search-icon').className = 'fas fa-search';
+    document.getElementById('zone-search-label').textContent = 'Rechercher dans cette zone';
+    renderCards();
+    renderMarkers();
+  } else {
+    /* apply */
+    window.__mapBounds = map.getBounds();
+    const btn = document.getElementById('zone-search-btn');
+    btn.classList.add('active-zone');
+    document.getElementById('zone-search-icon').className = 'fas fa-times';
+    document.getElementById('zone-search-label').textContent = 'Effacer la zone';
+    renderCards();
+    renderMarkers();
+  }
+}
+
+/* ===== getFiltered (extended) ===== */
+function getFiltered() {
+  return properties.filter(p => {
+    if (window.__propertyType && !p.type.toLowerCase().includes(window.__propertyType.toLowerCase())) return false;
+    if (window.__filterKind === 'neuf')     { if (p.kind !== 'neuf') return false; }
+    else if (window.__filterKind === 'annonces') { if (p.kind === 'neuf') return false; }
+    else if (window.__filterKind === 'vente')    { if (p.transaction !== 'vente') return false; }
+    else if (window.__filterKind === 'location') { if (p.transaction !== 'location') return false; }
+    if (window.__filterZone && p.zone !== window.__filterZone) return false;
+    if (window.__priceMin != null && p.price < window.__priceMin) return false;
+    if (window.__priceMax != null && p.price > window.__priceMax) return false;
+    if (window.__filterAgences && window.__filterAgences.length > 0 && !window.__filterAgences.includes(p.promoteur)) return false;
+    if (window.__mapBounds && !window.__mapBounds.contains([p.lat, p.lng])) return false;
+    return true;
+  });
+}
+
+function renderMarkers() {
+  /* clear existing cluster + markers + cercles de zone */
+  if (markerCluster) { map.removeLayer(markerCluster); markerCluster = null; }
+  approxCircles.forEach(c => map.removeLayer(c)); approxCircles = [];
+  Object.keys(markers).forEach(k => delete markers[k]);
+
+  markerCluster = L.markerClusterGroup({
+    maxClusterRadius: 48,
+    spiderfyOnMaxZoom: true,
+    showCoverageOnHover: false,
+    iconCreateFunction(cluster) {
+      return L.divIcon({
+        className: '',
+        html: `<div class="cluster-pin"><span>${cluster.getChildCount()}</span></div>`,
+        iconSize: [38, 38], iconAnchor: [19, 19]
+      });
+    }
+  });
+
+  getFiltered().forEach(p => {
+    let pinHtml, iconSize, iconAnchor, popupAnchor;
+    const locationClass = (p.kind === 'agence' && p.transaction === 'location') ? 'pin-location' : '';
+    const priceLabel = p.transaction === 'location'
+      ? `${p.price.toLocaleString('fr-TN')} TND/mois`
+      : `${(p.price/1000).toFixed(0)}k TND`;
+    if (p.kind === 'neuf') {
+      const shortName = p.title.length > 18 ? p.title.slice(0, 17) + '…' : p.title;
+      const boardW = 72;
+      pinHtml = `
+        <div class="pin-programme" id="pin-${p.id}">
+          <div class="pin-programme-board" style="min-width:${boardW}px;max-width:${boardW}px;">
+            <div class="pin-prog-header">Neuf</div>
+            <div class="pin-prog-name">${shortName}</div>
+          </div>
+          <div class="pin-programme-stem"></div>
+          <div class="pin-prog-price">à partir de ${(p.price/1000).toFixed(0)}k</div>
+        </div>`;
+      iconSize = [boardW + 10, 62]; iconAnchor = [(boardW + 10) / 2, 62]; popupAnchor = [0, -64];
+    } else {
+      pinHtml = `<div class="pin-price ${locationClass}" id="pin-${p.id}">${priceLabel}</div>`;
+      iconSize = [90, 32]; iconAnchor = [45, 32]; popupAnchor = [0, -34];
+    }
+    // Position affichée : exacte pour le neuf, décalée+cercle pour l'occasion/terrains (RG-GEO)
+    let posLat = p.lat, posLng = p.lng;
+    if (isApprox(p)) {
+      const ac = approxCenter(p);
+      posLat = ac.lat; posLng = ac.lng;
+      const circle = L.circle([ac.lat, ac.lng], {
+        radius: ac.radius,
+        color: '#1B3A6B', weight: 1.5, opacity: .55,
+        fillColor: '#E6A817', fillOpacity: .12, dashArray: '4 4',
+        interactive: false
+      }).addTo(map);
+      approxCircles.push(circle);
+    }
+    const icon = L.divIcon({ className: 'custom-pin-wrapper', html: pinHtml, iconSize, iconAnchor, popupAnchor });
+    const marker = L.marker([posLat, posLng], { icon })
+      .bindPopup(buildPopup(p), { maxWidth: 260, minWidth: 260, offset: [0, -8], autoPanPadding: [20, 90] });
+    marker.on('click', () => selectProperty(p.id));
+    markerCluster.addLayer(marker);
+    markers[p.id] = marker;
+  });
+
+  map.addLayer(markerCluster);
+}
+
+function applyFilter(kind) {
+  window.__filterKind = kind || '';
+  /* sync pills UI */
+  document.querySelectorAll('.filter-kind-pill').forEach(btn => {
+    const k = btn.dataset.kind;
+    btn.classList.toggle('active', k === (kind || ''));
+    btn.classList.remove('neuf', 'location');
+    if (btn.classList.contains('active')) {
+      if (k === 'neuf') btn.classList.add('neuf');
+      if (k === 'location') btn.classList.add('location');
+    }
+  });
+  /* reset price filter and refresh pills for new context */
+  clearPriceRangePills();
+  updatePricePills();
+  renderCards();
+  renderMarkers();
+}
+
+/* ===== PRICE PILLS — context-aware ===== */
+const PILLS_VENTE = [
+  { min: 0,      max: 150000,    label: '< 150k' },
+  { min: 150000, max: 250000,    label: '150k – 250k' },
+  { min: 250000, max: 400000,    label: '250k – 400k' },
+  { min: 400000, max: 600000,    label: '400k – 600k' },
+  { min: 600000, max: 999999999, label: '600k +' },
+];
+const PILLS_LOCATION = [
+  { min: 0,    max: 1000,      label: '< 1 000 /mois' },
+  { min: 1000, max: 2500,      label: '1 000 – 2 500' },
+  { min: 2500, max: 5000,      label: '2 500 – 5 000' },
+  { min: 5000, max: 999999999, label: '+ 5 000 /mois' },
+];
+function updatePricePills() {
+  const container = document.getElementById('price-range-pills');
+  if (!container) return;
+  const isLoc = window.__filterKind === 'location';
+  const pills = isLoc ? PILLS_LOCATION : PILLS_VENTE;
+  const labelText = isLoc ? 'Loyer mensuel (TND)' : "Prix d'achat (TND)";
+  container.innerHTML =
+    `<div class="price-pills-label">${labelText}</div>` +
+    pills.map(p =>
+      `<button class="price-range-pill" data-min="${p.min}" data-max="${p.max}" onclick="selectPriceRange(this)">${p.label}</button>`
+    ).join('');
+}
+
+/* ===== ALERT CTA ===== */
+function createAlert() {
+  const zone  = window.__filterZone  ? ` · ${window.__filterZone}` : '';
+  const kind  = window.__filterKind  ? ` · ${window.__filterKind}` : '';
+  const price = window.__priceMin != null ? ` · budget ${window.__priceMin.toLocaleString()}–${window.__priceMax === 999999999 ? '∞' : window.__priceMax.toLocaleString()} TND` : '';
+  alert(`Alerte créée !\nVous serez notifié des nouveaux biens correspondant à vos critères${zone}${kind}${price}.`);
+}
+
+/* ========================
+   UI HELPERS
+======================== */
+function openDropdown(id, btn) {
+  const allPanels = document.querySelectorAll('.dropdown-panel');
+  const all = document.querySelectorAll('.filter-select');
+  const panel = document.getElementById(id);
+  const isOpen = panel.classList.contains('open');
+
+  allPanels.forEach(p => p.classList.remove('open'));
+  all.forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.filter-btn-more').forEach(b => b.classList.remove('active'));
+  document.getElementById('overlay').classList.remove('open');
+
+  if (!isOpen) {
+    panel.classList.add('open');
+    btn.classList.add('active');
+    document.getElementById('overlay').classList.add('open');
+    if (id === 'agence-panel') renderAgenceList();
+    if (id === 'prix-panel') updatePricePills();
+  }
+}
+
+function closeAllDropdowns() {
+  document.querySelectorAll('.dropdown-panel').forEach(p => p.classList.remove('open'));
+  document.querySelectorAll('.filter-select, .filter-btn-more').forEach(b => b.classList.remove('active'));
+  document.getElementById('overlay').classList.remove('open');
+}
+
+function removeTag(el) {
+  el.closest('.filter-tag').remove();
+}
+
+const originalOrder = [...properties.map(p => p.id)];
+
+function setSort(value) {
+  if (value === 'price-asc')  properties.sort((a, b) => a.price - b.price);
+  else if (value === 'price-desc') properties.sort((a, b) => b.price - a.price);
+  else if (value === 'recent') properties.sort((a, b) => b.id - a.id);
+  else properties.sort((a, b) => originalOrder.indexOf(a.id) - originalOrder.indexOf(b.id));
+  renderCards();
+}
+
+/* ===== URL PARAM FILTER ===== */
+(function() {
+  const params = new URLSearchParams(window.location.search);
+  const type = params.get('type');
+  if (type) {
+    if      (type === 'neuf')     window.__filterKind = 'neuf';
+    else if (type === 'annonces') window.__filterKind = 'annonces';
+    else if (type === 'vente')    window.__filterKind = 'vente';
+    else if (type === 'location') window.__filterKind = 'location';
+  }
+  const focusId = parseInt(params.get('focus'));
+  if (focusId) window.__focusId = focusId;
+
+  const agence = params.get('agence');
+  if (agence) window.__filterAgences = [agence];
+
+  const transaction = params.get('transaction');
+  if (transaction) window.__filterKind = transaction;
+
+  const propType = params.get('propertyType');
+  if (propType) {
+    window.__propertyType = propType;
+    /* inject a removable tag in the filter bar */
+    const bar = document.querySelector('.filter-bar');
+    if (bar) {
+      const tag = document.createElement('div');
+      tag.className = 'filter-tag';
+      tag.id = 'prop-type-tag';
+      tag.innerHTML = `<i class="fas fa-tag" style="font-size:10px"></i> ${propType} <button onclick="clearPropertyType()" style="background:none;border:none;cursor:pointer;padding:0;line-height:1;font-size:11px;color:inherit;margin-left:2px">&times;</button>`;
+      bar.appendChild(tag);
+    }
+  }
+})();
+
+function clearPropertyType() {
+  window.__propertyType = '';
+  const tag = document.getElementById('prop-type-tag');
+  if (tag) tag.remove();
+  renderCards();
+  renderMarkers();
+}
+
+/* ========================
+   INIT
+======================== */
+/* sync pill active state from URL param */
+if (window.__filterKind) {
+  document.querySelectorAll('.filter-kind-pill').forEach(btn => {
+    const k = btn.dataset.kind;
+    btn.classList.toggle('active', k === window.__filterKind);
+    btn.classList.remove('neuf', 'location');
+    if (btn.classList.contains('active')) {
+      if (k === 'neuf') btn.classList.add('neuf');
+      if (k === 'location') btn.classList.add('location');
+    }
+  });
+}
+renderCards();
+renderMarkers();
+renderAgenceList();
+updatePricePills();
+
+/* show "Rechercher dans cette zone" after user pans — not on programmatic moves */
+let zoneSearchTimer = null;
+map.on('dragend', () => {
+  clearTimeout(zoneSearchTimer);
+  zoneSearchTimer = setTimeout(() => {
+    document.getElementById('zone-search-btn').classList.add('visible');
+  }, 400);
+});
+map.on('drag', () => {
+  window.__mapBounds = null; /* reset bounds filter while dragging */
+});
+
+if (window.__focusId) {
+  setTimeout(() => selectProperty(window.__focusId), 450);
+}
+
+/* ── Mobile toggle Carte / Liste ─────────────── */
+let _mobCarte = false;
+function setMobView() {
+  _mobCarte = !_mobCarte;
+  const main = document.getElementById('main-layout');
+  const btn  = document.getElementById('mob-btn-carte');
+  if (!main || !btn) return;
+  main.classList.toggle('mob-carte', _mobCarte);
+  btn.classList.toggle('is-carte', _mobCarte);
+  btn.innerHTML = _mobCarte
+    ? '<i class="fas fa-list"></i> Liste'
+    : '<i class="fas fa-map"></i> Carte';
+  if (_mobCarte) setTimeout(() => { if (typeof map !== 'undefined') map.invalidateSize(); }, 120);
+}
+</script>
+
+<!-- ===== FOOTER ===== -->
+<footer>
+  <div class="container" style="max-width:1180px;margin:0 auto;padding:0 24px">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="footer-logo">IMMO<span>24</span>.tn</div>
+        <p class="footer-desc">La première plateforme tunisienne dédiée à l'immobilier professionnel. Transparence, qualité et proximité avec les agences et promoteurs certifiés.</p>
+        <div class="footer-socials">
+          <a class="social-btn"><i class="fab fa-facebook-f"></i></a>
+          <a class="social-btn"><i class="fab fa-instagram"></i></a>
+          <a class="social-btn"><i class="fab fa-linkedin-in"></i></a>
+          <a class="social-btn"><i class="fab fa-whatsapp"></i></a>
+          <a class="social-btn"><i class="fab fa-youtube"></i></a>
+        </div>
+      </div>
+      <div>
+        <div class="footer-col-title">Rechercher</div>
+        <a class="footer-link">Appartements neufs</a>
+        <a class="footer-link">Villas et duplexes</a>
+        <a class="footer-link">Résidences côtières</a>
+        <a class="footer-link">Bureaux &amp; Locaux</a>
+        <a class="footer-link">Terrains</a>
+        <a href="carte-prix.html" class="footer-link">Carte des prix m²</a>
+      </div>
+      <div>
+        <div class="footer-col-title">Services</div>
+        <a class="footer-link">Simulateur crédit</a>
+        <a class="footer-link">Aide FOPROLOS</a>
+        <a class="footer-link">Déménagement</a>
+        <a class="footer-link">Décoration</a>
+        <a class="footer-link">Guide acheteur</a>
+      </div>
+      <div>
+        <div class="footer-col-title">Immo24.tn</div>
+        <a href="apropos.html" class="footer-link">À propos</a>
+        <a class="footer-link">Promoteurs partenaires</a>
+        <a href="contact.html" class="footer-link">Contact</a>
+        <a class="footer-link">Presse</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Immo24.tn — Tous droits réservés</span>
+      <span><a href="#">Conditions d'utilisation</a> · <a href="#" style="margin-left:8px">Politique de confidentialité</a></span>
+    </div>
+  </div>
+</footer>
+<script src="responsive.js"></script>
+</body>
+</html>
+

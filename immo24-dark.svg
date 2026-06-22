@@ -1,0 +1,52 @@
+<svg id="logo-dark" width="460" height="90" viewBox="0 0 360 82" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="pDf" x1="20%" y1="0%" x2="80%" y2="100%">
+          <stop offset="0%" stop-color="#6DD5FA"/>
+          <stop offset="50%" stop-color="#2AAEE0"/>
+          <stop offset="100%" stop-color="#0E6EAA"/>
+        </linearGradient>
+        <linearGradient id="gDf" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#FAE070"/>
+          <stop offset="100%" stop-color="#E8A818"/>
+        </linearGradient>
+        <filter id="glDf" x="-40%" y="-40%" width="180%" height="200%">
+          <feGaussianBlur stdDeviation="4" result="b"/>
+          <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+        <filter id="glGf" x="-40%" y="-40%" width="180%" height="200%">
+          <feGaussianBlur stdDeviation="3" result="b"/>
+          <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+      </defs>
+
+      <!-- Fond dark -->
+      <rect width="360" height="82" fill="#0D1F3C"/>
+
+      <!-- PIN -->
+      <path d="M25 3C17 3 7 12 7 23C7 38 25 69 25 69C25 69 43 38 43 23C43 12 33 3 25 3Z" fill="url(#pDf)" filter="url(#glDf)"/>
+      <circle cx="25" cy="22" r="12" fill="#0D1F3C"/>
+
+      <!-- Toit blanc -->
+      <path d="M13,21 L25,12 L37,21" fill="none" stroke="white" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"/>
+
+      <!-- Fenêtres dorées — mêmes positions -->
+      <rect x="19.75" y="21.5" width="4.5" height="4" rx="0.9" fill="#F0C040"/>
+      <rect x="25.75" y="21.5" width="4.5" height="4" rx="0.9" fill="#F0C040"/>
+      <rect x="19.75" y="26.5" width="4.5" height="3.5" rx="0.9" fill="#F0C040"/>
+      <rect x="25.75" y="26.5" width="4.5" height="3.5" rx="0.9" fill="#F0C040"/>
+
+      <!-- Séparateur vertical -->
+      <line x1="55" y1="14" x2="55" y2="62" stroke="#1e3a5a" stroke-width="1.2"/>
+
+      <!-- Texte -->
+      <text x="68" y="44" font-family="'Segoe UI','Helvetica Neue',Arial,sans-serif" letter-spacing="-0.5">
+        <tspan font-size="32" fill="white" font-weight="700">Immo</tspan>
+        <tspan font-size="38" fill="url(#gDf)" font-weight="900" dy="-2" filter="url(#glGf)">24</tspan>
+        <tspan font-size="22" fill="#3AADE4" font-weight="700" dy="4">.tn</tspan>
+      </text>
+
+      <!-- Tagline -->
+      <text x="68" y="62" font-family="'Segoe UI',Arial,sans-serif" font-size="7.5" fill="#1e3858" letter-spacing="4.5" font-weight="600">
+        TROUVEZ · COMPAREZ · RÉALISEZ
+      </text>
+    </svg>

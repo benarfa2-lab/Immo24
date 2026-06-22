@@ -1,0 +1,687 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Terrain à bâtir 650 m² – La Marsa | Immo24.tn</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    :root {
+      --gold:#E6A817; --gold-dark:#C8900E; --gold-light:#FFF8E6;
+      --navy:#1B3A6B; --navy-dark:#122952; --navy-light:#EEF2F9;
+      --gray-50:#F8F9FA; --gray-100:#F1F3F5; --gray-200:#E9ECEF;
+      --gray-400:#ADB5BD; --gray-600:#6C757D; --gray-800:#343A40;
+      --white:#FFFFFF; --red:#E63946; --green:#2A9D8F; --green-light:#E8F6F4;
+      --radius-sm:6px; --radius:12px; --radius-lg:20px;
+      --shadow-sm:0 1px 4px rgba(0,0,0,.08);
+      --shadow:0 4px 20px rgba(0,0,0,.10);
+      --shadow-lg:0 12px 40px rgba(0,0,0,.16);
+      --nav-h:64px;
+    }
+    *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+    html { scroll-behavior:smooth; }
+    body { font-family:'Inter',sans-serif; color:var(--gray-800); background:var(--gray-50); }
+    a { text-decoration:none; color:inherit; }
+    button { cursor:pointer; font-family:inherit; border:none; background:none; }
+    img { display:block; max-width:100%; }
+
+    /* ── NAVBAR ── */
+    .navbar {
+      position:fixed; top:0; left:0; right:0; z-index:1000;
+      height:64px; display:flex; align-items:center;
+      padding:0 32px; gap:24px;
+      background:var(--navy); box-shadow:0 2px 16px rgba(0,0,0,.2);
+    }
+    .nav-logo { display:flex; align-items:center; flex-shrink:0; text-decoration:none; }
+    .nav-ctas { display:flex; gap:6px; margin-left:8px; }
+    .nav-cta-btn { display:flex; align-items:center; gap:6px; padding:7px 14px; border-radius:8px; font-size:13px; font-weight:600; color:rgba(255,255,255,.88); background:rgba(255,255,255,.10); border:1px solid rgba(255,255,255,.18); transition:all .2s; white-space:nowrap; cursor:pointer; text-decoration:none; }
+    .nav-cta-btn:hover { background:var(--gold); color:var(--navy); border-color:var(--gold); }
+    .nav-right { margin-left:auto; display:flex; align-items:center; gap:10px; }
+    .nav-btn-outline { border:1.5px solid rgba(255,255,255,.45); border-radius:50px; padding:7px 18px; font-size:13px; font-weight:500; color:var(--white); transition:all .2s; background:none; cursor:pointer; }
+    .nav-btn-outline:hover { background:rgba(255,255,255,.12); border-color:var(--white); }
+
+    /* ── PAGE ── */
+    .page-wrap { margin-top:var(--nav-h); }
+
+    /* ── BREADCRUMB ── */
+    .breadcrumb { background:var(--white); border-bottom:1px solid var(--gray-200); padding:12px 0; }
+    .breadcrumb-inner { max-width:1240px; margin:0 auto; padding:0 24px; display:flex; align-items:center; justify-content:space-between; }
+    .breadcrumb-trail { display:flex; align-items:center; gap:6px; font-size:12.5px; color:var(--gray-400); }
+    .breadcrumb-trail a { color:var(--navy); font-weight:500; }
+    .breadcrumb-trail a:hover { text-decoration:underline; }
+    .breadcrumb-sep { font-size:10px; }
+    .breadcrumb-back { display:flex; align-items:center; gap:6px; font-size:13px; font-weight:600; color:var(--navy); background:var(--navy-light); border-radius:8px; padding:6px 14px; transition:background .2s; }
+    .breadcrumb-back:hover { background:var(--gray-200); }
+
+    /* ── GALLERY ── */
+    .gallery-wrap { background:var(--gray-800); position:relative; }
+    .gallery-main { position:relative; height:500px; overflow:hidden; cursor:pointer; background:#1a1a2e; }
+    .gallery-img { position:absolute; inset:0; display:none; }
+    .gallery-img.active { display:block; animation:gFade .3s ease; }
+    @keyframes gFade { from{opacity:0} to{opacity:1} }
+    .gallery-img img { width:100%; height:100%; object-fit:cover; }
+    .gallery-nav { position:absolute; top:50%; transform:translateY(-50%); width:44px; height:44px; border-radius:50%; background:rgba(255,255,255,.92); color:var(--gray-800); font-size:14px; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 12px rgba(0,0,0,.2); transition:all .2s; z-index:5; }
+    .gallery-nav:hover { background:var(--white); transform:translateY(-50%) scale(1.08); }
+    .gallery-prev { left:20px; }
+    .gallery-next { right:20px; }
+    .gallery-counter { position:absolute; bottom:16px; right:20px; z-index:5; background:rgba(0,0,0,.55); backdrop-filter:blur(6px); color:var(--white); font-size:12px; font-weight:600; padding:5px 12px; border-radius:50px; display:flex; align-items:center; gap:6px; }
+    .gallery-badges { position:absolute; top:16px; left:20px; z-index:5; display:flex; gap:8px; flex-wrap:wrap; }
+    .badge { padding:5px 12px; border-radius:50px; font-size:11px; font-weight:700; backdrop-filter:blur(6px); }
+    .badge-vente { background:var(--navy); color:var(--white); }
+    .badge-tf { background:var(--green); color:var(--white); }
+    .badge-construct { background:var(--gold); color:var(--navy); }
+    .gallery-dots { position:absolute; bottom:16px; left:50%; transform:translateX(-50%); display:flex; gap:6px; z-index:5; }
+    .gdot { width:6px; height:6px; border-radius:50%; background:rgba(255,255,255,.5); cursor:pointer; transition:all .2s; }
+    .gdot.active { background:var(--white); width:18px; border-radius:4px; }
+    .gallery-thumbs { display:flex; gap:6px; padding:8px 0; background:var(--gray-800); overflow-x:auto; }
+    .gallery-thumbs::-webkit-scrollbar { display:none; }
+    .gthumb { flex-shrink:0; width:90px; height:62px; border-radius:6px; overflow:hidden; cursor:pointer; opacity:.55; transition:opacity .2s; border:2px solid transparent; }
+    .gthumb.active { opacity:1; border-color:var(--gold); }
+    .gthumb:hover { opacity:.85; }
+    .gthumb img { width:100%; height:100%; object-fit:cover; }
+    .gallery-thumbs-inner { display:flex; gap:6px; padding:0 12px; }
+
+    /* ── MAIN LAYOUT ── */
+    .listing-layout { max-width:1240px; margin:0 auto; padding:28px 24px; display:grid; grid-template-columns:1fr 380px; gap:28px; align-items:start; }
+
+    /* ── LEFT COLUMN ── */
+    .prop-header { background:var(--white); border-radius:var(--radius); padding:24px; box-shadow:var(--shadow-sm); border:1px solid var(--gray-200); margin-bottom:16px; }
+    .prop-title-row { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; margin-bottom:8px; }
+    .prop-title { font-size:22px; font-weight:800; color:var(--navy); line-height:1.2; }
+    .prop-location { display:flex; align-items:center; gap:6px; font-size:13px; color:var(--gray-600); margin-bottom:20px; flex-wrap:wrap; }
+    .prop-location i { color:var(--red); font-size:12px; }
+    .prop-location a { color:var(--navy); font-weight:500; }
+    .prop-location a:hover { text-decoration:underline; }
+    .prop-stats { display:flex; gap:0; border:1px solid var(--gray-200); border-radius:var(--radius-sm); overflow:hidden; }
+    .prop-stat { flex:1; padding:14px 10px; text-align:center; border-right:1px solid var(--gray-200); }
+    .prop-stat:last-child { border-right:none; }
+    .prop-stat-val { font-size:16px; font-weight:700; color:var(--navy); line-height:1; margin-bottom:4px; }
+    .prop-stat-val sup { font-size:10px; }
+    .prop-stat-lbl { font-size:10.5px; color:var(--gray-400); font-weight:500; }
+    .prop-stat-icon { font-size:18px; margin-bottom:5px; color:var(--navy); opacity:.7; }
+
+    /* Map CTA strip */
+    .map-cta-strip { display:flex; align-items:center; justify-content:space-between; background:linear-gradient(135deg,var(--navy) 0%,#0f2444 100%); color:#fff; padding:18px 24px; border-radius:var(--radius); margin-bottom:20px; gap:16px; }
+    .map-cta-left { display:flex; align-items:center; gap:14px; }
+    .map-cta-left i { font-size:26px; color:var(--gold); flex-shrink:0; }
+    .map-cta-title { font-size:15px; font-weight:700; }
+    .map-cta-sub { font-size:12px; color:rgba(255,255,255,.6); margin-top:3px; }
+    .map-cta-btn { display:inline-flex; align-items:center; gap:8px; background:var(--gold); color:var(--navy); font-size:13px; font-weight:700; padding:10px 20px; border-radius:8px; text-decoration:none; white-space:nowrap; transition:all .2s; flex-shrink:0; }
+    .map-cta-btn:hover { background:#f5bc30; transform:translateY(-1px); box-shadow:0 4px 16px rgba(196,163,69,.35); }
+
+    /* Tabs */
+    .tabs-wrap { background:var(--white); border-radius:var(--radius); border:1px solid var(--gray-200); box-shadow:var(--shadow-sm); overflow:hidden; }
+    .tabs-nav { display:flex; border-bottom:1px solid var(--gray-200); overflow-x:auto; }
+    .tabs-nav::-webkit-scrollbar { display:none; }
+    .tab-btn { flex-shrink:0; padding:14px 20px; font-size:13px; font-weight:600; color:var(--gray-400); border-bottom:2px solid transparent; transition:all .18s; white-space:nowrap; display:flex; align-items:center; gap:7px; }
+    .tab-btn.active { color:var(--navy); border-bottom-color:var(--navy); }
+    .tab-btn:hover:not(.active) { color:var(--gray-600); }
+    .tab-pane { display:none; padding:24px; }
+    .tab-pane.active { display:block; animation:gFade .25s ease; }
+
+    /* Description */
+    .prop-desc { font-size:14px; line-height:1.8; color:var(--gray-600); white-space:pre-line; }
+    .prop-highlight { display:inline-flex; align-items:center; gap:6px; background:var(--gold-light); color:var(--gold-dark); padding:6px 14px; border-radius:50px; font-size:12.5px; font-weight:600; margin-top:14px; margin-right:8px; }
+    .prop-highlight.green { background:var(--green-light); color:var(--green); }
+    .prop-highlight.navy { background:var(--navy-light); color:var(--navy); }
+
+    /* Specs grid */
+    .specs-grid { display:grid; grid-template-columns:1fr 1fr; gap:0; }
+    .spec-row { display:flex; align-items:center; gap:12px; padding:13px 0; border-bottom:1px solid var(--gray-100); }
+    .spec-row:nth-child(odd) { padding-right:24px; border-right:1px solid var(--gray-100); }
+    .spec-row:nth-child(even) { padding-left:24px; }
+    .specs-grid .spec-row:nth-last-child(-n+2) { border-bottom:none; }
+    .spec-icon { width:36px; height:36px; border-radius:9px; background:var(--navy-light); color:var(--navy); display:flex; align-items:center; justify-content:center; font-size:14px; flex-shrink:0; }
+    .spec-icon.green { background:var(--green-light); color:var(--green); }
+    .spec-icon.gold  { background:var(--gold-light); color:var(--gold-dark); }
+    .spec-label { font-size:11.5px; color:var(--gray-400); font-weight:500; text-transform:uppercase; letter-spacing:.3px; margin-bottom:2px; }
+    .spec-val { font-size:14px; font-weight:700; color:var(--gray-800); }
+    .spec-val.green { color:var(--green); }
+
+    /* Viabilisation */
+    .viab-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+    .viab-item { display:flex; flex-direction:column; align-items:center; gap:8px; padding:16px 10px; border-radius:var(--radius); border:1.5px solid var(--gray-200); font-size:12px; font-weight:600; color:var(--gray-600); text-align:center; }
+    .viab-item i { font-size:22px; }
+    .viab-item.ok { border-color:rgba(42,157,143,.3); background:var(--green-light); color:var(--green); }
+    .viab-item.no { border-color:var(--gray-200); background:var(--gray-50); color:var(--gray-400); }
+
+    /* Localisation */
+    .map-box { height:280px; border-radius:var(--radius-sm); border:1px solid var(--gray-200); overflow:hidden; }
+    #terrain-map { height:100%; width:100%; }
+    .map-info-row { display:flex; gap:12px; margin-top:16px; flex-wrap:wrap; }
+    .map-info-chip { display:flex; align-items:center; gap:6px; padding:8px 14px; background:var(--white); border:1px solid var(--gray-200); border-radius:8px; font-size:13px; color:var(--gray-800); }
+    .map-info-chip i { color:var(--navy); font-size:12px; }
+
+    /* Similaires section */
+    .sim-section { max-width:1240px; margin:0 auto; padding:36px 24px 52px; }
+    .sim-section-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; }
+    .sim-section-title { font-size:20px; font-weight:800; color:var(--navy); display:flex; align-items:center; gap:10px; }
+    .sim-section-title::before { content:''; width:4px; height:22px; background:var(--gold); border-radius:2px; display:block; }
+    .sim-section-link { font-size:13px; font-weight:600; color:var(--navy); background:var(--navy-light); padding:7px 16px; border-radius:8px; transition:background .2s; }
+    .sim-section-link:hover { background:var(--gray-200); }
+    .sim-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+    .sim-card { background:var(--white); border-radius:var(--radius); border:1px solid var(--gray-200); overflow:hidden; transition:box-shadow .2s; cursor:pointer; }
+    .sim-card:hover { box-shadow:var(--shadow); }
+    .sim-img { height:150px; overflow:hidden; position:relative; }
+    .sim-img img { width:100%; height:100%; object-fit:cover; transition:transform .35s; }
+    .sim-card:hover .sim-img img { transform:scale(1.05); }
+    .sim-badge { position:absolute; top:8px; left:8px; font-size:9.5px; font-weight:800; text-transform:uppercase; padding:2px 7px; border-radius:3px; }
+    .sim-badge-tf { background:var(--green); color:#fff; }
+    .sim-badge-v { background:var(--navy); color:#fff; }
+    .sim-body { padding:12px; }
+    .sim-price { font-size:15px; font-weight:800; color:var(--navy); margin-bottom:3px; }
+    .sim-title { font-size:12.5px; font-weight:600; color:var(--gray-800); }
+    .sim-loc { font-size:11.5px; color:var(--gray-400); margin-top:2px; display:flex; align-items:center; gap:4px; }
+    .sim-stats { display:flex; gap:10px; margin-top:8px; font-size:11px; color:var(--gray-600); }
+    .sim-stats span { display:flex; align-items:center; gap:4px; }
+
+    /* ── RIGHT SIDEBAR ── */
+    .sidebar { position:sticky; top:calc(var(--nav-h) + 20px); display:flex; flex-direction:column; gap:14px; }
+
+    /* Price card */
+    .price-card { background:var(--white); border-radius:var(--radius); padding:22px; border:1px solid var(--gray-200); box-shadow:var(--shadow-sm); }
+    .price-main { font-size:26px; font-weight:900; color:var(--navy); line-height:1; }
+    .price-sqm { font-size:12px; color:var(--gray-400); margin-top:4px; margin-bottom:18px; }
+    .action-row { display:flex; gap:8px; margin-bottom:16px; }
+    .btn-action { flex:1; padding:10px; border-radius:var(--radius-sm); border:1.5px solid var(--gray-200); color:var(--gray-600); font-size:13px; font-weight:600; display:flex; align-items:center; justify-content:center; gap:6px; transition:all .2s; }
+    .btn-action:hover { border-color:var(--navy); color:var(--navy); background:var(--navy-light); }
+    .price-divider { height:1px; background:var(--gray-200); margin:16px 0; }
+
+    /* Agent card */
+    .agent-card { background:var(--white); border-radius:var(--radius); padding:18px; border:1px solid var(--gray-200); box-shadow:var(--shadow-sm); }
+    .agent-header { display:flex; align-items:center; gap:12px; margin-bottom:14px; }
+    .agent-avatar { width:46px; height:46px; border-radius:50%; background:linear-gradient(135deg,var(--navy) 0%,#2155A3 100%); display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:800; color:var(--white); flex-shrink:0; }
+    .agent-name { font-size:14px; font-weight:700; color:var(--navy); }
+    .agent-badge { display:inline-flex; align-items:center; gap:4px; font-size:11px; color:var(--green); font-weight:600; margin-top:2px; }
+    .agent-certified { font-size:11px; color:var(--gray-400); margin-top:2px; }
+    .btn-whatsapp { width:100%; padding:14px; border-radius:var(--radius-sm); background:#25D366; color:var(--white); font-size:15px; font-weight:700; display:flex; align-items:center; justify-content:center; gap:9px; transition:background .2s; margin-bottom:10px; }
+    .btn-whatsapp:hover { background:#1ebc59; }
+    .btn-whatsapp i { font-size:18px; }
+    .agent-response { font-size:11px; color:var(--gray-400); text-align:center; margin-top:6px; }
+
+    /* VR card */
+    .vr-card { background:var(--navy-dark); border-radius:var(--radius); padding:16px 18px; display:flex; align-items:center; gap:14px; cursor:pointer; transition:background .2s; border:1px solid rgba(255,255,255,.05); }
+    .vr-card:hover { background:var(--navy); }
+    .vr-icon { width:42px; height:42px; border-radius:10px; background:rgba(230,168,23,.18); color:var(--gold); display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0; }
+    .vr-text { color:var(--white); }
+    .vr-title { font-size:13px; font-weight:700; }
+    .vr-sub { font-size:11px; color:rgba(255,255,255,.5); margin-top:2px; }
+
+    /* Finance card */
+    .finance-card { background:var(--gold-light); border-radius:var(--radius); padding:16px 18px; border:1px solid rgba(230,168,23,.3); }
+    .finance-card-title { font-size:13px; font-weight:700; color:var(--navy); margin-bottom:6px; display:flex; align-items:center; gap:6px; }
+    .finance-card-monthly { font-size:22px; font-weight:900; color:var(--navy); line-height:1; }
+    .finance-card-sub { font-size:11px; color:var(--gray-600); margin-top:3px; margin-bottom:12px; }
+    .btn-simulate { width:100%; padding:10px; border-radius:var(--radius-sm); background:var(--gold); color:var(--navy); font-size:13px; font-weight:700; display:flex; align-items:center; justify-content:center; gap:6px; transition:background .2s; }
+    .btn-simulate:hover { background:var(--gold-dark); }
+
+    /* Report */
+    .report-link { text-align:center; font-size:11px; color:var(--gray-400); padding:8px 0; cursor:pointer; }
+    .report-link:hover { color:var(--red); }
+
+  /* ===== RESPONSIVE — terrain.html ===== */
+  @media (max-width: 900px) {
+    .listing-layout { grid-template-columns: 1fr; }
+    .sidebar { position: static; }
+    .gallery-main { height: 280px !important; }
+    .gallery-thumbs { display: none; }
+  }
+  @media (max-width: 560px) {
+    .gallery-main { height: 220px !important; }
+    .prop-stats { flex-wrap: wrap; }
+    .prop-stat { flex: 1 1 calc(50% - 1px); }
+  }
+  </style>
+<link rel="stylesheet" href="responsive.css" />
+</head>
+<body>
+
+<!-- ── NAVBAR ── -->
+<nav class="navbar" id="navbar">
+  <a class="nav-logo" href="index.html">
+    <img src="immo24-light-navbar.svg" height="54" alt="Immo24.tn" style="display:block" />
+  </a>
+  <div class="nav-ctas">
+    <a href="map-listings.html?type=neuf" class="nav-cta-btn"><i class="fas fa-building"></i> Projets neufs</a>
+    <a href="map-listings.html?type=annonces" class="nav-cta-btn"><i class="fas fa-user-tie"></i> Agences</a>
+    <a href="decoration.html" class="nav-cta-btn"><i class="fas fa-couch"></i> Décorer &amp; meubler</a>
+    <a href="#" class="nav-cta-btn"><i class="fas fa-hand-holding-usd"></i> Financer</a>
+  </div>
+  <div class="nav-right">
+    <a href="login.html" class="nav-btn-outline"><i class="fas fa-user-tie" style="font-size:11px;margin-right:5px"></i>Mon espace pro</a>
+  </div>
+  <button class="nav-hamburger" aria-label="Menu"><i class="fas fa-bars"></i></button>
+</nav>
+<div class="nav-mobile" id="nav-mobile">
+  <a href="map-listings.html?type=neuf" class="nav-mob-link"><i class="fas fa-building"></i> Projets neufs</a>
+  <a href="map-listings.html?type=annonces" class="nav-mob-link"><i class="fas fa-user-tie"></i> Agences</a>
+  <a href="decoration.html" class="nav-mob-link"><i class="fas fa-couch"></i> Décorer &amp; meubler</a>
+  <a href="#" class="nav-mob-link"><i class="fas fa-hand-holding-usd"></i> Financer</a>
+  <div class="nav-mob-divider"></div>
+  <div class="nav-mob-actions">
+    <a href="login.html" class="nav-mob-btn-outline">Mon espace pro</a>
+    <a href="inscription.html" class="nav-mob-btn-gold">Publier une annonce</a>
+  </div>
+</div>
+
+<div class="page-wrap">
+
+  <!-- ── BREADCRUMB ── -->
+  <div class="breadcrumb">
+    <div class="breadcrumb-inner">
+      <div class="breadcrumb-trail">
+        <a href="index.html">Accueil</a>
+        <span class="breadcrumb-sep"><i class="fas fa-chevron-right" style="font-size:9px"></i></span>
+        <a href="map-listings.html?type=vente">Vente</a>
+        <span class="breadcrumb-sep"><i class="fas fa-chevron-right" style="font-size:9px"></i></span>
+        <a href="map-listings.html?type=terrain">Terrains</a>
+        <span class="breadcrumb-sep"><i class="fas fa-chevron-right" style="font-size:9px"></i></span>
+        <span>La Marsa</span>
+      </div>
+      <a href="map-listings.html?type=terrain" class="breadcrumb-back">
+        <i class="fas fa-arrow-left"></i> Retour aux résultats
+      </a>
+    </div>
+  </div>
+
+  <!-- ── GALLERY ── -->
+  <div class="gallery-wrap">
+    <div class="gallery-main">
+
+      <div class="gallery-badges">
+        <span class="badge badge-vente">Vente</span>
+        <span class="badge badge-tf"><i class="fas fa-file-alt"></i> Titre Foncier</span>
+        <span class="badge badge-construct"><i class="fas fa-hard-hat"></i> Constructible R+3</span>
+      </div>
+
+      <div class="gallery-img active" data-idx="0">
+        <img src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=1400&q=85" alt="Terrain La Marsa" />
+      </div>
+      <div class="gallery-img" data-idx="1">
+        <img src="https://images.unsplash.com/photo-1622547748225-3fc4abd2cca0?w=1400&q=85" alt="Vue terrain" />
+      </div>
+      <div class="gallery-img" data-idx="2">
+        <img src="https://images.unsplash.com/photo-1458433466023-d02e14fe11a0?w=1400&q=85" alt="Environnement" />
+      </div>
+      <div class="gallery-img" data-idx="3">
+        <img src="https://images.unsplash.com/photo-1448630360428-65456885c650?w=1400&q=70" alt="Quartier" />
+      </div>
+      <div class="gallery-img" data-idx="4">
+        <img src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=1400&q=70" alt="Proximité" />
+      </div>
+
+      <button class="gallery-nav gallery-prev" onclick="galleryNav(-1)"><i class="fas fa-chevron-left"></i></button>
+      <button class="gallery-nav gallery-next" onclick="galleryNav(1)"><i class="fas fa-chevron-right"></i></button>
+      <div class="gallery-counter"><i class="fas fa-camera"></i> <span id="g-count">1 / 5</span></div>
+      <div class="gallery-dots" id="gdots"></div>
+    </div>
+
+    <div class="gallery-thumbs">
+      <div class="gallery-thumbs-inner" id="gthumbs">
+        <div class="gthumb active" onclick="galleryGo(0)"><img src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=200&q=70" /></div>
+        <div class="gthumb" onclick="galleryGo(1)"><img src="https://images.unsplash.com/photo-1622547748225-3fc4abd2cca0?w=200&q=70" /></div>
+        <div class="gthumb" onclick="galleryGo(2)"><img src="https://images.unsplash.com/photo-1458433466023-d02e14fe11a0?w=200&q=70" /></div>
+        <div class="gthumb" onclick="galleryGo(3)"><img src="https://images.unsplash.com/photo-1448630360428-65456885c650?w=200&q=70" /></div>
+        <div class="gthumb" onclick="galleryGo(4)"><img src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=200&q=70" /></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── MAIN LAYOUT ── -->
+  <div class="listing-layout">
+
+    <!-- ══════════ LEFT ══════════ -->
+    <div class="listing-main">
+
+      <!-- Property header -->
+      <div class="prop-header">
+        <div class="prop-title-row">
+          <div class="prop-title">Terrain constructible avec TF — La Marsa Nord</div>
+        </div>
+        <div class="prop-location">
+          <i class="fas fa-map-marker-alt"></i>
+          <a href="#">La Marsa</a>, <a href="#">Tunis</a>
+          &nbsp;·&nbsp; à 300 m de la mer
+          <span style="margin-left:6px;font-size:11px;background:var(--navy-light);color:var(--navy);padding:2px 8px;border-radius:50px;font-weight:600">Réf. IMM-43</span>
+        </div>
+
+        <div class="prop-stats">
+          <div class="prop-stat">
+            <div class="prop-stat-icon"><i class="fas fa-ruler-combined"></i></div>
+            <div class="prop-stat-val">650 m<sup>2</sup></div>
+            <div class="prop-stat-lbl">Surface</div>
+          </div>
+          <div class="prop-stat">
+            <div class="prop-stat-icon"><i class="fas fa-arrows-alt-h"></i></div>
+            <div class="prop-stat-val">22 m</div>
+            <div class="prop-stat-lbl">Façade</div>
+          </div>
+          <div class="prop-stat">
+            <div class="prop-stat-icon"><i class="fas fa-file-contract"></i></div>
+            <div class="prop-stat-val" style="font-size:13px;color:var(--green)">TF ✔</div>
+            <div class="prop-stat-lbl">Titre foncier</div>
+          </div>
+          <div class="prop-stat">
+            <div class="prop-stat-icon"><i class="fas fa-hard-hat"></i></div>
+            <div class="prop-stat-val" style="font-size:13px">R+3</div>
+            <div class="prop-stat-lbl">Constructibilité</div>
+          </div>
+          <div class="prop-stat">
+            <div class="prop-stat-icon"><i class="fas fa-sun"></i></div>
+            <div class="prop-stat-val" style="font-size:13px">Sud-Est</div>
+            <div class="prop-stat-lbl">Exposition</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Map CTA strip -->
+      <div class="map-cta-strip">
+        <div class="map-cta-left">
+          <i class="fas fa-map-marked-alt"></i>
+          <div>
+            <div class="map-cta-title">Voir ce terrain sur la carte interactive</div>
+            <div class="map-cta-sub">Tous les terrains du secteur · Prix au m² · Vue satellite</div>
+          </div>
+        </div>
+        <a href="map-listings.html?type=terrain" class="map-cta-btn">
+          <i class="fas fa-map"></i> Regarder sur la carte
+        </a>
+      </div>
+
+      <!-- Tabs -->
+      <div class="tabs-wrap">
+        <div class="tabs-nav">
+          <button class="tab-btn active" onclick="switchTab(0,this)"><i class="fas fa-align-left"></i> Description</button>
+          <button class="tab-btn" onclick="switchTab(1,this)"><i class="fas fa-list-check"></i> Caractéristiques</button>
+          <button class="tab-btn" onclick="switchTab(2,this)"><i class="fas fa-plug"></i> Viabilisation</button>
+          <button class="tab-btn" onclick="switchTab(3,this)"><i class="fas fa-map-marked-alt"></i> Localisation</button>
+        </div>
+
+        <!-- Description -->
+        <div class="tab-pane active" id="tab-0">
+          <p class="prop-desc">Belle opportunité d'acquérir un <strong>terrain constructible de 650 m²</strong> situé dans un quartier résidentiel calme de La Marsa Nord, à seulement 300 mètres de la plage et à 5 minutes à pied de la corniche. Le terrain dispose d'un <strong>titre foncier enregistré</strong> (copie disponible sur demande) et est entièrement viabilisé.
+
+Exposé plein <strong>sud-est</strong>, le terrain offre une luminosité optimale toute la journée. Sa forme quasi-rectangulaire et sa façade de 22 mètres permettent de concevoir facilement un projet d'envergure. Le sol argilo-calcaire stable garantit des fondations sûres sans frais de terrassement excessifs.
+
+Le zonage PAU autorise une construction <strong>résidentielle jusqu'à R+3</strong> avec un coefficient d'emprise maximale de 40 %. Idéal pour une villa familiale, un immeuble de rapport ou un projet de promoteur. Quartier sécurisé avec voisinage de standing.</p>
+
+          <div style="margin-top:16px;display:flex;flex-wrap:wrap;gap:6px;">
+            <span class="prop-highlight green"><i class="fas fa-file-alt"></i> Titre foncier</span>
+            <span class="prop-highlight navy"><i class="fas fa-hard-hat"></i> Constructible R+3</span>
+            <span class="prop-highlight"><i class="fas fa-sun"></i> Exposition Sud-Est</span>
+            <span class="prop-highlight navy"><i class="fas fa-road"></i> Route goudronnée</span>
+            <span class="prop-highlight"><i class="fas fa-water"></i> 300 m de la mer</span>
+          </div>
+        </div>
+
+        <!-- Caractéristiques -->
+        <div class="tab-pane" id="tab-1">
+          <div class="specs-grid">
+            <div class="spec-row">
+              <div class="spec-icon green"><i class="fas fa-ruler-combined"></i></div>
+              <div><div class="spec-label">Surface totale</div><div class="spec-val">650 m²</div></div>
+            </div>
+            <div class="spec-row">
+              <div class="spec-icon green"><i class="fas fa-arrows-alt-h"></i></div>
+              <div><div class="spec-label">Façade</div><div class="spec-val">22 mètres</div></div>
+            </div>
+            <div class="spec-row">
+              <div class="spec-icon"><i class="fas fa-file-contract"></i></div>
+              <div><div class="spec-label">Titre foncier</div><div class="spec-val green">Oui – TF enregistré</div></div>
+            </div>
+            <div class="spec-row">
+              <div class="spec-icon"><i class="fas fa-hard-hat"></i></div>
+              <div><div class="spec-label">Constructibilité</div><div class="spec-val">Résidentiel R+3</div></div>
+            </div>
+            <div class="spec-row">
+              <div class="spec-icon gold"><i class="fas fa-sun"></i></div>
+              <div><div class="spec-label">Exposition</div><div class="spec-val">Sud-Est</div></div>
+            </div>
+            <div class="spec-row">
+              <div class="spec-icon gold"><i class="fas fa-mountain"></i></div>
+              <div><div class="spec-label">Topographie</div><div class="spec-val">Plat – légère pente</div></div>
+            </div>
+            <div class="spec-row">
+              <div class="spec-icon" style="background:#F3E8FF;color:#7B2D8B;"><i class="fas fa-leaf"></i></div>
+              <div><div class="spec-label">Nature du sol</div><div class="spec-val">Argilo-calcaire</div></div>
+            </div>
+            <div class="spec-row">
+              <div class="spec-icon" style="background:#E8F4FF;color:#1565C0;"><i class="fas fa-map"></i></div>
+              <div><div class="spec-label">Zonage PAU</div><div class="spec-val">Zone UA – Urbaine mixte</div></div>
+            </div>
+            <div class="spec-row">
+              <div class="spec-icon"><i class="fas fa-road"></i></div>
+              <div><div class="spec-label">Accès</div><div class="spec-val">Route goudronnée</div></div>
+            </div>
+            <div class="spec-row">
+              <div class="spec-icon"><i class="fas fa-percentage"></i></div>
+              <div><div class="spec-label">COS (emprise sol)</div><div class="spec-val">40 % max.</div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Viabilisation -->
+        <div class="tab-pane" id="tab-2">
+          <div class="viab-grid">
+            <div class="viab-item ok"><i class="fas fa-tint"></i> Eau SONEDE</div>
+            <div class="viab-item ok"><i class="fas fa-bolt"></i> Électricité STEG</div>
+            <div class="viab-item ok"><i class="fas fa-fire"></i> Gaz naturel</div>
+            <div class="viab-item ok"><i class="fas fa-wifi"></i> Fibre optique</div>
+            <div class="viab-item ok"><i class="fas fa-water"></i> Assainissement</div>
+            <div class="viab-item no"><i class="fas fa-umbrella"></i> Eaux pluviales</div>
+          </div>
+          <p style="font-size:12.5px;color:var(--gray-400);margin-top:16px;"><i class="fas fa-info-circle" style="margin-right:4px;"></i>Tous les réseaux sont disponibles en façade · Raccordements inclus dans le prix</p>
+        </div>
+
+        <!-- Localisation -->
+        <div class="tab-pane" id="tab-3">
+          <div class="map-box">
+            <div id="terrain-map"></div>
+          </div>
+          <div class="map-info-row">
+            <div class="map-info-chip"><i class="fas fa-water"></i> 300 m de la mer</div>
+            <div class="map-info-chip"><i class="fas fa-shopping-cart"></i> 800 m du centre</div>
+            <div class="map-info-chip"><i class="fas fa-graduation-cap"></i> École à 500 m</div>
+            <div class="map-info-chip"><i class="fas fa-bus"></i> TGM La Marsa (600 m)</div>
+          </div>
+        </div>
+
+      </div>
+    </div><!-- /listing-main -->
+
+    <!-- ══════════ SIDEBAR ══════════ -->
+    <aside class="sidebar">
+
+      <!-- Price card -->
+      <div class="price-card">
+        <div class="price-main">320 000 TND</div>
+        <div class="price-sqm">492 TND / m²</div>
+
+        <div class="action-row">
+          <button class="btn-action"><i class="fas fa-heart"></i> Sauvegarder</button>
+          <button class="btn-action"><i class="fas fa-share-alt"></i> Partager</button>
+          <button class="btn-action"><i class="fas fa-print"></i> Imprimer</button>
+        </div>
+
+        <div class="price-divider"></div>
+
+        <div style="display:flex;justify-content:space-between;font-size:12.5px;color:var(--gray-600)">
+          <span>Réf. annonce</span><strong style="color:var(--navy)">IMM-43</strong>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:12.5px;color:var(--gray-600);margin-top:6px">
+          <span>Publiée le</span><strong style="color:var(--navy)">12 mai 2026</strong>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:12.5px;color:var(--gray-600);margin-top:6px">
+          <span>Vues</span><strong style="color:var(--navy)">487 <span style="font-weight:400;font-size:11px">cette semaine</span></strong>
+        </div>
+      </div>
+
+      <!-- Agent -->
+      <div class="agent-card" onclick="window.location='agence.html'" style="cursor:pointer;transition:box-shadow .2s;" onmouseover="this.style.boxShadow='0 4px 20px rgba(0,0,0,.12)'" onmouseout="this.style.boxShadow=''">
+        <div class="agent-header">
+          <div class="agent-avatar">MI</div>
+          <div>
+            <div class="agent-name">Med Immo</div>
+            <div class="agent-badge"><i class="fas fa-check-circle"></i> Agent certifié Immo24.tn</div>
+            <div class="agent-certified">Agence : Med Immo</div>
+          </div>
+        </div>
+        <button class="btn-whatsapp">
+          <i class="fab fa-whatsapp"></i> Contacter via WhatsApp
+        </button>
+        <div class="agent-response"><i class="fas fa-bolt" style="color:var(--gold)"></i> Répond généralement en moins de 2h</div>
+      </div>
+
+      <!-- VR -->
+      <div class="vr-card">
+        <div class="vr-icon"><i class="fas fa-vr-cardboard"></i></div>
+        <div class="vr-text">
+          <div class="vr-title">Visite Virtuelle 360°</div>
+          <div class="vr-sub">Sur demande · Disponible</div>
+        </div>
+        <i class="fas fa-chevron-right" style="color:rgba(255,255,255,.3);margin-left:auto"></i>
+      </div>
+
+      <!-- Finance -->
+      <div class="finance-card">
+        <div class="finance-card-title"><i class="fas fa-calculator"></i> Simuler votre crédit</div>
+        <div class="finance-card-monthly">~1 900 TND<span style="font-size:13px;font-weight:500">/mois</span></div>
+        <div class="finance-card-sub">Sur 20 ans · Apport 20% · Taux 6,5%<br>Éligible financement BH Bank</div>
+        <button class="btn-simulate"><i class="fas fa-chart-line"></i> Calculer mon prêt</button>
+      </div>
+
+      <!-- Report -->
+      <div class="report-link"><i class="fas fa-flag"></i> Signaler cette annonce</div>
+
+    </aside>
+
+  </div><!-- /listing-layout -->
+
+  <!-- ── SIMILAIRES ── -->
+  <div class="sim-section">
+    <div class="sim-section-header">
+      <div class="sim-section-title">Terrains similaires</div>
+      <a href="map-listings.html?type=terrain" class="sim-section-link"><i class="fas fa-search"></i> Voir tous les terrains</a>
+    </div>
+    <div class="sim-grid">
+      <div class="sim-card" onclick="window.location='terrain.html'">
+        <div class="sim-img">
+          <img src="https://images.unsplash.com/photo-1622547748225-3fc4abd2cca0?w=400&q=75" />
+          <span class="sim-badge sim-badge-tf">TF</span>
+        </div>
+        <div class="sim-body">
+          <div class="sim-price">480 000 TND</div>
+          <div class="sim-title">Terrain constructible 900 m² — La Marsa Supérieure</div>
+          <div class="sim-loc"><i class="fas fa-map-marker-alt" style="color:var(--red);font-size:10px"></i> La Marsa, Tunis</div>
+          <div class="sim-stats">
+            <span><i class="fas fa-ruler-combined"></i> 900 m²</span>
+            <span><i class="fas fa-arrows-alt-h"></i> 30 m facade</span>
+          </div>
+        </div>
+      </div>
+      <div class="sim-card" onclick="window.location='terrain.html'">
+        <div class="sim-img">
+          <img src="https://images.unsplash.com/photo-1458433466023-d02e14fe11a0?w=400&q=75" />
+          <span class="sim-badge sim-badge-tf">TF</span>
+        </div>
+        <div class="sim-body">
+          <div class="sim-price">650 000 TND</div>
+          <div class="sim-title">Terrain vue mer 550 m² — Sidi Bou Saïd</div>
+          <div class="sim-loc"><i class="fas fa-map-marker-alt" style="color:var(--red);font-size:10px"></i> Sidi Bou Saïd, Tunis</div>
+          <div class="sim-stats">
+            <span><i class="fas fa-ruler-combined"></i> 550 m²</span>
+            <span><i class="fas fa-water"></i> Vue mer</span>
+          </div>
+        </div>
+      </div>
+      <div class="sim-card" onclick="window.location='terrain.html'">
+        <div class="sim-img">
+          <img src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=400&q=75" />
+        </div>
+        <div class="sim-body">
+          <div class="sim-price">160 000 TND</div>
+          <div class="sim-title">Terrain à bâtir 350 m² — El Menzah 9</div>
+          <div class="sim-loc"><i class="fas fa-map-marker-alt" style="color:var(--red);font-size:10px"></i> El Menzah, Ariana</div>
+          <div class="sim-stats">
+            <span><i class="fas fa-ruler-combined"></i> 350 m²</span>
+            <span><i class="fas fa-hard-hat"></i> R+2</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /page-wrap -->
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+/* ── GALLERY ── */
+let gIdx = 0;
+const G_TOTAL = 5;
+
+function galleryGo(i) {
+  document.querySelectorAll('.gallery-img').forEach((el, j) => el.classList.toggle('active', j === i));
+  document.querySelectorAll('.gthumb').forEach((el, j) => el.classList.toggle('active', j === i));
+  document.querySelectorAll('.gdot').forEach((el, j) => el.classList.toggle('active', j === i));
+  document.getElementById('g-count').textContent = (i + 1) + ' / ' + G_TOTAL;
+  gIdx = i;
+}
+function galleryNav(dir) { galleryGo((gIdx + dir + G_TOTAL) % G_TOTAL); }
+
+(function() {
+  const dots = document.getElementById('gdots');
+  dots.innerHTML = Array.from({length: G_TOTAL}, (_, i) =>
+    `<div class="gdot ${i===0?'active':''}" onclick="galleryGo(${i})"></div>`
+  ).join('');
+})();
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowLeft')  galleryNav(-1);
+  if (e.key === 'ArrowRight') galleryNav(1);
+});
+
+/* ── TABS ── */
+function switchTab(idx, btn) {
+  document.querySelectorAll('.tab-pane').forEach((p, i) => p.classList.toggle('active', i === idx));
+  document.querySelectorAll('.tab-btn').forEach((b, i) => b.classList.toggle('active', i === idx));
+  if (idx === 3 && !window._mapInited) { window._mapInited = true; setTimeout(initMap, 80); }
+}
+
+/* ── MAP (lazy init on tab open) ── */
+function initMap() {
+  const map = L.map('terrain-map', { zoomControl: true, scrollWheelZoom: false }).setView([36.8820, 10.3170], 15);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+    attribution: '© OpenStreetMap, © CARTO', maxZoom: 19
+  }).addTo(map);
+
+  const pinHtml = `
+    <div style="width:38px;height:38px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);
+      background:linear-gradient(135deg,#FFD83D,#E6A817,#C8900E);
+      border:2.5px solid rgba(255,255,255,.92);
+      box-shadow:0 4px 18px rgba(230,168,23,.65),0 2px 6px rgba(0,0,0,.28);
+      position:relative;">
+      <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;transform:rotate(45deg);">
+        <i class="fas fa-mountain" style="color:#1B3A6B;font-size:14px;"></i>
+      </div>
+    </div>`;
+
+  const icon = L.divIcon({ html: pinHtml, iconSize:[38,38], iconAnchor:[19,38], className:'' });
+  L.marker([36.8820, 10.3170], { icon })
+    .addTo(map)
+    .bindPopup('<b>Terrain 650 m² – La Marsa</b><br><span style="color:#2A9D8F;font-weight:700;">✔ Titre foncier · Constructible</span>')
+    .openPopup();
+
+  L.circle([36.8820, 10.3170], {
+    radius:150, color:'#1B3A6B', fillColor:'rgba(27,58,107,.08)',
+    fillOpacity:1, weight:1.5, dashArray:'6 4'
+  }).addTo(map);
+}
+</script>
+<script src="responsive.js"></script>
+
+</body>
+</html>
+

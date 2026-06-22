@@ -1,0 +1,875 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bullaregia Immobilière – Promoteur certifié – Immo24.tn</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    :root {
+      --gold:       #E6A817;
+      --gold-dark:  #C8900E;
+      --gold-light: #FFF8E6;
+      --navy:       #1B3A6B;
+      --navy-dark:  #122952;
+      --navy-light: #EEF2F9;
+      --gray-50:    #F8F9FA;
+      --gray-100:   #F1F3F5;
+      --gray-200:   #E9ECEF;
+      --gray-400:   #ADB5BD;
+      --gray-600:   #6C757D;
+      --gray-800:   #343A40;
+      --white:      #FFFFFF;
+      --green:      #2A9D8F;
+      --radius:     10px;
+      --radius-lg:  16px;
+      --shadow-sm:  0 1px 4px rgba(0,0,0,.08);
+      --shadow:     0 4px 20px rgba(0,0,0,.10);
+      --nav-h:      64px;
+      --ad-h:       120px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', sans-serif; color: var(--gray-800); background: var(--gray-50); }
+    a { text-decoration: none; color: inherit; }
+    button { cursor: pointer; font-family: inherit; border: none; background: none; }
+    img { display: block; max-width: 100%; }
+
+    /* NAVBAR */
+    .navbar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+      height: 64px;
+      display: flex; align-items: center;
+      padding: 0 32px; gap: 24px;
+      background: var(--navy);
+      box-shadow: 0 2px 16px rgba(0,0,0,.2);
+    }
+    .nav-logo { display: flex; align-items: center; flex-shrink: 0; text-decoration: none; }
+    .nav-ctas { display: flex; gap: 6px; margin-left: 8px; }
+    .nav-cta-btn { display: flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; color: rgba(255,255,255,.88); background: rgba(255,255,255,.10); border: 1px solid rgba(255,255,255,.18); transition: all .2s; white-space: nowrap; cursor: pointer; text-decoration: none; }
+    .nav-cta-btn:hover, .nav-cta-btn.active { background: var(--gold); color: var(--navy); border-color: var(--gold); }
+    .nav-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+    .nav-btn-outline { border: 1.5px solid rgba(255,255,255,.45); border-radius: 50px; padding: 7px 18px; font-size: 13px; font-weight: 500; color: var(--white); transition: all .2s; background: none; cursor: pointer; }
+    .nav-btn-outline:hover { background: rgba(255,255,255,.12); border-color: var(--white); }
+
+    /* AD STRIP */
+    .ad-strip { position: fixed; top: var(--nav-h); left: 0; right: 0; z-index: 950; height: var(--ad-h); overflow: hidden; border-bottom: 1px solid var(--gray-200); }
+    .ad-strip-bg { position: absolute; inset: 0; background-image: url('https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=1200&q=80'); background-size: cover; background-position: center; }
+    .ad-strip-bg::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(10,20,50,.82) 0%, rgba(10,20,50,.70) 40%, rgba(10,20,50,.30) 70%, rgba(10,20,50,.10) 100%); }
+    .ad-strip-inner { position: relative; z-index: 1; height: 100%; display: flex; align-items: center; padding: 0 52px 0 28px; gap: 20px; }
+    .ad-strip-label { flex-shrink: 0; background: var(--gold); color: var(--navy-dark); font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: .8px; padding: 3px 8px; border-radius: 3px; }
+    .ad-strip-divider { width: 1px; height: 40px; background: rgba(255,255,255,.2); flex-shrink: 0; }
+    .ad-strip-content { flex: 1; min-width: 0; }
+    .ad-strip-sponsor { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .5px; color: var(--gold); margin-bottom: 4px; }
+    .ad-strip-title { font-size: 16px; font-weight: 800; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.2; margin-bottom: 4px; }
+    .ad-strip-sub { font-size: 12px; color: rgba(255,255,255,.75); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .ad-strip-sub strong { color: #fff; font-weight: 700; }
+    .ad-strip-cta { flex-shrink: 0; display: inline-flex; align-items: center; gap: 7px; background: var(--gold); color: var(--navy-dark); font-size: 12.5px; font-weight: 700; padding: 10px 18px; border-radius: 8px; transition: background .2s; cursor: pointer; white-space: nowrap; text-decoration: none; }
+    .ad-strip-cta:hover { background: #f5bc30; }
+    .ad-strip-close { position: absolute; top: 10px; right: 12px; z-index: 2; background: rgba(255,255,255,.15); border: none; cursor: pointer; color: rgba(255,255,255,.7); font-size: 11px; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: background .2s; }
+    .ad-strip-close:hover { background: rgba(255,255,255,.3); color: #fff; }
+
+    /* BREADCRUMB */
+    .breadcrumb-bar { background: var(--white); border-bottom: 1px solid var(--gray-200); padding: 11px 0; }
+    .breadcrumb-inner { max-width: 1200px; margin: 0 auto; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; }
+    .breadcrumb-trail { display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--gray-400); }
+    .breadcrumb-trail a { color: var(--navy); font-weight: 500; text-decoration: none; }
+    .breadcrumb-trail a:hover { text-decoration: underline; }
+    .breadcrumb-trail i { font-size: 9px; }
+    .breadcrumb-trail span { color: var(--gray-600); }
+    .breadcrumb-back { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: var(--navy); background: var(--navy-light); border-radius: 8px; padding: 6px 14px; transition: background .2s; text-decoration: none; }
+    .breadcrumb-back:hover { background: var(--gray-200); }
+
+    /* HERO */
+    .hero {
+      background: linear-gradient(135deg, var(--navy) 0%, var(--navy-dark) 100%);
+      padding: 8px 0 0;
+    }
+    .hero-inner { max-width: 1200px; margin: 0 auto; padding: 0 24px 10px; display: flex; align-items: flex-start; gap: 28px; }
+    .hero-logo {
+      width: 100px; height: 100px; border-radius: 16px;
+      background: var(--white); display: flex; align-items: center; justify-content: center;
+      font-size: 28px; font-weight: 900; color: var(--navy); flex-shrink: 0;
+      box-shadow: 0 8px 24px rgba(0,0,0,.2);
+    }
+    .hero-info { flex: 1; }
+    .hero-badge { display: inline-flex; align-items: center; gap: 5px; background: rgba(46,196,182,.18); color: #2ec4b6; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 50px; margin-bottom: 10px; }
+    .hero-name { font-size: 28px; font-weight: 800; color: var(--white); margin-bottom: 6px; }
+    .hero-loc { font-size: 13px; color: rgba(255,255,255,.6); display: flex; align-items: center; gap: 6px; margin-bottom: 16px; }
+    .hero-stats { display: flex; gap: 24px; flex-wrap: wrap; }
+    .hero-stat { text-align: center; }
+    .hero-stat-val { font-size: 22px; font-weight: 800; color: var(--gold); }
+    .hero-stat-lbl { font-size: 11px; color: rgba(255,255,255,.55); margin-top: 2px; }
+    .hero-tabs { max-width: 1200px; margin: 0 auto; padding: 0 24px; display: flex; gap: 0; border-top: 1px solid rgba(255,255,255,.1); }
+    .hero-tab { padding: 14px 22px; font-size: 13.5px; font-weight: 600; color: rgba(255,255,255,.55); border-bottom: 3px solid transparent; cursor: pointer; transition: all .2s; }
+    .hero-tab.active { color: var(--white); border-bottom-color: var(--gold); }
+    .hero-tab:hover { color: var(--white); }
+
+    /* LAYOUT */
+    .page-wrap { max-width: 1200px; margin: 0 auto; padding: 32px 24px 60px; display: grid; grid-template-columns: 1fr 320px; gap: 28px; align-items: start; }
+
+    /* MAIN */
+    .card { background: var(--white); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); padding: 24px; margin-bottom: 20px; }
+    .card-title { font-size: 16px; font-weight: 800; color: var(--navy-dark); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+    .card-title::before { content: ''; width: 4px; height: 18px; background: var(--gold); border-radius: 2px; }
+
+    /* ABOUT */
+    .about-text { font-size: 14px; line-height: 1.85; color: var(--gray-600); }
+    .strengths { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 20px; }
+    .strength-item { background: var(--gray-50); border-radius: var(--radius); padding: 16px; text-align: center; }
+    .strength-icon { font-size: 22px; color: var(--gold); margin-bottom: 8px; }
+    .strength-title { font-size: 12.5px; font-weight: 700; color: var(--navy-dark); margin-bottom: 4px; }
+    .strength-desc { font-size: 11.5px; color: var(--gray-600); line-height: 1.5; }
+
+    /* PROJECTS */
+    .proj-filter { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+    .proj-filter-btn { padding: 6px 14px; border-radius: 50px; font-size: 12.5px; font-weight: 600; border: 1.5px solid var(--gray-200); color: var(--gray-600); background: var(--white); transition: all .2s; cursor: pointer; }
+    .proj-filter-btn.active, .proj-filter-btn:hover { border-color: var(--navy); background: var(--navy); color: var(--white); }
+    .proj-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+    .proj-card { border-radius: var(--radius-lg); overflow: hidden; background: var(--white); box-shadow: var(--shadow-sm); border: 1px solid var(--gray-100); cursor: pointer; transition: box-shadow .2s, transform .2s; }
+    .proj-card:hover { box-shadow: var(--shadow); transform: translateY(-2px); }
+    .proj-card-img { height: 160px; overflow: hidden; position: relative; }
+    .proj-card-img img { width: 100%; height: 100%; object-fit: cover; }
+    .proj-card-status { position: absolute; top: 10px; left: 10px; padding: 3px 10px; border-radius: 50px; font-size: 11px; font-weight: 700; }
+    .status-livraison { background: var(--gold); color: var(--navy-dark); }
+    .status-construction { background: var(--navy); color: var(--white); }
+    .status-livre { background: var(--green); color: var(--white); }
+    .proj-card-body { padding: 14px 16px; }
+    .proj-card-name { font-size: 14px; font-weight: 700; color: var(--navy-dark); margin-bottom: 4px; }
+    .proj-card-loc { font-size: 12px; color: var(--gray-600); display: flex; align-items: center; gap: 4px; margin-bottom: 10px; }
+    .proj-card-meta { display: flex; justify-content: space-between; align-items: center; }
+    .proj-card-price { font-size: 13px; font-weight: 700; color: var(--navy); }
+    .proj-card-price span { font-size: 11px; color: var(--gray-400); font-weight: 500; }
+    .proj-card-type { font-size: 11px; background: var(--navy-light); color: var(--navy); padding: 3px 8px; border-radius: 50px; font-weight: 600; }
+    .proj-count { font-size: 13px; color: var(--gray-600); margin-bottom: 16px; }
+    .proj-count strong { color: var(--navy-dark); }
+
+    /* CERTIFICATIONS */
+    .cert-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+    .cert-item { background: var(--gray-50); border-radius: var(--radius); padding: 14px; text-align: center; }
+    .cert-icon { font-size: 20px; color: var(--gold); margin-bottom: 6px; }
+    .cert-label { font-size: 11px; font-weight: 600; color: var(--navy-dark); }
+
+    /* AVIS */
+    .rating-header { display: flex; align-items: center; gap: 20px; margin-bottom: 20px; }
+    .rating-score { text-align: center; }
+    .rating-score-val { font-size: 48px; font-weight: 900; color: var(--navy-dark); line-height: 1; }
+    .rating-score-stars { color: var(--gold); font-size: 16px; margin: 4px 0; }
+    .rating-score-count { font-size: 12px; color: var(--gray-600); }
+    .rating-bars { flex: 1; }
+    .rating-bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; font-size: 12px; }
+    .rating-bar-label { width: 30px; color: var(--gray-600); }
+    .rating-bar-track { flex: 1; height: 6px; background: var(--gray-100); border-radius: 3px; overflow: hidden; }
+    .rating-bar-fill { height: 100%; background: var(--gold); border-radius: 3px; }
+    .avis-list { display: flex; flex-direction: column; gap: 14px; }
+    .avis-item { padding: 16px; background: var(--gray-50); border-radius: var(--radius); }
+    .avis-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+    .avis-author { font-size: 13px; font-weight: 700; color: var(--navy-dark); }
+    .avis-date { font-size: 11px; color: var(--gray-400); }
+    .avis-stars { color: var(--gold); font-size: 12px; margin-bottom: 6px; }
+    .avis-text { font-size: 13px; color: var(--gray-600); line-height: 1.6; }
+
+    /* ASIDE */
+    .aside-card { background: var(--white); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); overflow: hidden; margin-bottom: 16px; }
+    .aside-head { background: linear-gradient(135deg, var(--navy) 0%, var(--navy-dark) 100%); padding: 20px; }
+    .aside-head-title { font-size: 15px; font-weight: 700; color: var(--white); margin-bottom: 4px; }
+    .aside-head-sub { font-size: 12px; color: rgba(255,255,255,.55); }
+    .aside-body { padding: 18px 20px; }
+    .aside-info-row { display: flex; align-items: flex-start; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--gray-100); font-size: 13px; }
+    .aside-info-row:last-child { border-bottom: none; }
+    .aside-info-icon { width: 32px; height: 32px; border-radius: 8px; background: var(--navy-light); display: flex; align-items: center; justify-content: center; color: var(--navy); font-size: 13px; flex-shrink: 0; }
+    .aside-info-label { font-size: 11px; color: var(--gray-400); margin-bottom: 2px; }
+    .aside-info-val { font-weight: 600; color: var(--gray-800); }
+    .aside-hours { padding: 14px 20px; background: var(--gray-50); border-top: 1px solid var(--gray-100); }
+    .aside-hours-title { font-size: 12px; font-weight: 700; color: var(--navy-dark); margin-bottom: 8px; }
+    .aside-hours-row { display: flex; justify-content: space-between; font-size: 12px; color: var(--gray-600); margin-bottom: 4px; }
+    .cta-btn { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 13px; border-radius: var(--radius); font-size: 13.5px; font-weight: 700; cursor: pointer; transition: all .2s; margin-bottom: 10px; }
+    .cta-primary { background: linear-gradient(135deg, var(--navy), var(--navy-dark)); color: var(--white); }
+    .cta-primary:hover { opacity: .88; }
+    .cta-wa { background: #25D366; color: var(--white); }
+    .cta-wa:hover { background: #1DA851; }
+    .cta-gold { border: 1.5px solid var(--gold); color: var(--gold); background: var(--white); }
+    .cta-gold:hover { background: var(--gold-light); }
+    .aside-map { height: 160px; background: var(--gray-100); border-radius: var(--radius); overflow: hidden; margin-bottom: 14px; }
+    .aside-map img { width: 100%; height: 100%; object-fit: cover; }
+
+    /* MAP SECTION */
+    .map-section { max-width: 1200px; margin: 0 auto 48px; padding: 0 24px; }
+    .map-section-title { font-size: 16px; font-weight: 800; color: var(--navy-dark); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+    .map-section-title::before { content: ''; width: 4px; height: 18px; background: var(--gold); border-radius: 2px; }
+    .map-wrap {
+      position: relative; height: 420px; border-radius: var(--radius-lg);
+      overflow: hidden; box-shadow: var(--shadow);
+    }
+    #promoMap { width: 100%; height: 100%; }
+    .map-info-card {
+      position: absolute; top: 20px; left: 20px; z-index: 500;
+      background: var(--white); border-radius: var(--radius-lg);
+      box-shadow: 0 8px 32px rgba(0,0,0,.18); padding: 20px 22px;
+      width: 300px; pointer-events: all;
+    }
+    .map-info-logo {
+      width: 48px; height: 48px; border-radius: 10px; background: var(--navy-dark);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 900; color: var(--white); margin-bottom: 12px;
+    }
+    .map-info-name { font-size: 15px; font-weight: 800; color: var(--navy-dark); margin-bottom: 3px; }
+    .map-info-verified { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; color: var(--green); font-weight: 600; margin-bottom: 12px; }
+    .map-info-addr { display: flex; align-items: flex-start; gap: 8px; font-size: 12.5px; color: var(--gray-600); line-height: 1.5; margin-bottom: 14px; padding-bottom: 14px; border-bottom: 1px solid var(--gray-100); }
+    .map-info-addr i { color: var(--gold); margin-top: 2px; flex-shrink: 0; }
+    .map-info-hours { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--gray-600); margin-bottom: 14px; }
+    .map-info-hours i { color: var(--gray-400); }
+    .map-info-open { color: var(--green); font-weight: 700; }
+    .map-info-btn {
+      display: flex; align-items: center; justify-content: center; gap: 7px;
+      width: 100%; padding: 11px; border-radius: var(--radius); font-size: 13px; font-weight: 700;
+      background: var(--navy); color: var(--white); cursor: pointer; border: none;
+      transition: background .2s; margin-bottom: 8px;
+    }
+    .map-info-btn:hover { background: var(--navy-dark); }
+    .map-info-btn-outline {
+      display: flex; align-items: center; justify-content: center; gap: 7px;
+      width: 100%; padding: 10px; border-radius: var(--radius); font-size: 13px; font-weight: 700;
+      border: 1.5px solid var(--gold); color: var(--gold); background: var(--white);
+      cursor: pointer; transition: background .2s;
+    }
+    .map-info-btn-outline:hover { background: var(--gold-light); }
+    .map-zoom-ctrl {
+      position: absolute; bottom: 20px; right: 20px; z-index: 500;
+      display: flex; flex-direction: column; gap: 4px;
+    }
+    .map-zoom-btn {
+      width: 36px; height: 36px; border-radius: 8px; background: var(--white);
+      box-shadow: 0 2px 8px rgba(0,0,0,.15); border: none; cursor: pointer;
+      font-size: 16px; font-weight: 700; color: var(--navy-dark);
+      display: flex; align-items: center; justify-content: center; transition: background .2s;
+    }
+    .map-zoom-btn:hover { background: var(--gray-50); }
+
+    /* RESPONSIVE */
+    @media (max-width: 960px) {
+      .page-wrap { grid-template-columns: 1fr; }
+      .strengths { grid-template-columns: repeat(2, 1fr); }
+      .proj-grid { grid-template-columns: 1fr; }
+      .cert-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 560px) {
+      .strengths { grid-template-columns: 1fr; }
+      .cert-grid { grid-template-columns: repeat(2, 1fr); }
+      .page-wrap { padding: 16px 12px 40px; }
+    }
+
+    /* ===== FOOTER ===== */
+    .container { max-width: 1180px; margin: 0 auto; padding: 0 24px; }
+    footer { background: var(--navy-dark); padding: 20px 0 10px; color: rgba(255,255,255,.7); }
+    .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 20px; margin-bottom: 14px; }
+    .footer-logo { font-size: 20px; font-weight: 800; color: #fff; margin-bottom: 6px; }
+    .footer-logo span { color: var(--gold); }
+    .footer-desc { font-size: 12px; line-height: 1.6; margin-bottom: 10px; }
+    .footer-socials { display: flex; gap: 6px; }
+    .social-btn { width: 30px; height: 30px; background: rgba(255,255,255,.08); border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 12px; color: rgba(255,255,255,.7); transition: all .2s; }
+    .social-btn:hover { background: var(--gold); color: var(--navy); }
+    .footer-col-title { font-size: 12px; font-weight: 700; color: #fff; margin-bottom: 8px; letter-spacing: .3px; }
+    .footer-link { display: block; font-size: 12px; color: rgba(255,255,255,.55); padding: 2px 0; transition: color .2s; cursor: pointer; }
+    .footer-link:hover { color: var(--gold); }
+    .footer-bottom { border-top: 1px solid rgba(255,255,255,.08); padding-top: 12px; display: flex; align-items: center; justify-content: space-between; font-size: 11px; color: rgba(255,255,255,.35); }
+    .footer-bottom a { color: var(--gold); }
+  </style>
+<link rel="stylesheet" href="responsive.css" />
+</head>
+<body>
+
+<!-- ── NAVBAR ── -->
+<nav class="navbar" id="navbar">
+  <a class="nav-logo" href="index.html">
+    <img src="immo24-light-navbar.svg" height="54" alt="Immo24.tn" style="display:block" />
+  </a>
+  <div class="nav-ctas">
+    <a href="map-listings.html?type=neuf" class="nav-cta-btn"><i class="fas fa-building"></i> Projets neufs</a>
+    <a href="map-listings.html?type=annonces" class="nav-cta-btn"><i class="fas fa-user-tie"></i> Agences</a>
+    <a href="decoration.html" class="nav-cta-btn"><i class="fas fa-couch"></i> Décorer &amp; meubler</a>
+    <a href="#" class="nav-cta-btn"><i class="fas fa-hand-holding-usd"></i> Financer</a>
+  </div>
+  <div class="nav-right">
+    <a href="login.html" class="nav-btn-outline"><i class="fas fa-user-tie" style="font-size:11px;margin-right:5px"></i>Mon espace pro</a>
+  </div>
+  <button class="nav-hamburger" aria-label="Menu"><i class="fas fa-bars"></i></button>
+</nav>
+<div class="nav-mobile" id="nav-mobile">
+  <a href="map-listings.html?type=neuf" class="nav-mob-link"><i class="fas fa-building"></i> Projets neufs</a>
+  <a href="map-listings.html?type=annonces" class="nav-mob-link"><i class="fas fa-user-tie"></i> Agences</a>
+  <a href="decoration.html" class="nav-mob-link"><i class="fas fa-couch"></i> Décorer &amp; meubler</a>
+  <a href="#" class="nav-mob-link"><i class="fas fa-hand-holding-usd"></i> Financer</a>
+  <div class="nav-mob-divider"></div>
+  <div class="nav-mob-actions">
+    <a href="login.html" class="nav-mob-btn-outline">Mon espace pro</a>
+    <a href="inscription.html" class="nav-mob-btn-gold">Publier une annonce</a>
+  </div>
+</div>
+
+<!-- AD STRIP -->
+<div class="ad-strip" id="ad-strip">
+  <div class="ad-strip-bg"></div>
+  <div class="ad-strip-inner">
+    <span class="ad-strip-label">Annonce</span>
+    <div class="ad-strip-divider"></div>
+    <div class="ad-strip-content">
+      <div class="ad-strip-sponsor">Bullaregia Immobilière · Route de la Marsa, Tunis</div>
+      <div class="ad-strip-title">The Pantheon Residence – Duplex & Appartements haut standing</div>
+      <div class="ad-strip-sub">S+1 à Duplex S+3 · À partir de <strong>198 000 TND</strong> · Livraison imminente · Smart Home intégré</div>
+    </div>
+    <a href="projet-neuf.html" class="ad-strip-cta"><i class="fas fa-eye"></i> Voir le projet</a>
+  </div>
+  <button class="ad-strip-close" onclick="closeAdStrip()" title="Fermer"><i class="fas fa-times"></i></button>
+</div>
+
+<div style="height:calc(var(--nav-h) + var(--ad-h))"></div>
+
+<!-- BREADCRUMB -->
+<div class="breadcrumb-bar">
+  <div class="breadcrumb-inner">
+    <div class="breadcrumb-trail">
+      <a href="index.html">Accueil</a>
+      <i class="fas fa-chevron-right"></i>
+      <a href="map-listings.html?type=neuf">Promoteurs</a>
+      <i class="fas fa-chevron-right"></i>
+      <span>Bullaregia Immobilière</span>
+    </div>
+    <a href="map-listings.html?type=neuf" class="breadcrumb-back">
+      <i class="fas fa-arrow-left"></i> Retour aux résultats
+    </a>
+  </div>
+</div>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-logo"><img src="https://ui-avatars.com/api/?name=Bullaregia+Immobiliere&background=122952&color=E6A817&size=128&bold=true&font-size=0.35&rounded=true" alt="Bullaregia" style="width:100%;height:100%;border-radius:inherit;object-fit:cover;" /></div>
+    <div class="hero-info">
+      <div class="hero-badge"><i class="fas fa-check-circle"></i> Promoteur certifié Immo24</div>
+      <h1 class="hero-name">Bullaregia Immobilière
+        <span title="Identité, registre de commerce et agrément promoteur vérifiés par Immo24" style="display:inline-flex;align-items:center;gap:5px;vertical-align:middle;margin-left:10px;background:rgba(42,157,143,.18);color:#34d39e;border:1px solid rgba(42,157,143,.45);font-size:12px;font-weight:700;padding:4px 11px;border-radius:50px"><i class="fas fa-circle-check"></i> Promoteur vérifié</span>
+      </h1>
+      <div class="hero-loc"><i class="fas fa-map-marker-alt"></i> Rue Sidi El Heni, Montplaisir, 1073 Tunis</div>
+      <div class="hero-stats">
+        <div class="hero-stat">
+          <div class="hero-stat-val">5</div>
+          <div class="hero-stat-lbl">Projets réalisés</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-val">200+</div>
+          <div class="hero-stat-lbl">Logements livrés</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-val">12</div>
+          <div class="hero-stat-lbl">Ans d'expérience</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-val">4.7</div>
+          <div class="hero-stat-lbl">Note clients</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="hero-tabs">
+    <div class="hero-tab active" onclick="switchTab('projets', this)">Projets</div>
+    <div class="hero-tab" onclick="switchTab('about', this)">À propos</div>
+  </div>
+</section>
+
+<!-- CONTENT -->
+<div class="page-wrap">
+  <div class="content-main">
+
+    <!-- TAB: PROJETS -->
+    <div id="tab-projets">
+      <div class="card">
+        <div class="card-title">Projets en cours & livrés</div>
+        <p class="proj-count"><strong>5 projets</strong> au total – 3 en cours, 2 livrés</p>
+        <div class="proj-filter">
+          <button class="proj-filter-btn active">Tous</button>
+          <button class="proj-filter-btn">En cours</button>
+          <button class="proj-filter-btn">Livrés</button>
+          <button class="proj-filter-btn">Disponibles</button>
+        </div>
+        <div class="proj-grid">
+
+          <div class="proj-card" onclick="window.location='projet-neuf.html'">
+            <div class="proj-card-img">
+              <img src="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=600&q=75" alt="The Pantheon Residence" />
+              <span class="proj-card-status status-livraison">Livraison imminente</span>
+            </div>
+            <div class="proj-card-body">
+              <div class="proj-card-name">The Pantheon Residence</div>
+              <div class="proj-card-loc"><i class="fas fa-map-marker-alt"></i> Route de la Marsa, Tunis</div>
+              <div class="proj-card-meta">
+                <div class="proj-card-price">À partir de 198 000 TND <span>/ S+1</span></div>
+                <span class="proj-card-type">Résidentiel</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="proj-card">
+            <div class="proj-card-img">
+              <img src="https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=600&q=75" alt="Les Terrasses de Carthage" />
+              <span class="proj-card-status status-construction">En construction</span>
+            </div>
+            <div class="proj-card-body">
+              <div class="proj-card-name">Les Terrasses de Carthage</div>
+              <div class="proj-card-loc"><i class="fas fa-map-marker-alt"></i> Carthage, Tunis</div>
+              <div class="proj-card-meta">
+                <div class="proj-card-price">À partir de 245 000 TND <span>/ S+2</span></div>
+                <span class="proj-card-type">Résidentiel</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="proj-card">
+            <div class="proj-card-img">
+              <img src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=600&q=75" alt="Résidence Belvédère" />
+              <span class="proj-card-status status-construction">En construction</span>
+            </div>
+            <div class="proj-card-body">
+              <div class="proj-card-name">Résidence Belvédère</div>
+              <div class="proj-card-loc"><i class="fas fa-map-marker-alt"></i> La Marsa, Tunis</div>
+              <div class="proj-card-meta">
+                <div class="proj-card-price">À partir de 185 000 TND <span>/ S+1</span></div>
+                <span class="proj-card-type">Résidentiel</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="proj-card">
+            <div class="proj-card-img">
+              <img src="https://images.unsplash.com/photo-1493246507139-91e8fad9978e?w=600&q=75" alt="Jardins du Lac II" />
+              <span class="proj-card-status status-livre">Livré</span>
+            </div>
+            <div class="proj-card-body">
+              <div class="proj-card-name">Jardins du Lac II</div>
+              <div class="proj-card-loc"><i class="fas fa-map-marker-alt"></i> Les Berges du Lac II, Tunis</div>
+              <div class="proj-card-meta">
+                <div class="proj-card-price">Livré en 2022</div>
+                <span class="proj-card-type">Résidentiel</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="proj-card">
+            <div class="proj-card-img">
+              <img src="https://images.unsplash.com/photo-1567684014761-b65e2e59b9eb?w=600&q=75" alt="Résidence El Menzah" />
+              <span class="proj-card-status status-livre">Livré</span>
+            </div>
+            <div class="proj-card-body">
+              <div class="proj-card-name">Résidence El Menzah</div>
+              <div class="proj-card-loc"><i class="fas fa-map-marker-alt"></i> El Menzah 6, Tunis</div>
+              <div class="proj-card-meta">
+                <div class="proj-card-price">Livré en 2020</div>
+                <span class="proj-card-type">Résidentiel</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB: ABOUT -->
+    <div id="tab-about" style="display:none">
+      <div class="card">
+        <div class="card-title">À propos de Bullaregia Immobilière</div>
+        <p class="about-text">
+          <strong>Bullaregia Immobilière</strong> est un promoteur immobilier tunisien fondé en 2012, spécialisé dans le développement de résidences haut standing dans les zones premium du Grand Tunis. Présents de La Marsa aux Berges du Lac, nos projets conjuguent architecture contemporaine, finitions d'exception et équipements de prestige.
+        </p>
+        <p class="about-text" style="margin-top:12px;">
+          Notre engagement : livrer chaque projet dans les délais annoncés, avec des prestations qui dépassent les attentes de nos clients. Chaque résidence est pensée pour offrir un cadre de vie exceptionnel, alliant confort, sécurité et valorisation patrimoniale durable.
+        </p>
+        <p class="about-text" style="margin-top:12px;">
+          Nous accompagnons nos acquéreurs à chaque étape — de la réservation au financement, jusqu'à la remise des clés — avec une équipe dédiée et disponible.
+        </p>
+        <div class="strengths">
+          <div class="strength-item">
+            <div class="strength-icon"><i class="fas fa-medal"></i></div>
+            <div class="strength-title">Excellence & Qualité</div>
+            <div class="strength-desc">Finitions haut de gamme certifiées, matériaux importés sélectionnés avec soin</div>
+          </div>
+          <div class="strength-item">
+            <div class="strength-icon"><i class="fas fa-calendar-check"></i></div>
+            <div class="strength-title">Délais respectés</div>
+            <div class="strength-desc">100% de nos projets livrés dans les délais contractuels annoncés</div>
+          </div>
+          <div class="strength-item">
+            <div class="strength-icon"><i class="fas fa-handshake"></i></div>
+            <div class="strength-title">Accompagnement total</div>
+            <div class="strength-desc">Suivi personnalisé de la réservation jusqu'à la remise des clés</div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Certifications & Agréments</div>
+        <div class="cert-grid">
+          <div class="cert-item">
+            <div class="cert-icon"><i class="fas fa-shield-alt"></i></div>
+            <div class="cert-label">Promoteur agréé<br>Ministère de l'Habitat</div>
+          </div>
+          <div class="cert-item">
+            <div class="cert-icon"><i class="fas fa-building"></i></div>
+            <div class="cert-label">Membre FNPI<br>Tunisie</div>
+          </div>
+          <div class="cert-item">
+            <div class="cert-icon"><i class="fas fa-check-double"></i></div>
+            <div class="cert-label">Certifié<br>Immo24.tn</div>
+          </div>
+          <div class="cert-item">
+            <div class="cert-icon"><i class="fas fa-leaf"></i></div>
+            <div class="cert-label">Engagement<br>HQE / Éco-construction</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ASIDE -->
+  <aside>
+    <div class="aside-card">
+      <div class="aside-head">
+        <div class="aside-head-title">Bullaregia Immobilière</div>
+        <div class="aside-head-sub">Promoteur certifié · Tunis</div>
+      </div>
+      <div class="aside-body">
+        <div class="aside-info-row">
+          <div class="aside-info-icon"><i class="fas fa-map-marker-alt"></i></div>
+          <div>
+            <div class="aside-info-label">Adresse</div>
+            <div class="aside-info-val">Rue Sidi El Heni, Espace Tunis Bloc G, 3e étage, Montplaisir, 1073 Tunis</div>
+          </div>
+        </div>
+        <div class="aside-info-row">
+          <div class="aside-info-icon"><i class="fas fa-phone"></i></div>
+          <div>
+            <div class="aside-info-label">Téléphone</div>
+            <div class="aside-info-val">+216 71 90 XX XX</div>
+          </div>
+        </div>
+        <div class="aside-info-row">
+          <div class="aside-info-icon"><i class="fas fa-envelope"></i></div>
+          <div>
+            <div class="aside-info-label">Email</div>
+            <div class="aside-info-val">contact@bullaregia.tn</div>
+          </div>
+        </div>
+        <div class="aside-info-row">
+          <div class="aside-info-icon"><i class="fas fa-globe"></i></div>
+          <div>
+            <div class="aside-info-label">Site web</div>
+            <div class="aside-info-val" style="color:var(--navy);">www.bullaregia.tn</div>
+          </div>
+        </div>
+      </div>
+      <div class="aside-hours">
+        <div class="aside-hours-title"><i class="fas fa-clock" style="color:var(--gold);margin-right:5px;"></i> Horaires d'ouverture</div>
+        <div class="aside-hours-row"><span>Lun – Ven</span><span>08h30 – 17h30</span></div>
+        <div class="aside-hours-row"><span>Samedi</span><span>09h00 – 13h00</span></div>
+        <div class="aside-hours-row"><span>Dimanche</span><span style="color:var(--gray-400);">Fermé</span></div>
+      </div>
+    </div>
+
+    <div class="aside-card" style="padding:16px;">
+      <button onclick="document.querySelector('.map-section').scrollIntoView({behavior:'smooth'})" style="width:100%;height:100px;border-radius:var(--radius);background:var(--navy-light);border:1.5px dashed var(--navy);color:var(--navy);font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:14px;transition:background .2s;" onmouseover="this.style.background='#dde6f4'" onmouseout="this.style.background='var(--navy-light)'">
+        <i class="fas fa-map-location-dot" style="font-size:20px;color:var(--gold)"></i> Voir sur la carte
+      </button>
+      <button class="cta-btn cta-primary" onclick="alert('Contactez-nous au +216 71 90 XX XX')">
+        <i class="fas fa-phone"></i> Appeler maintenant
+      </button>
+      <a href="https://wa.me/21671900000" target="_blank" class="cta-btn cta-wa" style="border:none;text-decoration:none;">
+        <i class="fab fa-whatsapp" style="font-size:16px;"></i> WhatsApp
+      </a>
+      <button class="cta-btn cta-gold">
+        <i class="fas fa-calendar-check"></i> Prendre rendez-vous
+      </button>
+    </div>
+
+    <div class="aside-card" style="padding:18px 20px;">
+      <div style="font-size:13px;font-weight:700;color:var(--navy-dark);margin-bottom:12px;">Partagez ce profil</div>
+      <div style="display:flex;gap:10px;">
+        <button style="flex:1;padding:8px;border-radius:var(--radius);background:#1877f2;color:#fff;font-size:12px;font-weight:600;cursor:pointer;"><i class="fab fa-facebook-f"></i> Facebook</button>
+        <button style="flex:1;padding:8px;border-radius:var(--radius);background:#0a66c2;color:#fff;font-size:12px;font-weight:600;cursor:pointer;"><i class="fab fa-linkedin-in"></i> LinkedIn</button>
+        <button style="flex:1;padding:8px;border-radius:var(--radius);background:var(--gray-100);color:var(--gray-800);font-size:12px;font-weight:600;cursor:pointer;" onclick="navigator.clipboard.writeText(window.location.href)"><i class="fas fa-link"></i> Copier</button>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<!-- MAP SECTION -->
+<section class="map-section">
+  <div class="map-section-title">Notre localisation</div>
+  <div class="map-wrap">
+    <div id="promoMap"></div>
+
+    <!-- Zoom controls -->
+    <div class="map-zoom-ctrl">
+      <button class="map-zoom-btn" data-dir="+" title="Zoom +">+</button>
+      <button class="map-zoom-btn" data-dir="-" title="Zoom −">−</button>
+    </div>
+
+    <!-- Floating info card -->
+    <div class="map-info-card">
+      <div class="map-info-logo"><img src="https://ui-avatars.com/api/?name=Bullaregia+Immobiliere&background=122952&color=E6A817&size=128&bold=true&font-size=0.35&rounded=true" alt="Bullaregia" style="width:100%;height:100%;border-radius:inherit;object-fit:cover;" /></div>
+      <div class="map-info-name">Bullaregia Immobilière</div>
+      <div class="map-info-verified"><i class="fas fa-check-circle"></i> Promoteur certifié Immo24.tn</div>
+      <div class="map-info-addr">
+        <i class="fas fa-map-marker-alt"></i>
+        Rue Sidi El Heni, Espace Tunis Bloc G, 3e étage, Montplaisir, 1073 Tunis
+      </div>
+      <div class="map-info-hours">
+        <i class="fas fa-clock"></i>
+        <span><span class="map-info-open">Ouvert</span> · Ferme à 17h30</span>
+      </div>
+      <button class="map-info-btn" onclick="window.open('https://www.openstreetmap.org/directions?from=&to=36.8205,10.1762','_blank')">
+        <i class="fas fa-route"></i> Obtenir l'itinéraire
+      </button>
+      <button class="map-info-btn-outline" onclick="alert('Appelez-nous au +216 71 90 XX XX')">
+        <i class="fas fa-phone"></i> +216 71 90 XX XX
+      </button>
+    </div>
+  </div>
+</section>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+function switchTab(id, btn) {
+  ['projets','about'].forEach(t => {
+    document.getElementById('tab-' + t).style.display = 'none';
+  });
+  document.querySelectorAll('.hero-tab').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).style.display = 'block';
+  btn.classList.add('active');
+}
+function closeAdStrip() {
+  const strip = document.getElementById('ad-strip');
+  strip.style.display = 'none';
+  document.querySelectorAll('[style*="calc(var(--nav-h) + var(--ad-h))"]').forEach(el => {
+    el.style.height = 'var(--nav-h)';
+  });
+  document.querySelector('.hero').style.top = '0';
+}
+document.querySelectorAll('.proj-filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.proj-filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  });
+});
+
+/* MAP */
+const map = L.map('promoMap', { zoomControl: false, scrollWheelZoom: false }).setView([36.8205, 10.1762], 16);
+L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+  attribution: '© OpenStreetMap © CARTO', maxZoom: 19
+}).addTo(map);
+
+const icon = L.divIcon({
+  className: '',
+  html: `<div style="
+    width:44px;height:44px;border-radius:50%;
+    background:var(--navy);border:3px solid var(--white);
+    box-shadow:0 4px 16px rgba(0,0,0,.35);
+    display:flex;align-items:center;justify-content:center;
+    font-size:18px;color:var(--white);font-weight:900;
+    font-family:Inter,sans-serif;
+  ">BI</div>`,
+  iconSize: [44, 44], iconAnchor: [22, 22]
+});
+
+L.marker([36.8205, 10.1762], { icon })
+  .addTo(map)
+  .bindPopup('<b>Bullaregia Immobilière</b><br>Montplaisir, 1073 Tunis<br><small style="color:#2A9D8F">✔ Promoteur certifié</small>')
+  .openPopup();
+
+/* Custom zoom buttons */
+document.querySelectorAll('.map-zoom-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    btn.dataset.dir === '+' ? map.zoomIn() : map.zoomOut();
+  });
+});
+</script>
+
+<!-- ===== PARTENAIRES (removed) ===== -->
+<section style="display:none">
+  <div class="container">
+    <div>
+
+      <div style="background:#fff;border-radius:16px;border:1.5px solid var(--gray-200);padding:20px 18px 16px;display:flex;flex-direction:column;gap:12px;cursor:pointer;transition:box-shadow .2s,transform .2s,border-color .2s;" onclick="window.location='promoteur.html'" onmouseover="this.style.boxShadow='0 4px 20px rgba(0,0,0,.10)';this.style.transform='translateY(-3px)';this.style.borderColor='var(--navy)'" onmouseout="this.style.boxShadow='';this.style.transform='';this.style.borderColor='var(--gray-200)'">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div style="width:46px;height:46px;border-radius:11px;background:#1B3A6B;color:#E6A817;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:900;flex-shrink:0;">BI</div>
+          <div><div style="font-size:14px;font-weight:700;color:var(--gray-800);margin-bottom:4px;">Bullaregia Immobilière</div><span style="font-size:11px;font-weight:600;padding:2px 9px;border-radius:50px;background:var(--gold-light);color:var(--gold-dark);border:1px solid #f0c96a;">Promoteur</span></div>
+        </div>
+        <div style="height:1px;background:var(--gray-100);"></div>
+        <div style="display:flex;gap:0;">
+          <div style="flex:1;text-align:center;"><div style="font-size:18px;font-weight:800;color:var(--navy);line-height:1;margin-bottom:2px;">12</div><div style="font-size:10px;color:var(--gray-600);">Projets</div></div>
+          <div style="flex:1;text-align:center;border-left:1px solid var(--gray-100);"><div style="font-size:18px;font-weight:800;color:var(--navy);line-height:1;margin-bottom:2px;">148</div><div style="font-size:10px;color:var(--gray-600);">Biens</div></div>
+          <div style="flex:1;text-align:center;border-left:1px solid var(--gray-100);"><div style="font-size:18px;font-weight:800;color:var(--navy);line-height:1;margin-bottom:2px;">9</div><div style="font-size:10px;color:var(--gray-600);">ans d'exp.</div></div>
+        </div>
+        <div style="font-size:12px;color:var(--gray-500);display:flex;align-items:center;gap:5px;"><i class="fas fa-map-marker-alt" style="color:var(--gold);font-size:10px;"></i> La Marsa · Tunis</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;font-size:12px;font-weight:600;color:var(--navy);">Voir les biens <i class="fas fa-arrow-right" style="font-size:10px;"></i></div>
+      </div>
+
+      <div style="background:#fff;border-radius:16px;border:1.5px solid var(--gray-200);padding:20px 18px 16px;display:flex;flex-direction:column;gap:12px;cursor:pointer;transition:box-shadow .2s,transform .2s,border-color .2s;" onclick="window.location='promoteur.html'" onmouseover="this.style.boxShadow='0 4px 20px rgba(0,0,0,.10)';this.style.transform='translateY(-3px)';this.style.borderColor='var(--navy)'" onmouseout="this.style.boxShadow='';this.style.transform='';this.style.borderColor='var(--gray-200)'">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div style="width:46px;height:46px;border-radius:11px;background:#2A9D8F;color:#fff;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:900;flex-shrink:0;">OI</div>
+          <div><div style="font-size:14px;font-weight:700;color:var(--gray-800);margin-bottom:4px;">Odéon Immobilière</div><span style="font-size:11px;font-weight:600;padding:2px 9px;border-radius:50px;background:var(--gold-light);color:var(--gold-dark);border:1px solid #f0c96a;">Promoteur</span></div>
+        </div>
+        <div style="height:1px;background:var(--gray-100);"></div>
+        <div style="display:flex;gap:0;">
+          <div style="flex:1;text-align:center;"><div style="font-size:18px;font-weight:800;color:var(--navy);line-height:1;margin-bottom:2px;">7</div><div style="font-size:10px;color:var(--gray-600);">Projets</div></div>
+          <div style="flex:1;text-align:center;border-left:1px solid var(--gray-100);"><div style="font-size:18px;font-weight:800;color:var(--navy);line-height:1;margin-bottom:2px;">210</div><div style="font-size:10px;color:var(--gray-600);">Biens</div></div>
+          <div style="flex:1;text-align:center;border-left:1px solid var(--gray-100);"><div style="font-size:18px;font-weight:800;color:var(--navy);line-height:1;margin-bottom:2px;">15</div><div style="font-size:10px;color:var(--gray-600);">ans d'exp.</div></div>
+        </div>
+        <div style="font-size:12px;color:var(--gray-500);display:flex;align-items:center;gap:5px;"><i class="fas fa-map-marker-alt" style="color:var(--gold);font-size:10px;"></i> Les Berges du Lac II</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;font-size:12px;font-weight:600;color:var(--navy);">Voir les biens <i class="fas fa-arrow-right" style="font-size:10px;"></i></div>
+      </div>
+
+      <div style="background:#fff;border-radius:16px;border:1.5px solid var(--gray-200);padding:20px 18px 16px;display:flex;flex-direction:column;gap:12px;cursor:pointer;transition:box-shadow .2s,transform .2s,border-color .2s;" onclick="window.location='promoteur.html'" onmouseover="this.style.boxShadow='0 4px 20px rgba(0,0,0,.10)';this.style.transform='translateY(-3px)';this.style.borderColor='var(--navy)'" onmouseout="this.style.boxShadow='';this.style.transform='';this.style.borderColor='var(--gray-200)'">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div style="width:46px;height:46px;border-radius:11px;background:#E6A817;color:#122952;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:900;flex-shrink:0;">RL</div>
+          <div><div style="font-size:14px;font-weight:700;color:var(--gray-800);margin-bottom:4px;">Réalco</div><span style="font-size:11px;font-weight:600;padding:2px 9px;border-radius:50px;background:var(--gold-light);color:var(--gold-dark);border:1px solid #f0c96a;">Promoteur</span></div>
+        </div>
+        <div style="height:1px;background:var(--gray-100);"></div>
+        <div style="display:flex;gap:0;">
+          <div style="flex:1;text-align:center;"><div style="font-size:18px;font-weight:800;color:var(--navy);line-height:1;margin-bottom:2px;">5</div><div style="font-size:10px;color:var(--gray-600);">Projets</div></div>
+          <div style="flex:1;text-align:center;border-left:1px solid var(--gray-100);"><div style="font-size:18px;font-weight:800;color:var(--navy);line-height:1;margin-bottom:2px;">320</div><div style="font-size:10px;color:var(--gray-600);">Biens</div></div>
+          <div style="flex:1;text-align:center;border-left:1px solid var(--gray-100);"><div style="font-size:18px;font-weight:800;color:var(--navy);line-height:1;margin-bottom:2px;">20</div><div style="font-size:10px;color:var(--gray-600);">ans d'exp.</div></div>
+        </div>
+        <div style="font-size:12px;color:var(--gray-500);display:flex;align-items:center;gap:5px;"><i class="fas fa-map-marker-alt" style="color:var(--gold);font-size:10px;"></i> Sousse · Hammamet</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;font-size:12px;font-weight:600;color:var(--navy);">Voir les biens <i class="fas fa-arrow-right" style="font-size:10px;"></i></div>
+      </div>
+
+      <div style="background:#fff;border-radius:16px;border:1.5px solid var(--gray-200);padding:20px 18px 16px;display:flex;flex-direction:column;gap:12px;cursor:pointer;transition:box-shadow .2s,transform .2s,border-color .2s;" onclick="window.location='agence.html'" onmouseover="this.style.boxShadow='0 4px 20px rgba(0,0,0,.10)';this.style.transform='translateY(-3px)';this.style.borderColor='var(--navy)'" onmouseout="this.style.boxShadow='';this.style.transform='';this.style.borderColor='var(--gray-200)'">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div style="width:46px;height:46px;border-radius:11px;background:#264d9b;color:#fff;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:900;flex-shrink:0;">CI</div>
+          <div><div style="font-size:14px;font-weight:700;color:var(--gray-800);margin-bottom:4px;">Carthage Immobilier</div><span style="font-size:11px;font-weight:600;padding:2px 9px;border-radius:50px;background:var(--navy-light);color:var(--navy);border:1px solid #C5D5EE;">Agence</span></div>
+        </div>
+        <div style="height:1px;background:var(--gray-100);"></div>
+        <div style="display:flex;gap:0;">
+          <div style="flex:1;text-align:center;"><div style="font-size:18px;font-weight:800;color:var(--navy);line-height:1;margin-bottom:2px;">—</div><div style="font-size:10px;color:var(--gray-600);">Projets</div></div>
+          <div style="flex:1;text-align:center;border-left:1px solid var(--gray-100);"><div style="font-size:18px;font-weight:800;color:var(--navy);line-height:1;margin-bottom:2px;">86</div><div style="font-size:10px;color:var(--gray-600);">Biens</div></div>
+          <div style="flex:1;text-align:center;border-left:1px solid var(--gray-100);"><div style="font-size:18px;font-weight:800;color:var(--navy);line-height:1;margin-bottom:2px;">11</div><div style="font-size:10px;color:var(--gray-600);">ans d'exp.</div></div>
+        </div>
+        <div style="font-size:12px;color:var(--gray-500);display:flex;align-items:center;gap:5px;"><i class="fas fa-map-marker-alt" style="color:var(--gold);font-size:10px;"></i> Carthage · Tunis</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;font-size:12px;font-weight:600;color:var(--navy);">Voir les biens <i class="fas fa-arrow-right" style="font-size:10px;"></i></div>
+      </div>
+
+      <div style="background:#fff;border-radius:16px;border:1.5px solid var(--gray-200);padding:20px 18px 16px;display:flex;flex-direction:column;gap:12px;cursor:pointer;transition:box-shadow .2s,transform .2s,border-color .2s;" onclick="window.location='agence.html'" onmouseover="this.style.boxShadow='0 4px 20px rgba(0,0,0,.10)';this.style.transform='translateY(-3px)';this.style.borderColor='var(--navy)'" onmouseout="this.style.boxShadow='';this.style.transform='';this.style.borderColor='var(--gray-200)'">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div style="width:46px;height:46px;border-radius:11px;background:#343A40;color:#E6A817;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:900;flex-shrink:0;">EI</div>
+          <div><div style="font-size:14px;font-weight:700;color:var(--gray-800);margin-bottom:4px;">Étoile Immobilier</div><span style="font-size:11px;font-weight:600;padding:2px 9px;border-radius:50px;background:var(--navy-light);color:var(--navy);border:1px solid #C5D5EE;">Agence</span></div>
+        </div>
+        <div style="height:1px;background:var(--gray-100);"></div>
+        <div style="display:flex;gap:0;">
+          <div style="flex:1;text-align:center;"><div style="font-size:18px;font-weight:800;color:var(--navy);line-height:1;margin-bottom:2px;">—</div><div style="font-size:10px;color:var(--gray-600);">Projets</div></div>
+          <div style="flex:1;text-align:center;border-left:1px solid var(--gray-100);"><div style="font-size:18px;font-weight:800;color:var(--navy);line-height:1;margin-bottom:2px;">124</div><div style="font-size:10px;color:var(--gray-600);">Biens</div></div>
+          <div style="flex:1;text-align:center;border-left:1px solid var(--gray-100);"><div style="font-size:18px;font-weight:800;color:var(--navy);line-height:1;margin-bottom:2px;">6</div><div style="font-size:10px;color:var(--gray-600);">ans d'exp.</div></div>
+        </div>
+        <div style="font-size:12px;color:var(--gray-500);display:flex;align-items:center;gap:5px;"><i class="fas fa-map-marker-alt" style="color:var(--gold);font-size:10px;"></i> Grand Tunis</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;font-size:12px;font-weight:600;color:var(--navy);">Voir les biens <i class="fas fa-arrow-right" style="font-size:10px;"></i></div>
+      </div>
+
+      <div style="background:#fff;border-radius:16px;border:1.5px solid var(--gray-200);padding:20px 18px 16px;display:flex;flex-direction:column;gap:12px;cursor:pointer;transition:box-shadow .2s,transform .2s,border-color .2s;" onclick="window.location='agence.html'" onmouseover="this.style.boxShadow='0 4px 20px rgba(0,0,0,.10)';this.style.transform='translateY(-3px)';this.style.borderColor='var(--navy)'" onmouseout="this.style.boxShadow='';this.style.transform='';this.style.borderColor='var(--gray-200)'">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div style="width:46px;height:46px;border-radius:11px;background:#C8900E;color:#fff;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:900;flex-shrink:0;">IG</div>
+          <div><div style="font-size:14px;font-weight:700;color:var(--gray-800);margin-bottom:4px;">Immob. du Golfe</div><span style="font-size:11px;font-weight:600;padding:2px 9px;border-radius:50px;background:var(--navy-light);color:var(--navy);border:1px solid #C5D5EE;">Agence</span></div>
+        </div>
+        <div style="height:1px;background:var(--gray-100);"></div>
+        <div style="display:flex;gap:0;">
+          <div style="flex:1;text-align:center;"><div style="font-size:18px;font-weight:800;color:var(--navy);line-height:1;margin-bottom:2px;">—</div><div style="font-size:10px;color:var(--gray-600);">Projets</div></div>
+          <div style="flex:1;text-align:center;border-left:1px solid var(--gray-100);"><div style="font-size:18px;font-weight:800;color:var(--navy);line-height:1;margin-bottom:2px;">67</div><div style="font-size:10px;color:var(--gray-600);">Biens</div></div>
+          <div style="flex:1;text-align:center;border-left:1px solid var(--gray-100);"><div style="font-size:18px;font-weight:800;color:var(--navy);line-height:1;margin-bottom:2px;">18</div><div style="font-size:10px;color:var(--gray-600);">ans d'exp.</div></div>
+        </div>
+        <div style="font-size:12px;color:var(--gray-500);display:flex;align-items:center;gap:5px;"><i class="fas fa-map-marker-alt" style="color:var(--gold);font-size:10px;"></i> Sidi Bou Saïd · La Marsa</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;font-size:12px;font-weight:600;color:var(--navy);">Voir les biens <i class="fas fa-arrow-right" style="font-size:10px;"></i></div>
+      </div>
+
+      <div style="background:#fff;border-radius:16px;border:1.5px solid var(--gray-200);padding:20px 18px 16px;display:flex;flex-direction:column;gap:12px;cursor:pointer;transition:box-shadow .2s,transform .2s,border-color .2s;" onclick="window.location='promoteur.html'" onmouseover="this.style.boxShadow='0 4px 20px rgba(0,0,0,.10)';this.style.transform='translateY(-3px)';this.style.borderColor='var(--navy)'" onmouseout="this.style.boxShadow='';this.style.transform='';this.style.borderColor='var(--gray-200)'">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div style="width:46px;height:46px;border-radius:11px;background:#1B3A6B;color:#E6A817;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:900;flex-shrink:0;">PD</div>
+          <div><div style="font-size:14px;font-weight:700;color:var(--gray-800);margin-bottom:4px;">Prestige Dev.</div><span style="font-size:11px;font-weight:600;padding:2px 9px;border-radius:50px;background:var(--gold-light);color:var(--gold-dark);border:1px solid #f0c96a;">Promoteur</span></div>
+        </div>
+        <div style="height:1px;background:var(--gray-100);"></div>
+        <div style="display:flex;gap:0;">
+          <div style="flex:1;text-align:center;"><div style="font-size:18px;font-weight:800;color:var(--navy);line-height:1;margin-bottom:2px;">8</div><div style="font-size:10px;color:var(--gray-600);">Projets</div></div>
+          <div style="flex:1;text-align:center;border-left:1px solid var(--gray-100);"><div style="font-size:18px;font-weight:800;color:var(--navy);line-height:1;margin-bottom:2px;">190</div><div style="font-size:10px;color:var(--gray-600);">Biens</div></div>
+          <div style="flex:1;text-align:center;border-left:1px solid var(--gray-100);"><div style="font-size:18px;font-weight:800;color:var(--navy);line-height:1;margin-bottom:2px;">12</div><div style="font-size:10px;color:var(--gray-600);">ans d'exp.</div></div>
+        </div>
+        <div style="font-size:12px;color:var(--gray-500);display:flex;align-items:center;gap:5px;"><i class="fas fa-map-marker-alt" style="color:var(--gold);font-size:10px;"></i> Ariana · Ennasr</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;font-size:12px;font-weight:600;color:var(--navy);">Voir les biens <i class="fas fa-arrow-right" style="font-size:10px;"></i></div>
+      </div>
+
+      <div style="background:#fff;border-radius:16px;border:1.5px solid var(--gray-200);padding:20px 18px 16px;display:flex;flex-direction:column;gap:12px;cursor:pointer;transition:box-shadow .2s,transform .2s,border-color .2s;" onclick="window.location='promoteur.html'" onmouseover="this.style.boxShadow='0 4px 20px rgba(0,0,0,.10)';this.style.transform='translateY(-3px)';this.style.borderColor='var(--navy)'" onmouseout="this.style.boxShadow='';this.style.transform='';this.style.borderColor='var(--gray-200)'">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div style="width:46px;height:46px;border-radius:11px;background:#2A9D8F;color:#fff;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:900;flex-shrink:0;">TP</div>
+          <div><div style="font-size:14px;font-weight:700;color:var(--gray-800);margin-bottom:4px;">TunisPromo</div><span style="font-size:11px;font-weight:600;padding:2px 9px;border-radius:50px;background:var(--gold-light);color:var(--gold-dark);border:1px solid #f0c96a;">Promoteur</span></div>
+        </div>
+        <div style="height:1px;background:var(--gray-100);"></div>
+        <div style="display:flex;gap:0;">
+          <div style="flex:1;text-align:center;"><div style="font-size:18px;font-weight:800;color:var(--navy);line-height:1;margin-bottom:2px;">6</div><div style="font-size:10px;color:var(--gray-600);">Projets</div></div>
+          <div style="flex:1;text-align:center;border-left:1px solid var(--gray-100);"><div style="font-size:18px;font-weight:800;color:var(--navy);line-height:1;margin-bottom:2px;">245</div><div style="font-size:10px;color:var(--gray-600);">Biens</div></div>
+          <div style="flex:1;text-align:center;border-left:1px solid var(--gray-100);"><div style="font-size:18px;font-weight:800;color:var(--navy);line-height:1;margin-bottom:2px;">14</div><div style="font-size:10px;color:var(--gray-600);">ans d'exp.</div></div>
+        </div>
+        <div style="font-size:12px;color:var(--gray-500);display:flex;align-items:center;gap:5px;"><i class="fas fa-map-marker-alt" style="color:var(--gold);font-size:10px;"></i> La Goulette · Centre</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;font-size:12px;font-weight:600;color:var(--navy);">Voir les biens <i class="fas fa-arrow-right" style="font-size:10px;"></i></div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="footer-logo">IMMO<span>24</span>.tn</div>
+        <p class="footer-desc">La première plateforme tunisienne dédiée à l'immobilier professionnel. Transparence, qualité et proximité avec les agences et promoteurs certifiés.</p>
+        <div class="footer-socials">
+          <a class="social-btn"><i class="fab fa-facebook-f"></i></a>
+          <a class="social-btn"><i class="fab fa-instagram"></i></a>
+          <a class="social-btn"><i class="fab fa-linkedin-in"></i></a>
+          <a class="social-btn"><i class="fab fa-whatsapp"></i></a>
+          <a class="social-btn"><i class="fab fa-youtube"></i></a>
+        </div>
+      </div>
+      <div>
+        <div class="footer-col-title">Rechercher</div>
+        <a class="footer-link">Appartements neufs</a>
+        <a class="footer-link">Villas et duplexes</a>
+        <a class="footer-link">Résidences côtières</a>
+        <a class="footer-link">Bureaux &amp; Locaux</a>
+        <a class="footer-link">Terrains</a>
+        <a href="carte-prix.html" class="footer-link">Carte des prix m²</a>
+      </div>
+      <div>
+        <div class="footer-col-title">Services</div>
+        <a class="footer-link">Simulateur crédit</a>
+        <a class="footer-link">Aide FOPROLOS</a>
+        <a class="footer-link">Déménagement</a>
+        <a class="footer-link">Décoration</a>
+        <a class="footer-link">Guide acheteur</a>
+      </div>
+      <div>
+        <div class="footer-col-title">Immo24.tn</div>
+        <a href="apropos.html" class="footer-link">À propos</a>
+        <a class="footer-link">Promoteurs partenaires</a>
+        <a href="contact.html" class="footer-link">Contact</a>
+        <a class="footer-link">Presse</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Immo24.tn — Tous droits réservés</span>
+      <span><a href="#">Conditions d'utilisation</a> · <a href="#" style="margin-left:8px">Politique de confidentialité</a></span>
+    </div>
+  </div>
+</footer>
+<script src="responsive.js"></script>
+</body>
+</html>
+

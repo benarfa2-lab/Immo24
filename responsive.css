@@ -1,0 +1,79 @@
+/* ============================================================
+   responsive.css — Immo24.tn  |  Shared responsive styles
+   ============================================================ */
+
+/* ── Hamburger button ──────────────────────────── */
+.nav-hamburger {
+  display: none;
+  width: 38px; height: 38px;
+  background: rgba(255,255,255,.12);
+  border: none; border-radius: 8px;
+  align-items: center; justify-content: center;
+  color: #fff; font-size: 18px; cursor: pointer;
+  margin-left: auto; flex-shrink: 0;
+  transition: background .2s;
+}
+.nav-hamburger:hover, .nav-hamburger.active { background: rgba(255,255,255,.22); }
+
+/* ── Mobile nav overlay ────────────────────────── */
+.nav-mobile {
+  position: fixed;
+  top: 64px; left: 0; right: 0;
+  background: #122952;
+  border-top: 1px solid rgba(255,255,255,.08);
+  padding: 10px 16px 20px;
+  z-index: 999;
+  flex-direction: column; gap: 2px;
+  box-shadow: 0 8px 32px rgba(0,0,0,.35);
+  max-height: calc(100vh - 64px);
+  overflow-y: auto;
+  display: none;
+}
+.nav-mobile.open { display: flex; }
+
+.nav-mob-link {
+  display: flex; align-items: center; gap: 12px;
+  padding: 13px 12px; border-radius: 10px;
+  color: rgba(255,255,255,.85); font-size: 14px; font-weight: 500;
+  text-decoration: none; transition: background .18s;
+}
+.nav-mob-link:hover { background: rgba(255,255,255,.09); color: #fff; }
+.nav-mob-link i { width: 20px; text-align: center; color: #E6A817; font-size: 14px; }
+.nav-mob-link.active { background: rgba(230,168,23,.15); color: #E6A817; }
+
+.nav-mob-divider { height: 1px; background: rgba(255,255,255,.1); margin: 8px 0; }
+
+.nav-mob-actions {
+  display: flex; gap: 10px; padding: 10px 0 4px; flex-wrap: wrap;
+}
+.nav-mob-actions a {
+  flex: 1; min-width: 130px; text-align: center;
+  padding: 11px 14px; border-radius: 8px;
+  font-size: 13px; font-weight: 600; text-decoration: none;
+}
+.nav-mob-btn-outline {
+  border: 1.5px solid rgba(255,255,255,.3); color: #fff;
+}
+.nav-mob-btn-outline:hover { border-color: #E6A817; color: #E6A817; }
+.nav-mob-btn-gold { background: #E6A817; color: #1B3A6B; }
+.nav-mob-btn-gold:hover { background: #C8900E; }
+
+/* ── Footer grid responsive ─────────────────────── */
+@media (max-width: 900px) {
+  .footer-grid { grid-template-columns: 1fr 1fr !important; gap: 24px !important; }
+}
+@media (max-width: 560px) {
+  .footer-grid { grid-template-columns: 1fr !important; }
+  .footer-bottom { flex-direction: column !important; gap: 8px !important; text-align: center !important; }
+}
+
+/* ── Navbar hide desktop links on mobile ─────────── */
+@media (max-width: 900px) {
+  .nav-ctas  { display: none !important; }
+  .nav-right { display: none !important; }
+  .nav-hamburger { display: flex !important; }
+}
+@media (max-width: 560px) {
+  .navbar { height: 56px !important; min-height: 56px !important; }
+  .nav-mobile { top: 56px !important; }
+}

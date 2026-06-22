@@ -1,0 +1,24 @@
+<svg id="pin-light" width="120" height="145" viewBox="0 0 50 60" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="pL" x1="20%" y1="0%" x2="80%" y2="100%">
+          <stop offset="0%" stop-color="#6DD5FA"/>
+          <stop offset="50%" stop-color="#2AAEE0"/>
+          <stop offset="100%" stop-color="#0E6EAA"/>
+        </linearGradient>
+        <filter id="shL" x="-30%" y="-20%" width="160%" height="160%">
+          <feDropShadow dx="0" dy="2" stdDeviation="2.5" flood-color="#2AAEE0" flood-opacity="0.28"/>
+        </filter>
+      </defs>
+      <!-- Pin -->
+      <path d="M25 2C17 2 7 10 7 20C7 33 25 58 25 58C25 58 43 33 43 20C43 10 33 2 25 2Z" fill="url(#pL)" filter="url(#shL)"/>
+      <!-- Cercle blanc — cx=25 cy=19 r=12 -->
+      <circle cx="25" cy="19" r="12" fill="white"/>
+      <!-- Toit — apex y=9 base y=18 sw=3.5 → bas visible=19.75 -->
+      <path d="M13,18 L25,9 L37,18" fill="none" stroke="#0D2240" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"/>
+      <!-- Fenêtres : w=4.5 gap=1.5 → L:x=19.75 R:x=25.75  centré en x=25 -->
+      <!-- Row 1 y=21 h=4  |  Row 2 y=26.5 h=3.5 -->
+      <rect x="19.75" y="18.5" width="4.5" height="4" rx="0.9" fill="#F0C040"/>
+      <rect x="25.75" y="18.5" width="4.5" height="4" rx="0.9" fill="#F0C040"/>
+      <rect x="19.75" y="23.5" width="4.5" height="3.5" rx="0.9" fill="#F0C040"/>
+      <rect x="25.75" y="23.5" width="4.5" height="3.5" rx="0.9" fill="#F0C040"/>
+    </svg>

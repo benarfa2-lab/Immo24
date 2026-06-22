@@ -1,0 +1,1313 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Pantheon Residence – Route de la Marsa, Tunis – Immo24.tn</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+  <style>
+    :root {
+      --gold:       #E6A817;
+      --gold-dark:  #C8900E;
+      --gold-light: #FFF8E6;
+      --navy:       #1B3A6B;
+      --navy-dark:  #122952;
+      --navy-light: #EEF2F9;
+      --gray-50:    #F8F9FA;
+      --gray-100:   #F1F3F5;
+      --gray-200:   #E9ECEF;
+      --gray-400:   #ADB5BD;
+      --gray-600:   #6C757D;
+      --gray-800:   #343A40;
+      --white:      #FFFFFF;
+      --green:      #2A9D8F;
+      --red:        #E63946;
+      --radius-sm:  6px;
+      --radius:     10px;
+      --radius-lg:  16px;
+      --shadow-sm:  0 1px 4px rgba(0,0,0,.08);
+      --shadow:     0 4px 20px rgba(0,0,0,.10);
+      --shadow-lg:  0 12px 40px rgba(0,0,0,.16);
+      --nav-h:      62px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', sans-serif; color: var(--gray-800); background: var(--gray-50); }
+    a { text-decoration: none; color: inherit; }
+    button { cursor: pointer; font-family: inherit; border: none; background: none; }
+    img { display: block; max-width: 100%; }
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+
+    /* NAVBAR */
+    .navbar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+      height: 64px;
+      display: flex; align-items: center;
+      padding: 0 32px; gap: 24px;
+      background: var(--navy);
+      box-shadow: 0 2px 16px rgba(0,0,0,.2);
+    }
+    .nav-logo { display: flex; align-items: center; flex-shrink: 0; text-decoration: none; }
+    .nav-ctas { display: flex; gap: 6px; margin-left: 8px; }
+    .nav-cta-btn { display: flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; color: rgba(255,255,255,.88); background: rgba(255,255,255,.10); border: 1px solid rgba(255,255,255,.18); transition: all .2s; white-space: nowrap; cursor: pointer; text-decoration: none; }
+    .nav-cta-btn:hover, .nav-cta-btn.active { background: var(--gold); color: var(--navy); border-color: var(--gold); }
+    .nav-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+    .nav-btn-outline { border: 1.5px solid rgba(255,255,255,.45); border-radius: 50px; padding: 7px 18px; font-size: 13px; font-weight: 500; color: var(--white); transition: all .2s; background: none; cursor: pointer; }
+    .nav-btn-outline:hover { background: rgba(255,255,255,.12); border-color: var(--white); }
+
+    /* ===== BREADCRUMB ===== */
+    .breadcrumb {
+      margin-top: var(--nav-h);
+      background: var(--white);
+      border-bottom: 1px solid var(--gray-200);
+      padding: 0 28px;
+      height: 44px;
+      display: flex; align-items: center;
+      gap: 6px;
+      font-size: 12.5px; color: var(--gray-600);
+    }
+    .breadcrumb a { color: var(--navy); }
+    .breadcrumb a:hover { text-decoration: underline; }
+    .breadcrumb i { font-size: 9px; color: var(--gray-400); }
+    .breadcrumb span { color: var(--gray-600); }
+
+    /* ===== HERO GALLERY ===== */
+    .gallery-section {
+      background: #0a0a0a;
+      height: 500px;
+      position: relative;
+      overflow: hidden;
+    }
+    .gallery-main {
+      width: 100%; height: 100%;
+      display: flex; transition: transform .5s cubic-bezier(.4,0,.2,1);
+    }
+    .gallery-slide {
+      min-width: 100%; height: 100%;
+      position: relative; flex-shrink: 0;
+    }
+    .gallery-slide img {
+      width: 100%; height: 100%; object-fit: cover;
+      display: block;
+    }
+    .gallery-slide::after {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(to bottom, transparent 50%, rgba(0,0,0,.55) 100%);
+    }
+    .gallery-nav {
+      position: absolute; top: 50%; transform: translateY(-50%);
+      z-index: 10; background: rgba(255,255,255,.18);
+      backdrop-filter: blur(6px);
+      border: 1px solid rgba(255,255,255,.25);
+      color: white; width: 44px; height: 44px; border-radius: 50%;
+      font-size: 16px; display: flex; align-items: center; justify-content: center;
+      transition: background .2s; cursor: pointer;
+    }
+    .gallery-nav:hover { background: rgba(255,255,255,.3); }
+    .gallery-nav.prev { left: 16px; }
+    .gallery-nav.next { right: 16px; }
+    .gallery-dots {
+      position: absolute; bottom: 16px; left: 50%; transform: translateX(-50%);
+      display: flex; gap: 6px; z-index: 10;
+    }
+    .gallery-dot { width: 7px; height: 7px; border-radius: 50%; background: rgba(255,255,255,.4); cursor: pointer; transition: all .2s; }
+    .gallery-dot.active { background: var(--white); transform: scale(1.3); }
+    .gallery-count {
+      position: absolute; bottom: 16px; right: 20px; z-index: 10;
+      background: rgba(0,0,0,.5); backdrop-filter: blur(4px);
+      color: white; font-size: 12px; font-weight: 600;
+      padding: 4px 10px; border-radius: 50px;
+    }
+    .gallery-thumbs {
+      position: absolute; bottom: 0; left: 0; right: 0; z-index: 10;
+      display: flex; gap: 4px; padding: 0 16px 16px;
+      overflow-x: auto;
+    }
+    .gallery-thumbs::-webkit-scrollbar { display: none; }
+    .gallery-thumb {
+      min-width: 80px; height: 54px; border-radius: 6px; overflow: hidden;
+      border: 2px solid transparent; cursor: pointer; transition: border-color .2s;
+      flex-shrink: 0;
+    }
+    .gallery-thumb.active { border-color: var(--gold); }
+    .gallery-thumb img { width: 100%; height: 100%; object-fit: cover; }
+    .gallery-badge {
+      position: absolute; top: 20px; left: 20px; z-index: 10;
+      display: flex; gap: 8px;
+    }
+    .badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: 11.5px; font-weight: 700; padding: 5px 11px; border-radius: 50px;
+      letter-spacing: .3px;
+    }
+    .badge-neuf { background: var(--gold); color: var(--navy-dark); }
+    .badge-livraison { background: rgba(0,0,0,.55); backdrop-filter: blur(6px); color: white; }
+    .badge-dispo { background: var(--green); color: white; }
+
+    /* ===== GALLERY ACTION ROW ===== */
+    .gallery-actions {
+      max-width: 1200px; margin: 0 auto;
+      display: flex; gap: 10px; justify-content: flex-start;
+      padding: 10px 24px 0;
+    }
+    .gaction-thumb {
+      position: relative; width: 130px; height: 100px; border-radius: 10px; overflow: hidden;
+      cursor: pointer; flex-shrink: 0;
+      box-shadow: 0 2px 10px rgba(0,0,0,.18);
+      transition: transform .2s, box-shadow .2s;
+    }
+    .gaction-thumb:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(0,0,0,.28); }
+    .gaction-thumb img { width: 100%; height: 100%; object-fit: cover; filter: brightness(.68); transition: filter .25s; }
+    .gaction-thumb:hover img { filter: brightness(.55); }
+    .gaction-thumb.gaction-map img { filter: brightness(1); }
+    .gaction-thumb.gaction-map:hover img { filter: brightness(.88); }
+    .gaction-overlay {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .gaction-icon {
+      width: 44px; height: 44px; border-radius: 50%;
+      background: rgba(255,255,255,.22); border: 2.5px solid rgba(255,255,255,.9);
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; backdrop-filter: blur(3px);
+      transition: background .2s, border-color .2s;
+    }
+    .gaction-icon-3d {
+      font-size: 13px; font-weight: 900; letter-spacing: -.5px; flex-direction: column; gap: 0;
+      line-height: 1;
+    }
+    .gaction-icon-3d .icon-sub { font-size: 9px; font-weight: 700; opacity: .85; }
+    .gaction-icon-play { font-size: 16px; padding-left: 3px; }
+    .gaction-icon-map  { font-size: 20px; }
+    .gaction-thumb:hover .gaction-icon { background: rgba(255,255,255,.92); color: var(--navy-dark); border-color: #fff; }
+
+    /* ===== LAYOUT ===== */
+    .content-wrap {
+      max-width: 1200px; margin: 0 auto; padding: 28px 24px 60px;
+      display: grid; grid-template-columns: 1fr 320px; gap: 16px; align-items: start;
+    }
+    .content-main { min-width: 0; }
+    .content-aside { position: sticky; top: calc(var(--nav-h) + 16px); }
+
+    /* ===== PROJECT HEADER ===== */
+    .proj-header { background: var(--white); border-radius: var(--radius-lg); padding: 24px 28px; margin-bottom: 20px; box-shadow: var(--shadow-sm); }
+    .proj-promoteur {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 12px; font-weight: 600; color: var(--navy);
+      margin-bottom: 10px; text-transform: uppercase; letter-spacing: .6px;
+    }
+    .proj-promoteur-logo {
+      width: 40px; height: 40px; border-radius: 7px;
+      background: var(--navy-dark);
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden; flex-shrink: 0;
+    }
+    .proj-promoteur-logo img { width: 100%; height: 100%; object-fit: contain; padding: 5px; }
+    .proj-title { font-size: 26px; font-weight: 800; color: var(--navy-dark); line-height: 1.2; margin-bottom: 8px; }
+    .proj-location { display: flex; align-items: center; gap: 6px; font-size: 14px; color: var(--gray-600); margin-bottom: 18px; }
+    .proj-location i { color: var(--gold); font-size: 13px; }
+    .proj-stats {
+      display: flex; gap: 24px; flex-wrap: wrap;
+      padding-top: 18px; border-top: 1px solid var(--gray-100);
+    }
+    .proj-stat { display: flex; flex-direction: column; gap: 2px; }
+    .proj-stat-val { font-size: 18px; font-weight: 800; color: var(--navy); }
+    .proj-stat-lbl { font-size: 11px; color: var(--gray-600); font-weight: 500; text-transform: uppercase; letter-spacing: .4px; }
+
+    /* ===== TABS ===== */
+    .tabs-bar {
+      background: var(--white); border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+      padding: 0 4px; border-bottom: 1px solid var(--gray-200);
+      display: flex; gap: 0; margin-bottom: 0;
+      box-shadow: var(--shadow-sm);
+    }
+    .tab-btn {
+      padding: 14px 20px; font-size: 13.5px; font-weight: 600; color: var(--gray-600);
+      border-bottom: 2.5px solid transparent; margin-bottom: -1px;
+      transition: all .2s; white-space: nowrap;
+    }
+    .tab-btn:hover { color: var(--navy); }
+    .tab-btn.active { color: var(--navy); border-bottom-color: var(--navy); }
+    .tab-panel {
+      display: none; background: var(--white);
+      border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+      padding: 24px 28px; box-shadow: var(--shadow-sm);
+      margin-bottom: 20px;
+    }
+    .tab-panel.active { display: block; }
+
+    /* ===== LOTS TABLE ===== */
+    .lots-filters {
+      display: flex; gap: 8px; margin-bottom: 18px; flex-wrap: wrap;
+    }
+    .lot-type-btn {
+      padding: 7px 16px; border-radius: 50px; font-size: 13px; font-weight: 600;
+      border: 1.5px solid var(--gray-200); background: var(--white); color: var(--gray-600);
+      transition: all .2s; cursor: pointer;
+    }
+    .lot-type-btn.active { background: var(--navy); border-color: var(--navy); color: var(--white); }
+    .lot-type-btn:hover:not(.active) { border-color: var(--navy); color: var(--navy); }
+    .lots-table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+    .lots-table thead tr { background: var(--navy-light); }
+    .lots-table th {
+      padding: 11px 14px; text-align: left; font-size: 11.5px; font-weight: 700;
+      color: var(--navy); text-transform: uppercase; letter-spacing: .5px;
+    }
+    .lots-table td { padding: 13px 14px; border-bottom: 1px solid var(--gray-100); vertical-align: middle; }
+    .lots-table tr:last-child td { border-bottom: none; }
+    .lots-table tr:hover td { background: var(--gray-50); }
+    .lot-ref { font-weight: 700; color: var(--navy); font-size: 12px; }
+    .lot-type-tag {
+      display: inline-block; padding: 3px 9px; border-radius: 50px;
+      font-size: 11.5px; font-weight: 700; background: var(--navy-light); color: var(--navy);
+    }
+    .lot-status {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: 11.5px; font-weight: 600; padding: 3px 10px; border-radius: 50px;
+    }
+    .lot-status.dispo { background: #e8f7f5; color: var(--green); }
+    .lot-status.reserve { background: #fff3d6; color: #b07800; }
+    .lot-status.vendu { background: #fde8ea; color: var(--red); }
+    .lot-status::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+    .lot-price { font-weight: 700; color: var(--navy-dark); white-space: nowrap; }
+    .lot-btn {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: 12px; font-weight: 600; color: var(--gold); background: none;
+      border: none; cursor: pointer; padding: 0; white-space: nowrap; transition: color .2s;
+    }
+    .lot-btn:hover { color: var(--gold-dark); }
+    .lot-btn:disabled { color: var(--gray-400); cursor: not-allowed; pointer-events: none; }
+    .lot-prix-m2 { font-size: 11px; color: var(--gray-400); font-weight: 400; margin-top: 2px; }
+
+    /* ===== DESCRIPTION ===== */
+    .desc-text { font-size: 14.5px; line-height: 1.75; color: var(--gray-800); }
+    .desc-text p { margin-bottom: 14px; }
+    .desc-text p:last-child { margin-bottom: 0; }
+
+    /* Description block above tabs */
+    .desc-block {
+      background: var(--white); border-radius: var(--radius-lg); padding: 22px 24px 18px;
+      box-shadow: var(--shadow-sm); margin-bottom: 16px; border: 1px solid var(--gray-100);
+    }
+    .desc-preview { font-size: 14px; line-height: 1.8; color: var(--gray-800); }
+    .desc-full    { font-size: 14px; line-height: 1.8; color: var(--gray-800); display: none; }
+    .desc-full p  { margin-top: 12px; }
+    .desc-toggle  {
+      margin-top: 10px; display: inline-flex; align-items: center; gap: 6px;
+      font-size: 13px; font-weight: 700; color: var(--navy);
+      background: none; border: none; cursor: pointer; padding: 0;
+      transition: color .2s;
+    }
+    .desc-toggle:hover { color: var(--gold); }
+    .equip-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
+    .equip-item {
+      display: flex; align-items: center; gap: 9px;
+      font-size: 13.5px; font-weight: 500; color: var(--gray-800);
+      background: var(--gray-50); border-radius: var(--radius); padding: 10px 14px;
+    }
+    .equip-item i { color: var(--navy); width: 16px; text-align: center; }
+
+    /* ===== MAP TAB ===== */
+    #proj-map { height: 360px; border-radius: var(--radius); overflow: hidden; }
+
+    /* ===== SIDEBAR ===== */
+    .aside-card {
+      background: var(--white); border-radius: var(--radius-lg);
+      box-shadow: var(--shadow); overflow: hidden; margin-bottom: 16px;
+    }
+    .aside-price-head {
+      background: linear-gradient(135deg, var(--navy) 0%, var(--navy-dark) 100%);
+      padding: 20px 22px;
+    }
+    .aside-price-from { font-size: 11px; color: rgba(255,255,255,.55); text-transform: uppercase; letter-spacing: .7px; margin-bottom: 4px; }
+    .aside-price-val { font-size: 28px; font-weight: 800; color: var(--white); }
+    .aside-price-sub { font-size: 12px; color: rgba(255,255,255,.5); margin-top: 3px; }
+    .aside-body { padding: 18px 20px; }
+    .aside-dispo {
+      display: flex; align-items: center; justify-content: space-between;
+      background: var(--gray-50); border-radius: var(--radius); padding: 12px 14px;
+      margin-bottom: 14px; font-size: 13px;
+    }
+    .aside-dispo-lbl { color: var(--gray-600); font-weight: 500; }
+    .aside-dispo-val { font-weight: 700; color: var(--green); }
+    .aside-cta-brochure {
+      width: 100%; padding: 14px;
+      background: linear-gradient(135deg, var(--navy) 0%, var(--navy-dark) 100%); color: white;
+      border-radius: var(--radius); font-size: 14px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center; gap: 9px;
+      transition: opacity .2s; margin-bottom: 10px;
+      cursor: pointer;
+    }
+    .aside-cta-brochure:hover { opacity: .88; }
+    .aside-cta-wa {
+      width: 100%; padding: 14px;
+      background: #25D366; color: white;
+      border-radius: var(--radius); font-size: 14.5px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center; gap: 9px;
+      transition: background .2s; margin-bottom: 10px;
+    }
+    .aside-cta-wa:hover { background: #1DA851; }
+    .aside-cta-call {
+      width: 100%; padding: 12px;
+      background: var(--navy-light); color: var(--navy);
+      border-radius: var(--radius); font-size: 13.5px; font-weight: 600;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      transition: background .2s; margin-bottom: 10px;
+    }
+    .aside-cta-call:hover { background: #dde6f4; }
+    .aside-cta-visite {
+      width: 100%; padding: 12px;
+      border: 1.5px solid var(--gold); color: var(--gold);
+      border-radius: var(--radius); font-size: 13.5px; font-weight: 600;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      transition: all .2s;
+    }
+    .aside-cta-visite:hover { background: var(--gold-light); }
+    .aside-agent { padding: 16px 20px; border-top: 1px solid var(--gray-100); display: flex; align-items: center; gap: 12px; }
+    .aside-agent-avatar {
+      width: 42px; height: 42px; border-radius: 50%; flex-shrink: 0;
+      background: linear-gradient(135deg, var(--navy) 0%, #2e5fad 100%);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; font-weight: 700; color: white;
+    }
+    .aside-agent-name { font-size: 13.5px; font-weight: 700; color: var(--navy-dark); margin-bottom: 2px; }
+    .aside-agent-role { font-size: 11.5px; color: var(--gray-600); }
+
+    /* PROMOTEUR CARD */
+    .promoteur-card {
+      background: var(--white); border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm); padding: 18px 20px; margin-bottom: 16px;
+    }
+    .promoteur-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+    .promoteur-logo-big {
+      width: 72px; height: 72px; border-radius: 12px;
+      background: var(--navy-dark);
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden; flex-shrink: 0;
+    }
+    .promoteur-logo-big img { width: 100%; height: 100%; object-fit: contain; padding: 8px; }
+    .promoteur-name { font-size: 15px; font-weight: 800; color: var(--navy-dark); margin-bottom: 2px; }
+    .promoteur-verified { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; color: var(--green); font-weight: 600; }
+    .promoteur-stats { display: flex; gap: 16px; }
+    .promoteur-stat { text-align: center; }
+    .promoteur-stat-val { font-size: 16px; font-weight: 800; color: var(--navy); }
+    .promoteur-stat-lbl { font-size: 10.5px; color: var(--gray-600); text-transform: uppercase; letter-spacing: .4px; }
+
+    /* PROGRESS */
+    .progress-card {
+      background: var(--white); border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm); padding: 18px 20px; margin-bottom: 16px;
+    }
+    .progress-title { font-size: 13px; font-weight: 700; color: var(--navy-dark); margin-bottom: 12px; }
+    .progress-item { margin-bottom: 10px; }
+    .progress-label { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 5px; }
+    .progress-label span:first-child { color: var(--gray-600); }
+    .progress-label span:last-child { font-weight: 600; color: var(--navy); }
+    .progress-bar-wrap { background: var(--gray-100); border-radius: 50px; height: 7px; overflow: hidden; }
+    .progress-bar { height: 100%; border-radius: 50px; background: linear-gradient(90deg, var(--navy) 0%, #3069c8 100%); transition: width 1s ease; }
+
+    /* ===== SIMILAR PROJECTS ===== */
+    .section-title { font-size: 20px; font-weight: 800; color: var(--navy-dark); margin-bottom: 16px; }
+    .similar-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .similar-card {
+      background: var(--white); border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm); overflow: hidden; transition: box-shadow .2s, transform .2s;
+      cursor: pointer;
+    }
+    .similar-card:hover { box-shadow: var(--shadow); transform: translateY(-2px); }
+    .similar-img { height: 150px; overflow: hidden; }
+    .similar-img img { width: 100%; height: 100%; object-fit: cover; transition: transform .4s; }
+    .similar-card:hover .similar-img img { transform: scale(1.05); }
+    .similar-body { padding: 14px 16px; }
+    .similar-price { font-size: 15px; font-weight: 800; color: var(--navy); margin-bottom: 4px; }
+    .similar-name { font-size: 13px; font-weight: 600; color: var(--gray-800); margin-bottom: 4px; }
+    .similar-loc { font-size: 12px; color: var(--gray-600); }
+    .similar-loc i { color: var(--gold); margin-right: 4px; }
+
+    /* ===== PLAN VENTE ===== */
+    .plan-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+    .plan-card {
+      border: 1.5px solid var(--gray-200); border-radius: var(--radius-lg);
+      padding: 18px; display: flex; gap: 14px; align-items: flex-start;
+      transition: border-color .2s, box-shadow .2s; cursor: pointer;
+    }
+    .plan-card:hover { border-color: var(--navy); box-shadow: var(--shadow-sm); }
+    .plan-thumb {
+      width: 80px; height: 80px; border-radius: var(--radius); background: var(--gray-100);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 28px; color: var(--navy); flex-shrink: 0;
+    }
+    .plan-info-title { font-size: 13.5px; font-weight: 700; color: var(--navy-dark); margin-bottom: 4px; }
+    .plan-info-details { font-size: 12px; color: var(--gray-600); }
+
+    /* ===== 360° VIEWER ===== */
+    .vr-wrap {
+      position: relative; background: #0a0a0a;
+      border-radius: var(--radius-lg); overflow: hidden;
+      aspect-ratio: 16/9; cursor: grab; user-select: none;
+    }
+    .vr-wrap:active { cursor: grabbing; }
+    .vr-wrap.vr-fs { border-radius: 0; aspect-ratio: unset; height: 100vh; }
+    .vr-pano {
+      position: absolute; inset: 0;
+      background-size: 240% auto;
+      background-position: 50% 50%;
+      background-repeat: repeat-x;
+      transition: background-image .35s ease, opacity .35s;
+    }
+    .vr-grad {
+      position: absolute; inset: 0; pointer-events: none;
+      background:
+        linear-gradient(to bottom, rgba(0,0,0,.35) 0%, transparent 22%, transparent 72%, rgba(0,0,0,.55) 100%),
+        linear-gradient(to right, rgba(0,0,0,.18) 0%, transparent 15%, transparent 85%, rgba(0,0,0,.18) 100%);
+    }
+    .vr-badge {
+      position: absolute; top: 16px; left: 16px; z-index: 10; pointer-events: none;
+      background: rgba(0,0,0,.55); backdrop-filter: blur(8px);
+      color: #fff; font-size: 12px; font-weight: 700; letter-spacing: .3px;
+      padding: 6px 13px; border-radius: 50px;
+      display: flex; align-items: center; gap: 7px;
+      border: 1px solid rgba(255,255,255,.15);
+    }
+    .vr-badge i { color: var(--gold); }
+    .vr-room-label {
+      position: absolute; top: 16px; left: 50%; transform: translateX(-50%); z-index: 10;
+      color: #fff; font-size: 14px; font-weight: 700; letter-spacing: -.1px;
+      text-shadow: 0 2px 12px rgba(0,0,0,.9); pointer-events: none;
+      white-space: nowrap;
+    }
+    .vr-compass {
+      position: absolute; top: 16px; right: 62px; z-index: 10;
+      width: 42px; height: 42px; border-radius: 50%;
+      background: rgba(0,0,0,.55); backdrop-filter: blur(8px);
+      border: 1.5px solid rgba(255,255,255,.2);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .vr-compass-inner {
+      width: 4px; height: 24px; position: relative;
+      transform-origin: 50% 100%; transition: transform .15s linear;
+    }
+    .vr-compass-inner::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0;
+      height: 55%; background: var(--gold); border-radius: 2px 2px 0 0;
+    }
+    .vr-compass-inner::after {
+      content: ''; position: absolute; bottom: 0; left: 0; right: 0;
+      height: 45%; background: rgba(255,255,255,.35); border-radius: 0 0 2px 2px;
+    }
+    .vr-fullscreen-btn {
+      position: absolute; top: 16px; right: 16px; z-index: 10;
+      width: 38px; height: 38px; border-radius: 9px;
+      background: rgba(0,0,0,.55); backdrop-filter: blur(8px);
+      color: #fff; border: 1.5px solid rgba(255,255,255,.2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; cursor: pointer; transition: background .2s;
+    }
+    .vr-fullscreen-btn:hover { background: rgba(255,255,255,.2); }
+    .vr-hint {
+      position: absolute; bottom: 72px; left: 50%; transform: translateX(-50%); z-index: 10;
+      color: rgba(255,255,255,.65); font-size: 11.5px; font-weight: 500;
+      display: flex; align-items: center; gap: 6px; pointer-events: none;
+      transition: opacity .5s; white-space: nowrap;
+    }
+    /* Hotspots */
+    .vr-hotspot {
+      position: absolute; transform: translate(-50%, -50%); z-index: 15; cursor: pointer;
+    }
+    .vr-hs-ring {
+      width: 42px; height: 42px; border-radius: 50%;
+      background: rgba(230,168,23,.18); border: 2px solid rgba(230,168,23,.85);
+      display: flex; align-items: center; justify-content: center;
+      animation: hsPulse 2.2s ease-in-out infinite; transition: all .2s;
+    }
+    .vr-hotspot:hover .vr-hs-ring { background: rgba(230,168,23,.4); transform: scale(1.12); }
+    .vr-hs-ring i { color: var(--gold); font-size: 15px; }
+    .vr-hs-label {
+      position: absolute; top: calc(100% + 7px); left: 50%; transform: translateX(-50%);
+      background: rgba(0,0,0,.75); backdrop-filter: blur(4px);
+      color: #fff; font-size: 10.5px; font-weight: 600;
+      padding: 3px 9px; border-radius: 5px; white-space: nowrap;
+      border: 1px solid rgba(255,255,255,.12);
+    }
+    @keyframes hsPulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(230,168,23,.5); }
+      60% { box-shadow: 0 0 0 14px rgba(230,168,23,0); }
+    }
+    /* Room nav pills */
+    .vr-nav {
+      position: absolute; bottom: 16px; left: 50%; transform: translateX(-50%); z-index: 15;
+      display: flex; gap: 5px; flex-wrap: nowrap;
+    }
+    .vr-nav-btn {
+      padding: 6px 13px; border-radius: 50px; font-size: 11.5px; font-weight: 600;
+      background: rgba(0,0,0,.6); backdrop-filter: blur(8px);
+      color: rgba(255,255,255,.7); border: 1px solid rgba(255,255,255,.18);
+      cursor: pointer; transition: all .2s; white-space: nowrap;
+    }
+    .vr-nav-btn.active { background: var(--navy); color: var(--gold); border-color: rgba(230,168,23,.5); }
+    .vr-nav-btn:hover:not(.active) { background: rgba(255,255,255,.15); color: #fff; }
+    /* Thumbnail strip */
+    .vr-thumbs {
+      display: flex; gap: 8px; margin-top: 12px;
+      overflow-x: auto; padding-bottom: 4px;
+    }
+    .vr-thumbs::-webkit-scrollbar { height: 4px; }
+    .vr-thumbs::-webkit-scrollbar-track { background: var(--gray-100); border-radius: 2px; }
+    .vr-thumbs::-webkit-scrollbar-thumb { background: var(--gray-400); border-radius: 2px; }
+    .vr-thumb {
+      flex-shrink: 0; width: 110px; height: 68px; border-radius: 8px;
+      overflow: hidden; cursor: pointer; position: relative;
+      border: 2.5px solid transparent; transition: border-color .2s, transform .2s;
+    }
+    .vr-thumb:hover { transform: translateY(-2px); }
+    .vr-thumb.active { border-color: var(--gold); }
+    .vr-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .vr-thumb-lbl {
+      position: absolute; bottom: 0; left: 0; right: 0; padding: 3px 6px;
+      background: linear-gradient(transparent, rgba(0,0,0,.72));
+      font-size: 9px; font-weight: 600; color: #fff;
+    }
+
+    /* ===== FOOTER NOTE ===== */
+    .footer-note {
+      background: var(--navy-light); border-top: 1px solid var(--gray-200);
+      padding: 20px 28px; text-align: center;
+      font-size: 12px; color: var(--gray-600);
+    }
+    .footer-note a { color: var(--navy); font-weight: 600; }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 960px) {
+      .content-wrap { grid-template-columns: 1fr; }
+      .content-aside { position: static; }
+      .similar-grid { grid-template-columns: repeat(2, 1fr); }
+      .proj-stats-bar { flex-wrap: wrap; }
+      .proj-stat { flex: 1 1 calc(50% - 1px); }
+      .tabs-nav { overflow-x: auto; }
+    }
+    @media (max-width: 640px) {
+      .gallery-section { height: 280px; }
+      .gallery-thumbs { display: none; }
+      .proj-title { font-size: 20px; }
+      .similar-grid { grid-template-columns: 1fr; }
+      .plan-grid { grid-template-columns: 1fr; }
+      .nav-menu { display: none; }
+    }
+
+    /* Regarder sur la carte */
+    .map-cta-strip { display:flex; align-items:center; justify-content:space-between; background:linear-gradient(135deg, var(--navy) 0%, #0f2444 100%); color:#fff; padding:18px 24px; border-radius:var(--radius); margin-bottom:20px; gap:16px; }
+    .map-cta-left { display:flex; align-items:center; gap:14px; }
+    .map-cta-left i { font-size:26px; color:var(--gold); flex-shrink:0; }
+    .map-cta-title { font-size:15px; font-weight:700; }
+    .map-cta-sub { font-size:12px; color:rgba(255,255,255,.6); margin-top:3px; }
+    .map-cta-btn { display:inline-flex; align-items:center; gap:8px; background:var(--gold); color:var(--navy); font-size:13px; font-weight:700; padding:10px 20px; border-radius:8px; text-decoration:none; white-space:nowrap; transition:all .2s; flex-shrink:0; }
+    .map-cta-btn:hover { background:#f5bc30; transform:translateY(-1px); box-shadow:0 4px 16px rgba(196,163,69,.35); }
+  </style>
+<link rel="stylesheet" href="responsive.css" />
+</head>
+<body>
+
+<!-- ── NAVBAR ── -->
+<nav class="navbar" id="navbar">
+  <a class="nav-logo" href="index.html">
+    <img src="immo24-light-navbar.svg" height="54" alt="Immo24.tn" style="display:block" />
+  </a>
+  <div class="nav-ctas">
+    <a href="map-listings.html?type=neuf" class="nav-cta-btn"><i class="fas fa-building"></i> Projets neufs</a>
+    <a href="map-listings.html?type=annonces" class="nav-cta-btn"><i class="fas fa-user-tie"></i> Agences</a>
+    <a href="decoration.html" class="nav-cta-btn"><i class="fas fa-couch"></i> Décorer &amp; meubler</a>
+    <a href="#" class="nav-cta-btn"><i class="fas fa-hand-holding-usd"></i> Financer</a>
+  </div>
+  <div class="nav-right">
+    <a href="login.html" class="nav-btn-outline"><i class="fas fa-user-tie" style="font-size:11px;margin-right:5px"></i>Mon espace pro</a>
+  </div>
+  <button class="nav-hamburger" aria-label="Menu"><i class="fas fa-bars"></i></button>
+</nav>
+<div class="nav-mobile" id="nav-mobile">
+  <a href="map-listings.html?type=neuf" class="nav-mob-link"><i class="fas fa-building"></i> Projets neufs</a>
+  <a href="map-listings.html?type=annonces" class="nav-mob-link"><i class="fas fa-user-tie"></i> Agences</a>
+  <a href="decoration.html" class="nav-mob-link"><i class="fas fa-couch"></i> Décorer &amp; meubler</a>
+  <a href="#" class="nav-mob-link"><i class="fas fa-hand-holding-usd"></i> Financer</a>
+  <div class="nav-mob-divider"></div>
+  <div class="nav-mob-actions">
+    <a href="login.html" class="nav-mob-btn-outline">Mon espace pro</a>
+    <a href="inscription.html" class="nav-mob-btn-gold">Publier une annonce</a>
+  </div>
+</div>
+
+<!-- ===== BREADCRUMB ===== -->
+<div class="breadcrumb">
+  <a href="index.html">Accueil</a>
+  <i class="fas fa-chevron-right"></i>
+  <a href="map-listings.html">Projets neufs</a>
+  <i class="fas fa-chevron-right"></i>
+  <a href="#">Tunis – Route de la Marsa</a>
+  <i class="fas fa-chevron-right"></i>
+  <span>The Pantheon Residence</span>
+</div>
+
+<!-- ===== GALLERY ===== -->
+<div class="gallery-section">
+  <div class="gallery-main" id="galleryMain">
+    <div class="gallery-slide"><img src="https://bullaregia-immobiliere.com/wp-content/uploads/2024/03/exterieur-7.jpg" alt="The Pantheon Residence – Façade principale" /></div>
+    <div class="gallery-slide"><img src="https://bullaregia-immobiliere.com/wp-content/uploads/2024/03/exterieur-8.jpg" alt="The Pantheon Residence – Vue extérieure" /></div>
+    <div class="gallery-slide"><img src="https://bullaregia-immobiliere.com/wp-content/uploads/2024/03/exterieur-9.jpg" alt="The Pantheon Residence – Résidence de nuit" /></div>
+    <div class="gallery-slide"><img src="https://bullaregia-immobiliere.com/wp-content/uploads/2023/04/5.jpg" alt="The Pantheon Residence – Design conception" /></div>
+    <div class="gallery-slide"><img src="https://bullaregia-immobiliere.com/wp-content/uploads/2023/04/6.jpg" alt="The Pantheon Residence – Architecture" /></div>
+    <div class="gallery-slide"><img src="https://bullaregia-immobiliere.com/wp-content/uploads/2024/03/int-1.jpg" alt="Séjour – Marbre Botticino" /></div>
+    <div class="gallery-slide"><img src="https://bullaregia-immobiliere.com/wp-content/uploads/2024/03/int-2.jpg" alt="Salon – Finitions haut standing" /></div>
+    <div class="gallery-slide"><img src="https://bullaregia-immobiliere.com/wp-content/uploads/2024/03/int-3.jpg" alt="Cuisine équipée italienne" /></div>
+    <div class="gallery-slide"><img src="https://bullaregia-immobiliere.com/wp-content/uploads/2024/03/int-4.jpg" alt="Chambre principale" /></div>
+  </div>
+
+  <!-- Badges -->
+  <div class="gallery-badge">
+    <span class="badge badge-neuf"><i class="fas fa-star"></i> Neuf</span>
+    <span class="badge badge-livraison"><i class="fas fa-clock"></i> Livraison imminente</span>
+    <span class="badge badge-dispo"><i class="fas fa-check-circle"></i> 8 biens disponibles</span>
+  </div>
+
+  <!-- Nav arrows -->
+  <button class="gallery-nav prev" onclick="galSlide(-1)"><i class="fas fa-chevron-left"></i></button>
+  <button class="gallery-nav next" onclick="galSlide(1)"><i class="fas fa-chevron-right"></i></button>
+
+  <!-- Dots -->
+  <div class="gallery-dots" id="galDots"></div>
+
+  <!-- Counter -->
+  <div class="gallery-count" id="galCount">1 / 9</div>
+</div>
+
+<!-- ===== GALLERY ACTIONS ===== -->
+<div class="gallery-actions">
+  <div class="gaction-thumb" onclick="openTab('vr',null);document.querySelector('.content-wrap').scrollIntoView({behavior:'smooth'})">
+    <img src="https://bullaregia-immobiliere.com/wp-content/uploads/2024/03/int-1.jpg" alt="Visite 360°" />
+    <div class="gaction-overlay">
+      <div class="gaction-icon gaction-icon-3d" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;">
+        <span style="font-size:13px;font-weight:900;letter-spacing:-.5px;line-height:1">3D</span>
+        <span class="icon-sub" style="font-size:8px;font-weight:700;opacity:.85;letter-spacing:.5px">360°</span>
+      </div>
+    </div>
+  </div>
+  <div class="gaction-thumb" onclick="openTab('vr',null);document.querySelector('.content-wrap').scrollIntoView({behavior:'smooth'})">
+    <img src="https://bullaregia-immobiliere.com/wp-content/uploads/2024/03/int-2.jpg" alt="Vidéo" />
+    <div class="gaction-overlay">
+      <div class="gaction-icon gaction-icon-play">
+        <i class="fas fa-play"></i>
+      </div>
+    </div>
+  </div>
+  <div class="gaction-thumb gaction-map" onclick="openTab('map',null);document.querySelector('.content-wrap').scrollIntoView({behavior:'smooth'})">
+    <img src="https://staticmap.openstreetmap.de/staticmap.php?center=36.8968,10.3033&zoom=15&size=300x200&markers=36.8968,10.3033,red-pushpin" alt="Localisation" onerror="this.src='https://bullaregia-immobiliere.com/wp-content/uploads/2024/03/exterieur-8.jpg'" />
+    <div class="gaction-overlay">
+      <div class="gaction-icon gaction-icon-map">
+        <i class="fas fa-map-marker-alt"></i>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MAIN CONTENT ===== -->
+<div class="content-wrap">
+
+  <!-- LEFT COLUMN -->
+  <div class="content-main">
+
+    <!-- Project Header -->
+    <div class="proj-header">
+      <a href="promoteur.html" class="proj-promoteur" style="text-decoration:none;">
+        <div class="proj-promoteur-logo"><img src="https://bullaregia-immobiliere.com/wp-content/uploads/2023/04/logo-pantheon-light.png" alt="Bullaregia"></div>
+        Bullaregia Immobilière
+        <span style="color:var(--green);font-size:11px;display:flex;align-items:center;gap:3px;margin-left:4px;">
+          <i class="fas fa-shield-check"></i> Promoteur certifié
+        </span>
+      </a>
+      <div class="proj-title">The Pantheon Residence</div>
+      <div class="proj-location">
+        <i class="fas fa-map-marker-alt"></i>
+        Route de la Marsa, Tunis
+        <span style="margin-left:8px;color:var(--gray-400)">·</span>
+        <span style="margin-left:8px;color:var(--navy);font-weight:600;font-size:13px;">10 min du centre-ville · Berges du Lac · Aéroport</span>
+      </div>
+      <div class="proj-stats">
+        <div class="proj-stat">
+          <div class="proj-stat-val">48</div>
+          <div class="proj-stat-lbl">Biens au total</div>
+        </div>
+        <div class="proj-stat">
+          <div class="proj-stat-val" style="color:var(--green)">8</div>
+          <div class="proj-stat-lbl">Disponibles</div>
+        </div>
+        <div class="proj-stat">
+          <div class="proj-stat-val">S+1 → Duplex S+3</div>
+          <div class="proj-stat-lbl">Types</div>
+        </div>
+        <div class="proj-stat">
+          <div class="proj-stat-val">65–230 m²</div>
+          <div class="proj-stat-lbl">Surfaces</div>
+        </div>
+        <div class="proj-stat">
+          <div class="proj-stat-val">2 blocs R+4</div>
+          <div class="proj-stat-lbl">Structure</div>
+        </div>
+        <div class="proj-stat">
+          <div class="proj-stat-val" style="color:var(--gold)">Imminente</div>
+          <div class="proj-stat-lbl">Livraison</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Regarder sur la carte -->
+    <div class="map-cta-strip">
+      <div class="map-cta-left">
+        <i class="fas fa-map-marked-alt"></i>
+        <div>
+          <div class="map-cta-title">Voir ce projet sur la carte interactive</div>
+          <div class="map-cta-sub">Projets neufs à proximité · Vue satellite · Prix au m²</div>
+        </div>
+      </div>
+      <a href="map-listings.html?focus=1" class="map-cta-btn">
+        <i class="fas fa-map"></i> Regarder sur la carte
+      </a>
+    </div>
+
+    <!-- DESCRIPTION BLOCK -->
+    <div class="desc-block">
+      <div class="desc-preview">
+        <strong>The Pantheon Residence</strong> est un complexe résidentiel de prestige développé par <strong>Bullaregia Immobilière</strong>, situé sur la Route de la Marsa à Tunis. À seulement 10 minutes du centre-ville, des Berges du Lac et de l'aéroport international, cette adresse conjugue accessibilité et art de vivre d'exception.
+      </div>
+      <div class="desc-full" id="descFull">
+        <p>Le projet se compose de <strong>deux blocs R+4</strong> comprenant des appartements et des villas duplex haut standing. Les typologies vont du <strong>S+1 (65–67 m²)</strong> au <strong>Duplex S+3 (170–230 m²)</strong>, avec des jardins privatifs allant jusqu'à 124 m² pour les rez-de-chaussée et des terrasses jusqu'à 25 m² pour les étages supérieurs.</p>
+        <p>Chaque appartement est livré avec des finitions d'exception : <strong>marbre Botticino italien</strong> dans les espaces de vie, menuiserie aluminium double vitrage acoustique, volets roulants électriques et cuisines entièrement équipées avec électroménager inclus. La technologie <strong>Smart Home</strong> est intégrée dans chaque logement.</p>
+        <p>La résidence offre des espaces communs de standing : <strong>piscine avec jacuzzi</strong>, salle de sport équipée, parkings souterrains privatifs et sécurité 24h/24 avec vidéosurveillance et interphone vidéo. La livraison du projet est <strong>imminente</strong> — ne manquez pas les derniers biens disponibles.</p>
+      </div>
+      <button class="desc-toggle" id="descToggle" onclick="toggleDesc()">Lire la suite <i class="fas fa-chevron-down"></i></button>
+    </div>
+
+    <!-- TABS -->
+    <div class="tabs-bar" id="tabsBar">
+      <button class="tab-btn active" onclick="openTab('lots', this)">Biens disponibles</button>
+      <button class="tab-btn" onclick="openTab('equip', this)">Équipements & Services</button>
+      <button class="tab-btn" onclick="openTab('vr', this)" style="color:var(--gold);"><i class="fas fa-vr-cardboard" style="margin-right:5px;"></i>Visite 360°</button>
+      <button class="tab-btn" onclick="openTab('map', this)">Localisation</button>
+    </div>
+
+    <!-- TAB: LOTS -->
+    <div class="tab-panel active" id="tab-lots">
+      <div class="lots-filters">
+        <button class="lot-type-btn active" onclick="filterLots('all', this)">Tous</button>
+        <button class="lot-type-btn" onclick="filterLots('S+1', this)">S+1</button>
+        <button class="lot-type-btn" onclick="filterLots('S+2', this)">S+2</button>
+        <button class="lot-type-btn" onclick="filterLots('S+3', this)">S+3</button>
+        <button class="lot-type-btn" onclick="filterLots('Duplex', this)">Duplex</button>
+        <button class="lot-type-btn" onclick="filterLots('dispo', this)">Disponibles</button>
+      </div>
+      <table class="lots-table" id="lotsTable">
+        <thead>
+          <tr>
+            <th>Réf.</th>
+            <th>Type</th>
+            <th>Surface (m²)</th>
+            <th>Étage</th>
+            <th>Prix</th>
+            <th>Jardin (m²)</th>
+            <th>Terrasse (m²)</th>
+            <th>Disponibilité</th>
+            <th>Plan</th>
+          </tr>
+        </thead>
+        <tbody id="lotsTbody">
+          <!-- injected by JS -->
+        </tbody>
+      </table>
+    </div>
+
+    <!-- TAB: ÉQUIPEMENTS -->
+    <div class="tab-panel" id="tab-equip">
+      <div style="margin-bottom:18px;">
+        <div style="font-size:13px;font-weight:700;color:var(--navy-dark);margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px;">Espaces communs</div>
+        <div class="equip-grid">
+          <div class="equip-item"><i class="fas fa-swimming-pool"></i> Piscine avec jacuzzi</div>
+          <div class="equip-item"><i class="fas fa-dumbbell"></i> Salle de sport équipée</div>
+          <div class="equip-item"><i class="fas fa-car"></i> Parking souterrain privatif</div>
+          <div class="equip-item"><i class="fas fa-shield-alt"></i> Sécurité 24h/24 – 7j/7</div>
+          <div class="equip-item"><i class="fas fa-camera"></i> Vidéosurveillance</div>
+          <div class="equip-item"><i class="fas fa-bell"></i> Interphone vidéo</div>
+          <div class="equip-item"><i class="fas fa-elevator"></i> Double ascenseur</div>
+          <div class="equip-item"><i class="fas fa-leaf"></i> Jardins paysagers</div>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:13px;font-weight:700;color:var(--navy-dark);margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px;">Prestations intérieures</div>
+        <div class="equip-grid">
+          <div class="equip-item"><i class="fas fa-home"></i> Smart Home intégré</div>
+          <div class="equip-item"><i class="fas fa-snowflake"></i> Climatisation VRV centralisée</div>
+          <div class="equip-item"><i class="fas fa-fire"></i> Chauffage central</div>
+          <div class="equip-item"><i class="fas fa-door-open"></i> Portes blindées</div>
+          <div class="equip-item"><i class="fas fa-window-maximize"></i> Double vitrage acoustique</div>
+          <div class="equip-item"><i class="fas fa-sun"></i> Volets roulants électriques</div>
+          <div class="equip-item"><i class="fas fa-utensils"></i> Cuisine équipée (électroménager inclus)</div>
+          <div class="equip-item"><i class="fas fa-gem"></i> Marbre Botticino italien (séjour)</div>
+          <div class="equip-item"><i class="fas fa-faucet"></i> Sanitaires importés haut de gamme</div>
+          <div class="equip-item"><i class="fas fa-wifi"></i> Fibre optique pré-câblée</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB: 360° -->
+    <div class="tab-panel" id="tab-vr">
+      <div class="vr-wrap" id="vrWrap">
+        <div class="vr-pano" id="vrPano"></div>
+        <div class="vr-grad"></div>
+        <!-- Badge -->
+        <div class="vr-badge"><i class="fas fa-vr-cardboard"></i> Visite immersive 360° · Smart Home</div>
+        <!-- Room label -->
+        <div class="vr-room-label" id="vrLabel">Séjour – The Pantheon Residence</div>
+        <!-- Compass -->
+        <div class="vr-compass"><div class="vr-compass-inner" id="vrNeedle"></div></div>
+        <!-- Fullscreen -->
+        <button class="vr-fullscreen-btn" id="vrFsBtn" onclick="vrToggleFS()"><i class="fas fa-expand" id="vrFsIcon"></i></button>
+        <!-- Hint -->
+        <div class="vr-hint" id="vrHint"><i class="fas fa-arrows-left-right"></i> Glissez gauche/droite pour explorer</div>
+        <!-- Hotspots -->
+        <div id="vrHotspots"></div>
+        <!-- Room nav -->
+        <div class="vr-nav" id="vrNav"></div>
+      </div>
+      <!-- Thumbnail strip -->
+      <div class="vr-thumbs" id="vrThumbs"></div>
+    </div>
+
+    <!-- TAB: MAP -->
+    <div class="tab-panel" id="tab-map">
+      <div id="proj-map"></div>
+      <div style="margin-top:14px;font-size:13px;color:var(--gray-600);">
+        <i class="fas fa-map-marker-alt" style="color:var(--gold);margin-right:6px;"></i>
+        Route de la Marsa, Tunis — 10 min des Berges du Lac &amp; de l'aéroport
+      </div>
+    </div>
+
+    <!-- SIMILAR PROJECTS -->
+    <div style="margin-top: 28px;">
+      <div class="section-title">Projets similaires</div>
+      <div class="similar-grid">
+        <div class="similar-card" onclick="window.location='projet-neuf.html'">
+          <div class="similar-img"><img src="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=600&q=75" alt="Résidence Les Jardins du Lac" /></div>
+          <div class="similar-body">
+            <div class="similar-price">À partir de 280 000 TND</div>
+            <div class="similar-name">Résidence Les Jardins du Lac</div>
+            <div class="similar-loc"><i class="fas fa-map-marker-alt"></i>Les Berges du Lac II, Tunis</div>
+          </div>
+        </div>
+        <div class="similar-card" onclick="window.location='projet-neuf.html'">
+          <div class="similar-img"><img src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=600&q=75" alt="Villa Carthage" /></div>
+          <div class="similar-body">
+            <div class="similar-price">À partir de 450 000 TND</div>
+            <div class="similar-name">Villa Carthage Résidence</div>
+            <div class="similar-loc"><i class="fas fa-map-marker-alt"></i>Carthage, Tunis</div>
+          </div>
+        </div>
+        <div class="similar-card" onclick="window.location='projet-neuf.html'">
+          <div class="similar-img"><img src="https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=600&q=75" alt="Les Terrasses de La Marsa" /></div>
+          <div class="similar-body">
+            <div class="similar-price">À partir de 320 000 TND</div>
+            <div class="similar-name">Les Terrasses de La Marsa</div>
+            <div class="similar-loc"><i class="fas fa-map-marker-alt"></i>La Marsa, Tunis</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT COLUMN (ASIDE) -->
+  <div class="content-aside">
+
+    <!-- Price + CTAs -->
+    <div class="aside-card">
+      <div class="aside-price-head">
+        <div class="aside-price-from">À partir de</div>
+        <div class="aside-price-val">198 000 TND</div>
+        <div class="aside-price-sub">S+1 · Livraison imminente · Smart Home inclus</div>
+      </div>
+      <div class="aside-body">
+        <div class="aside-dispo">
+          <span class="aside-dispo-lbl"><i class="fas fa-door-open"></i> Biens disponibles</span>
+          <span class="aside-dispo-val">8 / 48</span>
+        </div>
+        <button class="aside-cta-brochure" onclick="alert('Brochure disponible sur demande. Contactez Bullaregia Immobilière.')">
+          <i class="fas fa-file-pdf" style="font-size:16px;"></i> Télécharger la brochure
+        </button>
+        <a href="https://wa.me/21627050510?text=Bonjour%2C+je+suis+int%C3%A9ress%C3%A9(e)+par+The+Pantheon+Residence+sur+la+Route+de+la+Marsa.+Pouvez-vous+me+donner+plus+d%27informations+%3F" target="_blank" class="aside-cta-wa">
+          <i class="fab fa-whatsapp" style="font-size:18px;"></i> Contacter via WhatsApp
+        </a>
+        <a href="tel:+21671905537" class="aside-cta-call">
+          <i class="fas fa-phone"></i> +216 71 905 537
+        </a>
+        <button class="aside-cta-visite">
+          <i class="fas fa-calendar-check"></i> Planifier une visite
+        </button>
+      </div>
+      <div class="aside-agent">
+        <div class="aside-agent-avatar">BI</div>
+        <div>
+          <div class="aside-agent-name">Bullaregia Immobilière</div>
+          <div class="aside-agent-role">Montplaisir, 1073 Tunis · Promoteur certifié</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Promoteur Card -->
+    <div class="promoteur-card" onclick="window.location='promoteur.html'" style="cursor:pointer;transition:box-shadow .2s;" onmouseover="this.style.boxShadow='var(--shadow)'" onmouseout="this.style.boxShadow='var(--shadow-sm)'">
+      <div class="promoteur-header">
+        <div class="promoteur-logo-big"><img src="https://bullaregia-immobiliere.com/wp-content/uploads/2023/04/logo-pantheon-light.png" alt="Bullaregia Immobilière"></div>
+        <div>
+          <div class="promoteur-name">Bullaregia Immobilière</div>
+          <div class="promoteur-verified"><i class="fas fa-shield-check"></i> Promoteur certifié Immo24.tn</div>
+        </div>
+      </div>
+      <div class="promoteur-stats">
+        <div class="promoteur-stat">
+          <div class="promoteur-stat-val">5</div>
+          <div class="promoteur-stat-lbl">Projets</div>
+        </div>
+        <div class="promoteur-stat">
+          <div class="promoteur-stat-val">200+</div>
+          <div class="promoteur-stat-lbl">Logements livrés</div>
+        </div>
+        <div class="promoteur-stat">
+          <div class="promoteur-stat-val">10 ans</div>
+          <div class="promoteur-stat-lbl">D'expérience</div>
+        </div>
+      </div>
+      <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--gray-100);font-size:12px;color:var(--gray-600);">
+        <i class="fas fa-map-marker-alt" style="color:var(--gold);margin-right:5px;"></i>
+        Rue Sidi El Heni, Espace Tunis Bloc G 3e Ét., Montplaisir, 1073 Tunis
+      </div>
+    </div>
+
+    <!-- Avancement chantier -->
+    <div class="progress-card">
+      <div class="progress-title"><i class="fas fa-hard-hat" style="color:var(--gold);margin-right:6px;"></i>Avancement du chantier</div>
+      <div class="progress-item">
+        <div class="progress-label"><span>Terrassement & fondations</span><span>100%</span></div>
+        <div class="progress-bar-wrap"><div class="progress-bar" style="width:100%"></div></div>
+      </div>
+      <div class="progress-item">
+        <div class="progress-label"><span>Gros œuvre (structure)</span><span>100%</span></div>
+        <div class="progress-bar-wrap"><div class="progress-bar" style="width:100%"></div></div>
+      </div>
+      <div class="progress-item">
+        <div class="progress-label"><span>Second œuvre</span><span>95%</span></div>
+        <div class="progress-bar-wrap"><div class="progress-bar" style="width:95%"></div></div>
+      </div>
+      <div class="progress-item">
+        <div class="progress-label"><span>Finitions & équipements</span><span>88%</span></div>
+        <div class="progress-bar-wrap"><div class="progress-bar" style="width:88%"></div></div>
+      </div>
+      <div class="progress-item">
+        <div class="progress-label"><span>Aménagements extérieurs</span><span>70%</span></div>
+        <div class="progress-bar-wrap"><div class="progress-bar" style="width:70%"></div></div>
+      </div>
+      <div style="margin-top:10px;font-size:11.5px;color:var(--gray-600);display:flex;align-items:center;gap:5px;">
+        <i class="fas fa-camera"></i> Dernière mise à jour : Avril 2026 · Livraison imminente
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- FOOTER NOTE -->
+<div class="footer-note">
+  Les informations présentées sont indicatives et peuvent être modifiées par le promoteur. Pour toute demande officielle, contactez directement
+  <a href="tel:+21627050510">Bullaregia Immobilière</a> au +216 27 050 510 ou par email à <a href="mailto:info@bullaregia-immobiliere.com">info@bullaregia-immobiliere.com</a>.
+  <span style="margin-left:12px;color:var(--gray-400);">© 2026 Immo24.tn</span>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+
+/* ===== GALLERY ===== */
+let galIdx = 0;
+const galTotal = 9;
+const galMain = document.getElementById('galleryMain');
+const galDotsEl = document.getElementById('galDots');
+const galCount = document.getElementById('galCount');
+
+function buildGalDots() {
+  galDotsEl.innerHTML = '';
+  for (let i = 0; i < galTotal; i++) {
+    const d = document.createElement('div');
+    d.className = 'gallery-dot' + (i === 0 ? ' active' : '');
+    d.onclick = () => goGal(i);
+    galDotsEl.appendChild(d);
+  }
+}
+function goGal(idx) {
+  galIdx = (idx + galTotal) % galTotal;
+  galMain.style.transform = `translateX(-${galIdx * 100}%)`;
+  galCount.textContent = `${galIdx + 1} / ${galTotal}`;
+  galDotsEl.querySelectorAll('.gallery-dot').forEach((d, i) => d.classList.toggle('active', i === galIdx));
+}
+function galSlide(dir) { goGal(galIdx + dir); }
+buildGalDots();
+
+/* ===== DESCRIPTION TOGGLE ===== */
+function toggleDesc() {
+  const full = document.getElementById('descFull');
+  const btn  = document.getElementById('descToggle');
+  const open = full.style.display === 'block';
+  full.style.display = open ? 'none' : 'block';
+  btn.innerHTML = open
+    ? 'Lire la suite <i class="fas fa-chevron-down"></i>'
+    : 'Réduire <i class="fas fa-chevron-up"></i>';
+}
+
+/* ===== TABS ===== */
+function openTab(id, btn) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  if (btn) btn.classList.add('active');
+  else document.querySelectorAll('.tab-btn').forEach(b => { if (b.getAttribute('onclick') && b.getAttribute('onclick').includes("'"+id+"'")) b.classList.add('active'); });
+  if (id === 'map') initMap();
+}
+
+/* ===== LOTS DATA ===== */
+const lots = [
+  // Bloc A – RDC (Duplex avec jardin)
+  { ref:'A0-1', bloc:'A', type:'Duplex S+3', etage:0, surface:217, jardin:48,  terrasse:0,  prix:678000, statut:'vendu'   },
+  { ref:'A0-2', bloc:'A', type:'Duplex S+2', etage:0, surface:152, jardin:47,  terrasse:0,  prix:448000, statut:'dispo'   },
+  { ref:'A0-3', bloc:'A', type:'Duplex S+3', etage:0, surface:230, jardin:82,  terrasse:0,  prix:728000, statut:'vendu'   },
+  { ref:'A0-4', bloc:'A', type:'Duplex S+3', etage:0, surface:217, jardin:60,  terrasse:0,  prix:678000, statut:'dispo'   },
+  { ref:'A0-5', bloc:'A', type:'Duplex S+2', etage:0, surface:152, jardin:44,  terrasse:0,  prix:448000, statut:'dispo'   },
+  { ref:'A0-6', bloc:'A', type:'Duplex S+3', etage:0, surface:170, jardin:109, terrasse:0,  prix:542000, statut:'vendu'   },
+  { ref:'A0-7', bloc:'A', type:'Duplex S+2', etage:0, surface:124, jardin:40,  terrasse:0,  prix:392000, statut:'vendu'   },
+  // Bloc A – Étages
+  { ref:'A1-1', bloc:'A', type:'S+1',        etage:1, surface:66,  jardin:0,   terrasse:10, prix:205000, statut:'vendu'   },
+  { ref:'A1-2', bloc:'A', type:'S+2',        etage:1, surface:112, jardin:0,   terrasse:12, prix:348000, statut:'dispo'   },
+  { ref:'A2-1', bloc:'A', type:'S+3',        etage:2, surface:141, jardin:0,   terrasse:14, prix:462000, statut:'reserve' },
+  { ref:'A2-2', bloc:'A', type:'S+2',        etage:2, surface:99,  jardin:0,   terrasse:11, prix:315000, statut:'vendu'   },
+  { ref:'A3-1', bloc:'A', type:'S+3',        etage:3, surface:155, jardin:0,   terrasse:15, prix:508000, statut:'dispo'   },
+  { ref:'A3-2', bloc:'A', type:'Duplex S+2', etage:3, surface:120, jardin:0,   terrasse:20, prix:392000, statut:'vendu'   },
+  { ref:'A4-1', bloc:'A', type:'Duplex S+3', etage:4, surface:195, jardin:0,   terrasse:28, prix:678000, statut:'dispo'   },
+  { ref:'A4-2', bloc:'A', type:'Duplex S+2', etage:4, surface:140, jardin:0,   terrasse:22, prix:448000, statut:'reserve' },
+  // Bloc B – RDC
+  { ref:'B0-1', bloc:'B', type:'S+1',        etage:0, surface:67,  jardin:33,  terrasse:0,  prix:202000, statut:'vendu'   },
+  { ref:'B0-2', bloc:'B', type:'S+2',        etage:0, surface:108, jardin:55,  terrasse:0,  prix:335000, statut:'vendu'   },
+  // Bloc B – Étages
+  { ref:'B1-1', bloc:'B', type:'S+2',        etage:1, surface:118, jardin:0,   terrasse:13, prix:362000, statut:'reserve' },
+  { ref:'B1-2', bloc:'B', type:'S+3',        etage:1, surface:135, jardin:0,   terrasse:14, prix:445000, statut:'vendu'   },
+  { ref:'B2-1', bloc:'B', type:'S+3',        etage:2, surface:150, jardin:0,   terrasse:16, prix:488000, statut:'dispo'   },
+  { ref:'B2-2', bloc:'B', type:'S+2',        etage:2, surface:99,  jardin:0,   terrasse:11, prix:318000, statut:'vendu'   },
+  { ref:'B3-1', bloc:'B', type:'S+3',        etage:3, surface:168, jardin:0,   terrasse:17, prix:542000, statut:'vendu'   },
+  { ref:'B3-2', bloc:'B', type:'Duplex S+2', etage:3, surface:135, jardin:0,   terrasse:22, prix:432000, statut:'dispo'   },
+  { ref:'B4-1', bloc:'B', type:'Duplex S+3', etage:4, surface:215, jardin:0,   terrasse:32, prix:728000, statut:'vendu'   },
+  { ref:'B4-2', bloc:'B', type:'Duplex S+2', etage:4, surface:158, jardin:0,   terrasse:24, prix:508000, statut:'dispo'   },
+];
+
+function formatPrix(n) {
+  return n.toLocaleString('fr-TN') + ' TND';
+}
+function statusLabel(s) {
+  const map = { dispo: 'Disponible', reserve: 'Réservé', vendu: 'Vendu' };
+  return map[s] || s;
+}
+function renderLots(filter) {
+  const tbody = document.getElementById('lotsTbody');
+  const filtered = lots.filter(l => {
+    if (filter === 'all') return true;
+    if (filter === 'dispo') return l.statut === 'dispo';
+    if (filter === 'Duplex') return l.type.startsWith('Duplex');
+    return l.type === filter;
+  });
+  tbody.innerHTML = filtered.map(l => `
+    <tr>
+      <td><span class="lot-ref">${l.ref}</span></td>
+      <td><span class="lot-type-tag">${l.type}</span></td>
+      <td>${l.surface}</td>
+      <td>${l.etage === 0 ? 'RDC' : l.etage}</td>
+      <td>
+        <span class="lot-price">${formatPrix(l.prix)}</span>
+        <div class="lot-prix-m2">${Math.round(l.prix/l.surface).toLocaleString('fr-TN')} TND/m²</div>
+      </td>
+      <td>${l.jardin > 0 ? l.jardin : '—'}</td>
+      <td>${l.terrasse > 0 ? l.terrasse : '—'}</td>
+      <td><span class="lot-status ${l.statut}">${statusLabel(l.statut)}</span></td>
+      <td>
+        <button class="lot-btn" ${l.statut !== 'dispo' ? 'disabled' : ''} onclick="reserveLot('${l.ref}')">
+          ${l.statut === 'dispo' ? '<i class="fas fa-download"></i> Plan' : '—'}
+        </button>
+      </td>
+    </tr>
+  `).join('');
+}
+function filterLots(f, btn) {
+  document.querySelectorAll('.lot-type-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderLots(f);
+}
+function reserveLot(ref) {
+  const lot = lots.find(l => l.ref === ref);
+  if (!lot) return;
+  const msg = encodeURIComponent(`Bonjour, je souhaite réserver le lot ${ref} (${lot.type} – ${lot.surface}m² – ${formatPrix(lot.prix)}) dans The Pantheon Residence. Merci.`);
+  window.open(`https://wa.me/21627050510?text=${msg}`, '_blank');
+}
+renderLots('all');
+
+/* ===== 360° VIEWER ===== */
+const BASE = 'https://bullaregia-immobiliere.com/wp-content/uploads/';
+const vrRooms = [
+  {
+    name: 'Séjour & Living', img: BASE + '2024/03/int-1.jpg',
+    hotspots: [
+      { x: '72%', y: '52%', icon: 'fa-utensils',  label: '→ Cuisine',          room: 3 },
+      { x: '24%', y: '50%', icon: 'fa-bed',        label: '→ Chambre principale', room: 1 },
+    ]
+  },
+  {
+    name: 'Chambre Principale', img: BASE + '2024/03/int-2.jpg',
+    hotspots: [
+      { x: '20%', y: '55%', icon: 'fa-couch',      label: '← Séjour',          room: 0 },
+      { x: '75%', y: '50%', icon: 'fa-bath',        label: '→ Salle de bain',   room: 4 },
+    ]
+  },
+  {
+    name: 'Chambre 2', img: BASE + '2024/03/int-3.jpg',
+    hotspots: [
+      { x: '30%', y: '55%', icon: 'fa-couch',      label: '← Séjour',          room: 0 },
+    ]
+  },
+  {
+    name: 'Cuisine Équipée', img: BASE + '2024/03/int-4.jpg',
+    hotspots: [
+      { x: '18%', y: '52%', icon: 'fa-couch',      label: '← Séjour',          room: 0 },
+      { x: '68%', y: '48%', icon: 'fa-door-open',  label: '→ Terrasse',         room: 5 },
+    ]
+  },
+  {
+    name: 'Salle de Bain', img: BASE + '2024/03/int-5.jpg',
+    hotspots: [
+      { x: '30%', y: '55%', icon: 'fa-bed',        label: '← Chambre',         room: 1 },
+    ]
+  },
+  {
+    name: 'Terrasse & Vue', img: BASE + '2024/03/exterieur-8.jpg',
+    hotspots: [
+      { x: '50%', y: '62%', icon: 'fa-home',       label: '← Retour intérieur', room: 0 },
+    ]
+  },
+];
+
+let vrCur = 0, vrPosX = 50, vrDragging = false, vrStartX = 0, vrStartPos = 50;
+
+function vrBuildNav() {
+  document.getElementById('vrNav').innerHTML = vrRooms.map((r, i) =>
+    `<button class="vr-nav-btn${i===0?' active':''}" onclick="vrGoRoom(${i})">${r.name}</button>`
+  ).join('');
+}
+
+function vrBuildThumbs() {
+  document.getElementById('vrThumbs').innerHTML = vrRooms.map((r, i) => `
+    <div class="vr-thumb${i===0?' active':''}" id="vrThumb${i}" onclick="vrGoRoom(${i})">
+      <img src="${r.img}" loading="lazy" alt="${r.name}">
+      <div class="vr-thumb-lbl">${r.name}</div>
+    </div>`
+  ).join('');
+}
+
+function vrBuildHotspots(hotspots) {
+  document.getElementById('vrHotspots').innerHTML = hotspots.map(h => `
+    <div class="vr-hotspot" style="left:${h.x};top:${h.y}" onclick="vrGoRoom(${h.room})">
+      <div class="vr-hs-ring"><i class="fas ${h.icon}"></i></div>
+      <div class="vr-hs-label">${h.label}</div>
+    </div>`
+  ).join('');
+}
+
+function vrGoRoom(idx) {
+  vrCur = idx; vrPosX = 50;
+  const room = vrRooms[idx];
+  const pano = document.getElementById('vrPano');
+  pano.style.opacity = '0';
+  setTimeout(() => {
+    pano.style.backgroundImage = `url('${room.img}')`;
+    pano.style.backgroundPositionX = '50%';
+    pano.style.opacity = '1';
+  }, 200);
+  document.getElementById('vrLabel').textContent = room.name + ' – The Pantheon Residence';
+  document.querySelectorAll('.vr-nav-btn').forEach((b, i) => b.classList.toggle('active', i === idx));
+  document.querySelectorAll('.vr-thumb').forEach((t, i) => t.classList.toggle('active', i === idx));
+  vrBuildHotspots(room.hotspots);
+  vrUpdateCompass();
+}
+
+function vrUpdateCompass() {
+  const angle = (vrPosX - 50) * 3.6;
+  document.getElementById('vrNeedle').style.transform = `rotate(${angle}deg)`;
+}
+
+function vrSetPos(px) {
+  vrPosX = Math.max(5, Math.min(95, px));
+  document.getElementById('vrPano').style.backgroundPositionX = vrPosX + '%';
+  vrUpdateCompass();
+}
+
+const vrWrap = document.getElementById('vrWrap');
+
+vrWrap.addEventListener('mousedown',  e => { vrDragging = true; vrStartX = e.clientX; vrStartPos = vrPosX; vrWrap.style.cursor = 'grabbing'; document.getElementById('vrHint').style.opacity = '0'; });
+vrWrap.addEventListener('mousemove',  e => { if (!vrDragging) return; const dx = e.clientX - vrStartX; vrSetPos(vrStartPos - (dx / vrWrap.offsetWidth) * 80); });
+vrWrap.addEventListener('mouseup',    () => { vrDragging = false; vrWrap.style.cursor = 'grab'; });
+vrWrap.addEventListener('mouseleave', () => { vrDragging = false; vrWrap.style.cursor = 'grab'; });
+vrWrap.addEventListener('touchstart', e => { vrDragging = true; vrStartX = e.touches[0].clientX; vrStartPos = vrPosX; document.getElementById('vrHint').style.opacity = '0'; }, { passive: true });
+vrWrap.addEventListener('touchmove',  e => { if (!vrDragging) return; const dx = e.touches[0].clientX - vrStartX; vrSetPos(vrStartPos - (dx / vrWrap.offsetWidth) * 80); }, { passive: true });
+vrWrap.addEventListener('touchend',   () => { vrDragging = false; });
+
+function vrToggleFS() {
+  const wrap = document.getElementById('vrWrap');
+  const icon = document.getElementById('vrFsIcon');
+  if (!document.fullscreenElement) {
+    wrap.requestFullscreen().then(() => { icon.className = 'fas fa-compress'; });
+  } else {
+    document.exitFullscreen().then(() => { icon.className = 'fas fa-expand'; });
+  }
+}
+
+function vrInit() {
+  vrBuildNav(); vrBuildThumbs();
+  const pano = document.getElementById('vrPano');
+  pano.style.backgroundImage = `url('${vrRooms[0].img}')`;
+  pano.style.backgroundPositionX = '50%';
+  vrBuildHotspots(vrRooms[0].hotspots);
+}
+vrInit();
+
+/* ===== MAP ===== */
+let mapInited = false;
+function initMap() {
+  if (mapInited) return;
+  mapInited = true;
+  const map = L.map('proj-map').setView([36.8968, 10.3033], 15);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap'
+  }).addTo(map);
+  const icon = L.divIcon({
+    className: '',
+    html: `<div style="width:36px;height:36px;border-radius:50% 50% 50% 0;background:#1B3A6B;transform:rotate(-45deg);border:3px solid #fff;box-shadow:0 3px 10px rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center;">
+      <span style="transform:rotate(45deg);color:#E6A817;font-size:14px;font-weight:900;">B</span></div>`,
+    iconSize: [36, 36], iconAnchor: [18, 36]
+  });
+  L.marker([36.8968, 10.3033], { icon })
+    .addTo(map)
+    .bindPopup('<b>The Pantheon Residence</b><br>Route de la Marsa, Tunis<br><small>Bullaregia Immobilière</small>')
+    .openPopup();
+}
+
+</script>
+<script src="responsive.js"></script>
+</body>
+</html>
+

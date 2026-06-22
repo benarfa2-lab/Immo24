@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rejoindre le réseau Immo24 – Espace pro</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    :root {
+      --gold:#E6A817; --gold-dark:#C8900E; --gold-light:#FFF8E6;
+      --navy:#1B3A6B; --navy-dark:#122952; --navy-light:#EEF2F9;
+      --gray-50:#F8F9FA; --gray-100:#F1F3F5; --gray-200:#E9ECEF;
+      --gray-400:#ADB5BD; --gray-600:#6C757D; --gray-800:#343A40;
+      --white:#FFFFFF; --green:#2A9D8F; --green-light:#E8F6F4;
+      --radius:10px; --radius-lg:16px;
+      --shadow-sm:0 1px 4px rgba(0,0,0,.08);
+      --shadow:0 4px 20px rgba(0,0,0,.10);
+      --nav-h:64px;
+    }
+    *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+    body { font-family:'Inter',sans-serif; color:var(--gray-800); background:var(--gray-50); min-height:100vh; }
+    a { text-decoration:none; color:inherit; }
+    button { cursor:pointer; font-family:inherit; border:none; background:none; }
+
+    /* NAVBAR */
+    .navbar { position:fixed; top:0; left:0; right:0; z-index:1000; height:var(--nav-h); display:flex; align-items:center; padding:0 32px; gap:24px; background:var(--navy); box-shadow:0 2px 16px rgba(0,0,0,.2); }
+    .nav-logo { display:flex; align-items:center; flex-shrink:0; }
+    .nav-right { margin-left:auto; }
+    .nav-btn-outline { border:1.5px solid rgba(255,255,255,.45); border-radius:50px; padding:7px 18px; font-size:13px; font-weight:500; color:#fff; transition:all .2s; background:none; cursor:pointer; text-decoration:none; display:inline-flex; align-items:center; gap:6px; }
+    .nav-btn-outline:hover { background:rgba(255,255,255,.12); }
+
+    /* HERO */
+    .hero {
+      margin-top:var(--nav-h);
+      background:linear-gradient(135deg, var(--navy-dark) 0%, var(--navy) 55%, #1d4080 100%);
+      padding:52px 24px 60px; text-align:center; position:relative; overflow:hidden;
+    }
+    .hero::before { content:''; position:absolute; inset:0; background:url('https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=1400&q=60') center/cover no-repeat; opacity:.08; }
+    .hero-inner { position:relative; max-width:640px; margin:0 auto; }
+    .hero-badge { display:inline-flex; align-items:center; gap:6px; background:rgba(230,168,23,.18); color:var(--gold); border:1px solid rgba(230,168,23,.35); border-radius:50px; padding:5px 14px; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; margin-bottom:18px; }
+    .hero-title { font-size:32px; font-weight:900; color:#fff; line-height:1.15; margin-bottom:12px; }
+    .hero-title span { color:var(--gold); }
+    .hero-sub { font-size:15px; color:rgba(255,255,255,.75); line-height:1.6; max-width:520px; margin:0 auto; }
+
+    /* PAGE LAYOUT */
+    .page-body { max-width:960px; margin:0 auto; padding:48px 24px 80px; display:grid; grid-template-columns:1fr 340px; gap:32px; align-items:start; }
+    @media (max-width:760px) { .page-body { grid-template-columns:1fr; } }
+
+    /* FORM CARD */
+    .form-card { background:var(--white); border-radius:var(--radius-lg); padding:32px; box-shadow:var(--shadow-sm); border:1px solid var(--gray-200); }
+    .form-title { font-size:19px; font-weight:800; color:var(--navy); margin-bottom:6px; }
+    .form-sub { font-size:13.5px; color:var(--gray-600); margin-bottom:28px; }
+
+    /* TYPE PILLS */
+    .type-pills { display:flex; gap:8px; margin-bottom:24px; flex-wrap:wrap; }
+    .tpill { flex:1; min-width:100px; display:flex; flex-direction:column; align-items:center; gap:6px; padding:14px 10px; border-radius:var(--radius); border:2px solid var(--gray-200); font-size:13px; font-weight:600; color:var(--gray-600); cursor:pointer; transition:all .18s; background:var(--white); text-align:center; }
+    .tpill i { font-size:20px; }
+    .tpill:hover { border-color:var(--navy); color:var(--navy); }
+    .tpill.active { border-color:var(--navy); background:var(--navy-light); color:var(--navy); }
+
+    /* FIELDS */
+    .fgrid { display:grid; gap:16px; }
+    .fgrid-2 { grid-template-columns:1fr 1fr; }
+    @media (max-width:560px) { .fgrid-2 { grid-template-columns:1fr; } }
+    .field { display:flex; flex-direction:column; gap:5px; }
+    .field label { font-size:13px; font-weight:600; color:var(--gray-800); }
+    .field label .req { color:#e53e3e; margin-left:2px; }
+    .field input, .field select, .field textarea {
+      height:42px; border:1.5px solid var(--gray-200); border-radius:var(--radius);
+      padding:0 12px; font-size:14px; font-family:inherit; color:var(--gray-800);
+      background:var(--white); transition:border-color .18s, box-shadow .18s; width:100%; outline:none;
+    }
+    .field textarea { height:100px; padding:10px 12px; resize:vertical; }
+    .field input:focus, .field select:focus, .field textarea:focus { border-color:var(--navy); box-shadow:0 0 0 3px rgba(27,58,107,.10); }
+    .phone-row { display:flex; }
+    .phone-prefix { display:flex; align-items:center; padding:0 12px; background:var(--gray-100); border:1.5px solid var(--gray-200); border-right:none; border-radius:var(--radius) 0 0 var(--radius); font-size:13px; font-weight:600; color:var(--gray-600); white-space:nowrap; }
+    .phone-row input { border-radius:0 var(--radius) var(--radius) 0; }
+
+    /* SUBMIT */
+    .btn-submit { width:100%; margin-top:20px; padding:14px; border-radius:50px; font-size:15px; font-weight:800; background:linear-gradient(135deg,var(--navy),var(--navy-dark)); color:#fff; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; box-shadow:0 4px 20px rgba(27,58,107,.28); transition:all .2s; }
+    .btn-submit:hover { transform:translateY(-1px); box-shadow:0 6px 28px rgba(27,58,107,.36); }
+    .form-privacy { font-size:11.5px; color:var(--gray-400); text-align:center; margin-top:12px; line-height:1.5; }
+    .form-privacy i { margin-right:3px; }
+
+    /* SUCCESS */
+    .success-screen { display:none; text-align:center; padding:20px 0; }
+    .success-screen.active { display:block; }
+    .success-icon { width:72px; height:72px; border-radius:50%; background:linear-gradient(135deg,var(--green),#21867a); display:flex; align-items:center; justify-content:center; margin:0 auto 20px; box-shadow:0 8px 28px rgba(42,157,143,.3); }
+    .success-icon i { font-size:30px; color:#fff; }
+    .success-title { font-size:22px; font-weight:900; color:var(--navy); margin-bottom:10px; }
+    .success-text { font-size:14px; color:var(--gray-600); line-height:1.6; margin-bottom:24px; }
+    .btn-home { display:inline-flex; align-items:center; gap:7px; background:var(--navy); color:#fff; padding:12px 26px; border-radius:50px; font-weight:700; font-size:14px; transition:background .2s; }
+    .btn-home:hover { background:var(--navy-dark); }
+
+    /* SIDEBAR INFO */
+    .info-card { background:var(--white); border-radius:var(--radius-lg); border:1px solid var(--gray-200); padding:24px; box-shadow:var(--shadow-sm); margin-bottom:16px; }
+    .info-card-title { font-size:14px; font-weight:800; color:var(--navy); margin-bottom:16px; display:flex; align-items:center; gap:7px; }
+    .info-card-title i { color:var(--gold); }
+    .benefit-list { display:flex; flex-direction:column; gap:12px; }
+    .benefit-item { display:flex; align-items:flex-start; gap:10px; font-size:13px; color:var(--gray-600); line-height:1.45; }
+    .benefit-icon { width:32px; height:32px; border-radius:8px; background:var(--navy-light); color:var(--navy); display:flex; align-items:center; justify-content:center; font-size:13px; flex-shrink:0; }
+    .stats-row { display:flex; gap:0; border:1px solid var(--gray-200); border-radius:var(--radius); overflow:hidden; margin-top:16px; }
+    .stat-item { flex:1; text-align:center; padding:14px 8px; border-right:1px solid var(--gray-200); }
+    .stat-item:last-child { border-right:none; }
+    .stat-val { font-size:20px; font-weight:900; color:var(--navy); line-height:1; }
+    .stat-lbl { font-size:10.5px; color:var(--gray-400); margin-top:3px; }
+    .trust-list { display:flex; flex-direction:column; gap:9px; }
+    .trust-item { display:flex; align-items:center; gap:8px; font-size:12.5px; color:var(--gray-600); }
+    .trust-item i { color:var(--green); font-size:12px; }
+
+    /* ── OTP téléphone ── */
+    .phone-row input { border-radius:0; }
+    .verify-btn { border:1.5px solid var(--navy); border-left:none; background:var(--navy); color:#fff; font-size:12.5px; font-weight:700; padding:0 14px; border-radius:0 var(--radius) var(--radius) 0; white-space:nowrap; transition:background .2s; }
+    .verify-btn:hover { background:var(--navy-dark); }
+    .verify-btn:disabled { background:var(--green); border-color:var(--green); cursor:default; }
+    .phone-verified-tag { display:inline-flex; align-items:center; gap:5px; background:var(--green-light); color:var(--green); border:1px solid #bce3d8; font-size:11px; font-weight:800; padding:2px 9px; border-radius:50px; margin-left:8px; }
+    .otp-area { margin-top:12px; background:var(--gray-50); border:1.5px solid var(--gray-200); border-radius:var(--radius); padding:14px; }
+    .otp-hint { font-size:12.5px; color:var(--gray-600); line-height:1.5; margin-bottom:10px; }
+    .otp-hint strong { color:var(--navy); font-family:monospace; font-size:14px; letter-spacing:1px; background:var(--navy-light); padding:1px 7px; border-radius:5px; }
+    .otp-controls { display:flex; gap:8px; align-items:center; }
+    .otp-controls input { height:46px; flex:1; text-align:center; font-size:20px; font-weight:800; letter-spacing:8px; border:1.5px solid var(--gray-200); border-radius:var(--radius); outline:none; color:var(--navy); }
+    .otp-controls input:focus { border-color:var(--navy); box-shadow:0 0 0 3px rgba(27,58,107,.10); }
+    .otp-validate { background:var(--gold); color:var(--navy-dark); font-weight:800; font-size:13.5px; padding:0 18px; height:46px; border-radius:var(--radius); white-space:nowrap; transition:background .2s; }
+    .otp-validate:hover { background:var(--gold-dark); }
+    .otp-err { color:#e53e3e; font-size:12px; font-weight:600; margin-top:8px; display:none; }
+    .otp-err.show { display:block; }
+    .otp-resend { background:none; border:none; color:var(--navy); font-size:12px; font-weight:700; margin-top:8px; cursor:pointer; }
+
+    /* ── Badge de statut de vérification (clignotant si en attente) ── */
+    .verif-status { display:flex; flex-direction:column; gap:10px; max-width:340px; margin:0 auto 24px; }
+    .verif-line { display:flex; align-items:center; gap:10px; padding:11px 14px; border-radius:var(--radius); font-size:13px; font-weight:700; }
+    .verif-line.ok { background:var(--green-light); color:var(--green); border:1px solid #bce3d8; }
+    .verif-line.pending { background:var(--gold-light); color:var(--gold-dark); border:1px solid #f0c96a; animation:pulseBadge 1.5s ease-in-out infinite; }
+    .verif-line i { font-size:15px; }
+    .verif-line.pending .blink-dot { width:9px; height:9px; border-radius:50%; background:var(--gold-dark); margin-left:auto; animation:blinkDot 1s steps(2,end) infinite; }
+    @keyframes pulseBadge { 0%,100%{ box-shadow:0 0 0 0 rgba(230,168,23,.45);} 50%{ box-shadow:0 0 0 7px rgba(230,168,23,0);} }
+    @keyframes blinkDot { 0%,50%{opacity:1;} 50.01%,100%{opacity:.15;} }
+  </style>
+<link rel="stylesheet" href="responsive.css" />
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <a href="index.html" class="nav-logo">
+    <img src="immo24-light-navbar.svg" height="54" alt="Immo24.tn" style="display:block" />
+  </a>
+  <div class="nav-right">
+    <a href="index.html" class="nav-btn-outline"><i class="fas fa-arrow-left"></i> Retour à l'accueil</a>
+  </div>
+  <button class="nav-hamburger" aria-label="Menu"><i class="fas fa-bars"></i></button>
+</nav>
+<div class="nav-mobile" id="nav-mobile">
+  <a href="index.html" class="nav-mob-link"><i class="fas fa-home"></i> Accueil</a>
+  <a href="map-listings.html?type=neuf" class="nav-mob-link"><i class="fas fa-building"></i> Projets neufs</a>
+  <a href="map-listings.html?type=annonces" class="nav-mob-link"><i class="fas fa-user-tie"></i> Agences</a>
+  <div class="nav-mob-divider"></div>
+  <div class="nav-mob-actions">
+    <a href="index.html" class="nav-mob-btn-outline"><i class="fas fa-arrow-left"></i> Retour à l'accueil</a>
+  </div>
+</div>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-badge"><i class="fas fa-shield-alt"></i> Réseau certifié Immo24</div>
+    <h1 class="hero-title">Développez votre activité sur <span>Immo24.tn</span></h1>
+    <p class="hero-sub">Rejoignez plus de 350 agences et promoteurs qui diffusent leurs annonces sur Immo24 et trouvent leurs clients chaque jour.</p>
+  </div>
+</section>
+
+<!-- PAGE BODY -->
+<div class="page-body">
+
+  <!-- FORM -->
+  <div class="form-card" id="form-card">
+    <div class="form-title">Créer mon espace pro</div>
+    <div class="form-sub">Remplissez ce formulaire, notre équipe vous contacte sous 24h.</div>
+
+    <!-- Type -->
+    <div class="type-pills">
+      <div class="tpill active" id="tp-agence" onclick="selectType('agence')">
+        <i class="fas fa-building"></i> Agence
+      </div>
+      <div class="tpill" id="tp-promoteur" onclick="selectType('promoteur')">
+        <i class="fas fa-hard-hat"></i> Promoteur
+      </div>
+      <div class="tpill" id="tp-mandataire" onclick="selectType('mandataire')">
+        <i class="fas fa-user-tie"></i> Mandataire
+      </div>
+    </div>
+
+    <div class="fgrid">
+      <div class="fgrid fgrid-2">
+        <div class="field">
+          <label>Prénom <span class="req">*</span></label>
+          <input type="text" id="f-prenom" placeholder="Votre prénom" />
+        </div>
+        <div class="field">
+          <label>Nom <span class="req">*</span></label>
+          <input type="text" id="f-nom" placeholder="Votre nom" />
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Nom de l'agence / société <span class="req">*</span></label>
+        <input type="text" id="f-agence" placeholder="Ex: Prestige Immobilier" />
+      </div>
+
+      <div class="field">
+        <label>E-mail professionnel <span class="req">*</span></label>
+        <input type="email" id="f-email" placeholder="contact@agence.tn" />
+      </div>
+
+      <div class="field">
+        <label>Téléphone <span class="req">*</span><span class="phone-verified-tag" id="phone-verified-tag" style="display:none"><i class="fas fa-circle-check"></i> Vérifié</span></label>
+        <div class="phone-row">
+          <div class="phone-prefix">+216</div>
+          <input type="tel" id="f-tel" placeholder="XX XXX XXX" oninput="resetOtp()" />
+          <button type="button" class="verify-btn" id="otp-send-btn" onclick="sendOtp()">Vérifier</button>
+        </div>
+        <div class="otp-area" id="otp-area" style="display:none">
+          <div class="otp-hint" id="otp-hint"></div>
+          <div class="otp-controls">
+            <input type="text" id="otp-code-input" inputmode="numeric" maxlength="6" placeholder="––––––" oninput="this.value=this.value.replace(/\D/g,'')" onkeydown="if(event.key==='Enter')verifyOtp()" />
+            <button type="button" class="otp-validate" onclick="verifyOtp()"><i class="fas fa-check"></i> Valider</button>
+          </div>
+          <div class="otp-err" id="otp-err"><i class="fas fa-exclamation-circle"></i> Code incorrect. Réessayez.</div>
+          <button type="button" class="otp-resend" onclick="sendOtp()"><i class="fas fa-rotate-right"></i> Renvoyer le code</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Ville d'activité principale</label>
+        <select id="f-ville">
+          <option value="">Sélectionner</option>
+          <option>Tunis – Grand Tunis</option>
+          <option>La Marsa</option>
+          <option>Sidi Bou Saïd</option>
+          <option>Lac 2 / Lac 1</option>
+          <option>Ennasr / Ariana</option>
+          <option>Gammarth</option>
+          <option>Nabeul / Hammamet</option>
+          <option>Sousse</option>
+          <option>Sfax</option>
+          <option>Autre</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Message (optionnel)</label>
+        <textarea id="f-message" placeholder="Décrivez brièvement votre activité, le nombre d'annonces, vos besoins..."></textarea>
+      </div>
+    </div>
+
+    <button class="btn-submit" onclick="submitForm()">
+      <i class="fas fa-paper-plane"></i> Envoyer ma demande
+    </button>
+    <div class="form-privacy"><i class="fas fa-lock"></i> Données protégées · Jamais transmises à des tiers · Réponse sous 24h</div>
+
+    <!-- Success -->
+    <div class="success-screen" id="success-screen">
+      <div class="success-icon"><i class="fas fa-check"></i></div>
+      <div class="success-title">Demande envoyée !</div>
+      <div class="success-text">Notre équipe a bien reçu votre demande et vous recontactera sous 24h ouvrées pour activer votre espace pro.</div>
+
+      <!-- Statut de vérification (le badge clignote tant que le backoffice n'a pas validé) -->
+      <div class="verif-status">
+        <div class="verif-line ok"><i class="fas fa-circle-check"></i> Téléphone vérifié par SMS</div>
+        <div class="verif-line pending" id="verif-pending"><i class="fas fa-hourglass-half"></i> Compte en cours de vérification <span class="blink-dot"></span></div>
+      </div>
+      <div style="font-size:11.5px;color:var(--gray-400);max-width:340px;margin:-8px auto 22px;line-height:1.5">
+        <i class="fas fa-info-circle"></i> Le badge <strong style="color:var(--gold-dark)">« vérifié »</strong> s'activera dès que notre équipe aura validé vos pièces (identité, registre, agrément) dans le back-office.
+      </div>
+
+      <a href="index.html" class="btn-home"><i class="fas fa-home"></i> Retour à l'accueil</a>
+    </div>
+  </div>
+
+  <!-- SIDEBAR -->
+  <div>
+    <div class="info-card">
+      <div class="info-card-title"><i class="fas fa-star"></i> Pourquoi Immo24 ?</div>
+      <div class="benefit-list">
+        <div class="benefit-item">
+          <div class="benefit-icon"><i class="fas fa-map-marked-alt"></i></div>
+          <div>Carte interactive avec géolocalisation de vos annonces</div>
+        </div>
+        <div class="benefit-item">
+          <div class="benefit-icon"><i class="fas fa-chart-line"></i></div>
+          <div>Statistiques détaillées : vues, contacts, taux de conversion</div>
+        </div>
+        <div class="benefit-item">
+          <div class="benefit-icon"><i class="fas fa-bullhorn"></i></div>
+          <div>Mise en avant et annonces à la une disponibles</div>
+        </div>
+        <div class="benefit-item">
+          <div class="benefit-icon"><i class="fas fa-headset"></i></div>
+          <div>Support dédié et accompagnement à la prise en main</div>
+        </div>
+      </div>
+      <div class="stats-row">
+        <div class="stat-item">
+          <div class="stat-val">350+</div>
+          <div class="stat-lbl">Pros actifs</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-val">12k</div>
+          <div class="stat-lbl">Visites/jour</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-val">24h</div>
+          <div class="stat-lbl">Activation</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-card">
+      <div class="info-card-title"><i class="fas fa-shield-alt"></i> Nos garanties</div>
+      <div class="trust-list">
+        <div class="trust-item"><i class="fas fa-check-circle"></i> Inscription 100% gratuite pour commencer</div>
+        <div class="trust-item"><i class="fas fa-check-circle"></i> Aucun engagement de durée</div>
+        <div class="trust-item"><i class="fas fa-check-circle"></i> Données chiffrées SSL</div>
+        <div class="trust-item"><i class="fas fa-check-circle"></i> Vérification manuelle sous 24h</div>
+        <div class="trust-item"><i class="fas fa-check-circle"></i> Conforme INPDP</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<div style="background:var(--navy-dark);padding:20px;text-align:center;">
+  <p style="font-size:13px;color:rgba(255,255,255,.45);">© 2026 Immo24.tn · <a href="#" style="color:var(--gold);">CGU</a> · <a href="#" style="color:var(--gold);">Confidentialité</a></p>
+</div>
+
+<script>
+  let currentType = 'agence';
+
+  function selectType(t) {
+    currentType = t;
+    ['agence','promoteur','mandataire'].forEach(x =>
+      document.getElementById('tp-' + x).classList.toggle('active', x === t)
+    );
+  }
+
+  /* ── OTP réel (génération + vérification côté client ; l'envoi SMS passe par une passerelle en prod) ── */
+  let otpCode = null, phoneVerified = false;
+
+  function resetOtp() {
+    // toute modif du numéro invalide la vérification
+    phoneVerified = false; otpCode = null;
+    document.getElementById('otp-area').style.display = 'none';
+    document.getElementById('phone-verified-tag').style.display = 'none';
+    const btn = document.getElementById('otp-send-btn');
+    btn.disabled = false; btn.textContent = 'Vérifier';
+  }
+
+  function sendOtp() {
+    const tel = document.getElementById('f-tel').value.trim();
+    if (!tel || tel.replace(/\D/g,'').length < 6) { alert('Saisissez d\'abord un numéro de téléphone valide.'); return; }
+    otpCode = String(Math.floor(100000 + Math.random() * 900000)); // code 6 chiffres
+    document.getElementById('otp-area').style.display = 'block';
+    document.getElementById('otp-hint').innerHTML =
+      `Un code à 6 chiffres a été envoyé par SMS au <strong style="font-family:inherit;background:none;color:var(--navy)">+216 ${tel}</strong>.<br><span style="color:var(--gray-400)">Démo (pas de vraie passerelle SMS ici) — votre code : </span><strong>${otpCode}</strong>`;
+    document.getElementById('otp-err').classList.remove('show');
+    const inp = document.getElementById('otp-code-input');
+    inp.value = ''; inp.focus();
+    document.getElementById('otp-send-btn').textContent = 'Renvoyer';
+  }
+
+  function verifyOtp() {
+    const v = document.getElementById('otp-code-input').value.trim();
+    if (v === otpCode && otpCode) {
+      phoneVerified = true;
+      document.getElementById('otp-area').style.display = 'none';
+      document.getElementById('phone-verified-tag').style.display = 'inline-flex';
+      const btn = document.getElementById('otp-send-btn');
+      btn.disabled = true; btn.innerHTML = '<i class="fas fa-check"></i> Vérifié';
+    } else {
+      document.getElementById('otp-err').classList.add('show');
+    }
+  }
+
+  function submitForm() {
+    const prenom = document.getElementById('f-prenom').value.trim();
+    const nom    = document.getElementById('f-nom').value.trim();
+    const agence = document.getElementById('f-agence').value.trim();
+    const email  = document.getElementById('f-email').value.trim();
+    const tel    = document.getElementById('f-tel').value.trim();
+
+    if (!prenom || !nom)       { alert('Veuillez saisir votre prénom et nom.'); return; }
+    if (!agence)               { alert('Veuillez saisir le nom de votre agence.'); return; }
+    if (!email || !email.includes('@')) { alert('E-mail invalide.'); return; }
+    if (!tel)                  { alert('Téléphone requis.'); return; }
+    if (!phoneVerified)        { alert('Veuillez vérifier votre numéro de téléphone avec le code SMS avant d\'envoyer.'); sendOtp(); return; }
+
+    document.getElementById('form-card').querySelectorAll('.type-pills,.fgrid,.btn-submit,.form-sub,.form-title,.form-privacy').forEach(el => el.style.display = 'none');
+    document.getElementById('success-screen').classList.add('active');
+  }
+
+  // Auto-select type from URL param
+  (function() {
+    const t = new URLSearchParams(window.location.search).get('type');
+    if (t && ['agence','promoteur','mandataire'].includes(t)) selectType(t);
+  })();
+</script>
+<script src="responsive.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Connexion — Espace Pro · Immo24.tn</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy:      #1B3A6B;
+      --navy-dark: #122952;
+      --gold:      #E6A817;
+      --gold-dark: #C8900E;
+      --white:     #fff;
+      --gray-50:   #F8F9FB;
+      --gray-100:  #F0F2F5;
+      --gray-200:  #E2E6ED;
+      --gray-400:  #9AA3B0;
+      --gray-600:  #5A6475;
+      --gray-800:  #2C3444;
+      --red:       #E63946;
+      --shadow:    0 4px 24px rgba(27,58,107,.13);
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--gray-50);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── NAVBAR ── */
+    .navbar {
+      height: 64px;
+      background: var(--navy-dark);
+      display: flex;
+      align-items: center;
+      padding: 0 24px;
+      flex-shrink: 0;
+    }
+    .nav-logo img { display: block; }
+
+    /* ── MAIN LAYOUT ── */
+    .login-wrap {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 16px;
+    }
+
+    .login-card {
+      background: var(--white);
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+      width: 100%;
+      max-width: 440px;
+      overflow: hidden;
+    }
+
+    /* Card header */
+    .login-card-head {
+      background: linear-gradient(135deg, var(--navy-dark) 0%, var(--navy) 100%);
+      padding: 36px 36px 28px;
+      text-align: center;
+    }
+    .login-card-head .icon-wrap {
+      width: 60px; height: 60px;
+      background: rgba(230,168,23,.18);
+      border-radius: 16px;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 16px;
+    }
+    .login-card-head .icon-wrap i {
+      font-size: 26px;
+      color: var(--gold);
+    }
+    .login-card-head h1 {
+      font-size: 22px; font-weight: 800;
+      color: var(--white);
+      letter-spacing: -.4px;
+      margin-bottom: 6px;
+    }
+    .login-card-head p {
+      font-size: 13.5px;
+      color: rgba(255,255,255,.65);
+    }
+
+    /* Card body */
+    .login-card-body {
+      padding: 32px 36px 36px;
+    }
+
+    /* Demo credentials hint */
+    .demo-hint {
+      background: #EEF3FB;
+      border: 1.5px solid #C6D6EF;
+      border-radius: 10px;
+      padding: 11px 14px;
+      margin-bottom: 24px;
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+    .demo-hint i { color: var(--navy); font-size: 14px; margin-top: 2px; flex-shrink: 0; }
+    .demo-hint-text { font-size: 12.5px; color: var(--gray-600); line-height: 1.6; }
+    .demo-hint-text strong { color: var(--navy); }
+
+    /* Fields */
+    .field { margin-bottom: 18px; }
+    .field label {
+      display: block;
+      font-size: 13px; font-weight: 600;
+      color: var(--gray-800);
+      margin-bottom: 7px;
+    }
+    .field-wrap {
+      position: relative;
+    }
+    .field-wrap i.f-icon {
+      position: absolute; left: 13px; top: 50%; transform: translateY(-50%);
+      color: var(--gray-400); font-size: 14px; pointer-events: none;
+    }
+    .field input {
+      width: 100%; height: 46px;
+      border: 1.5px solid var(--gray-200);
+      border-radius: 10px;
+      padding: 0 42px 0 40px;
+      font-size: 14px;
+      color: var(--gray-800);
+      background: var(--gray-50);
+      outline: none;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    .field input:focus {
+      border-color: var(--navy);
+      box-shadow: 0 0 0 3px rgba(27,58,107,.1);
+      background: var(--white);
+    }
+    .field input.error { border-color: var(--red); }
+
+    /* Password toggle */
+    .pwd-toggle {
+      position: absolute; right: 13px; top: 50%; transform: translateY(-50%);
+      background: none; border: none; cursor: pointer;
+      color: var(--gray-400); font-size: 14px; padding: 4px;
+    }
+    .pwd-toggle:hover { color: var(--gray-600); }
+
+    /* Error message */
+    .error-msg {
+      display: none;
+      background: #FEF0F0;
+      border: 1.5px solid #FBBCBC;
+      border-radius: 8px;
+      padding: 10px 13px;
+      font-size: 12.5px;
+      color: #C0392B;
+      margin-bottom: 18px;
+      gap: 8px;
+      align-items: center;
+    }
+    .error-msg.visible { display: flex; }
+    .error-msg i { font-size: 13px; flex-shrink: 0; }
+
+    /* Submit button */
+    .btn-login {
+      width: 100%; height: 48px;
+      background: var(--gold);
+      color: var(--navy-dark);
+      border: none; border-radius: 10px;
+      font-size: 15px; font-weight: 800;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      transition: background .2s, transform .15s;
+      margin-top: 4px;
+    }
+    .btn-login:hover { background: var(--gold-dark); }
+    .btn-login:active { transform: scale(.98); }
+    .btn-login.loading { opacity: .75; pointer-events: none; }
+
+    /* Links */
+    .login-footer {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 13px;
+      color: var(--gray-600);
+    }
+    .login-footer a { color: var(--navy); font-weight: 600; text-decoration: none; }
+    .login-footer a:hover { text-decoration: underline; }
+
+    .divider {
+      display: flex; align-items: center; gap: 12px;
+      margin: 20px 0;
+      color: var(--gray-400); font-size: 12px;
+    }
+    .divider::before, .divider::after {
+      content: ''; flex: 1; height: 1px; background: var(--gray-200);
+    }
+
+    .btn-back {
+      display: flex; align-items: center; justify-content: center; gap: 7px;
+      width: 100%; height: 44px;
+      border: 1.5px solid var(--gray-200);
+      border-radius: 10px;
+      font-size: 13.5px; font-weight: 600;
+      color: var(--gray-600);
+      text-decoration: none;
+      transition: border-color .2s, color .2s;
+    }
+    .btn-back:hover { border-color: var(--navy); color: var(--navy); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 480px) {
+      .login-card-head { padding: 28px 24px 22px; }
+      .login-card-body { padding: 24px 24px 28px; }
+      .navbar { padding: 0 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <a class="nav-logo" href="index.html">
+    <img src="immo24-light-navbar.svg" height="48" alt="Immo24.tn" />
+  </a>
+</nav>
+
+<!-- LOGIN CARD -->
+<div class="login-wrap">
+  <div class="login-card">
+
+    <div class="login-card-head">
+      <div class="icon-wrap"><i class="fas fa-user-tie"></i></div>
+      <h1>Espace Pro</h1>
+      <p>Connectez-vous pour accéder à votre backoffice</p>
+    </div>
+
+    <div class="login-card-body">
+
+      <!-- Demo hint -->
+      <div class="demo-hint">
+        <i class="fas fa-info-circle"></i>
+        <div class="demo-hint-text">
+          <strong>Identifiants de démonstration :</strong><br>
+          Login&nbsp;: <strong>admin@immo24.tn</strong> &nbsp;|&nbsp; Mot de passe&nbsp;: <strong>immo2024</strong>
+        </div>
+      </div>
+
+      <!-- Error -->
+      <div class="error-msg" id="error-msg">
+        <i class="fas fa-exclamation-circle"></i>
+        Identifiants incorrects. Veuillez réessayer.
+      </div>
+
+      <!-- Form -->
+      <form id="login-form" onsubmit="doLogin(event)" novalidate>
+
+        <div class="field">
+          <label for="email">Adresse e-mail</label>
+          <div class="field-wrap">
+            <i class="fas fa-envelope f-icon"></i>
+            <input type="email" id="email" placeholder="votre@email.com" autocomplete="username" />
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="password">Mot de passe</label>
+          <div class="field-wrap">
+            <i class="fas fa-lock f-icon"></i>
+            <input type="password" id="password" placeholder="••••••••" autocomplete="current-password" />
+            <button type="button" class="pwd-toggle" id="pwd-toggle" onclick="togglePwd()" title="Afficher/masquer">
+              <i class="fas fa-eye" id="pwd-icon"></i>
+            </button>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-login" id="btn-login">
+          <i class="fas fa-sign-in-alt"></i> Se connecter
+        </button>
+      </form>
+
+      <div class="divider">ou</div>
+
+      <a href="index.html" class="btn-back">
+        <i class="fas fa-arrow-left"></i> Retour à l'accueil
+      </a>
+
+      <div class="login-footer" style="margin-top:16px">
+        Pas encore de compte ?&nbsp;
+        <a href="inscription.html">Créer un espace pro</a>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+  function togglePwd() {
+    var inp = document.getElementById('password');
+    var ico = document.getElementById('pwd-icon');
+    if (inp.type === 'password') {
+      inp.type = 'text';
+      ico.className = 'fas fa-eye-slash';
+    } else {
+      inp.type = 'password';
+      ico.className = 'fas fa-eye';
+    }
+  }
+
+  function doLogin(e) {
+    e.preventDefault();
+    var email    = document.getElementById('email').value.trim();
+    var password = document.getElementById('password').value;
+    var err      = document.getElementById('error-msg');
+    var btn      = document.getElementById('btn-login');
+
+    err.classList.remove('visible');
+    document.getElementById('email').classList.remove('error');
+    document.getElementById('password').classList.remove('error');
+
+    // Demo credentials
+    if (email === 'admin@immo24.tn' && password === 'immo2024') {
+      btn.classList.add('loading');
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Connexion…';
+      setTimeout(function () {
+        window.location.href = 'backoffice.html';
+      }, 800);
+    } else {
+      err.classList.add('visible');
+      document.getElementById('email').classList.add('error');
+      document.getElementById('password').classList.add('error');
+      document.getElementById('password').value = '';
+    }
+  }
+
+  // Auto-fill on hint click
+  document.querySelector('.demo-hint').addEventListener('click', function () {
+    document.getElementById('email').value    = 'admin@immo24.tn';
+    document.getElementById('password').value = 'immo2024';
+  });
+</script>
+
+</body>
+</html>
