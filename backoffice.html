@@ -2606,12 +2606,71 @@ function renderDashboard() {
       <div class="kpi-label">${k.lbl}</div>
     </div>`).join('');
 
-  const bars = [
-    {lbl:'Jan',v:60,h:60},{lbl:'Fév',v:82,h:82},{lbl:'Mar',v:75,h:75},{lbl:'Avr',v:90,h:90},
-    {lbl:'Mai',v:110,h:110},{lbl:'Jun',v:95,h:95},{lbl:'Jul',v:88,h:88},{lbl:'Aoû',v:72,h:72},
-    {lbl:'Sep',v:105,h:105},{lbl:'Oct',v:130,h:130},{lbl:'Nov',v:118,h:118},{lbl:'Déc',v:140,h:140},
-  ];
-  const maxH = 140;
+  // Données de la courbe adaptées au profil
+  const chartDataByRole = {
+    admin:     [60,82,75,90,110,95,88,72,105,130,118,140],
+    agent:     [4,7,5,9,12,8,11,6,10,14,13,16],
+    promoteur: [8,14,11,18,24,20,17,13,22,30,26,34],
+  };
+  const chartValues = chartDataByRole[currentRole] || chartDataByRole.admin;
+  const chartLabels = ['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'];
+  const chartMax = Math.max(...chartValues);
+  const chartMin = Math.min(...chartValues);
+  const chartTitle = currentRole === 'admin' ? 'Annonces publiées' : currentRole === 'promoteur' ? 'Biens vendus' : 'Annonces actives';
+
+  // Génère le SVG de courbe lissée (bezier) avec zone de remplissage
+  function buildLineChart(values, labels) {
+    const W = 560, H = 140, PL = 10, PR = 10, PT = 20, PB = 0;
+    const n = values.length;
+    const vMin = Math.min(...values), vMax = Math.max(...values);
+    const range = vMax - vMin || 1;
+    const x = i => PL + (i / (n-1)) * (W - PL - PR);
+    const y = v => PT + (1 - (v - vMin) / range) * (H - PT - PB);
+
+    // Bezier control points
+    const pts = values.map((v,i) => [x(i), y(v)]);
+    let d = `M ${pts[0][0]},${pts[0][1]}`;
+    for (let i = 1; i < pts.length; i++) {
+      const [x0,y0] = pts[i-1], [x1,y1] = pts[i];
+      const cx = (x0+x1)/2;
+      d += ` C ${cx},${y0} ${cx},${y1} ${x1},${y1}`;
+    }
+    const areaD = d + ` L ${pts[pts.length-1][0]},${H} L ${pts[0][0]},${H} Z`;
+
+    const dotId = `lc-${Math.random().toString(36).slice(2,7)}`;
+    const tooltipId = `lt-${Math.random().toString(36).slice(2,7)}`;
+
+    const dots = pts.map(([cx,cy],i) => `
+      <g class="chart-dot-group" onmouseenter="document.getElementById('${dotId}-${i}').style.opacity=1;document.getElementById('${tooltipId}-${i}').style.opacity=1"
+         onmouseleave="document.getElementById('${dotId}-${i}').style.opacity=0;document.getElementById('${tooltipId}-${i}').style.opacity=0">
+        <circle cx="${cx}" cy="${cy}" r="14" fill="transparent"/>
+        <circle id="${dotId}-${i}" cx="${cx}" cy="${cy}" r="4" fill="var(--navy)" stroke="#fff" stroke-width="2" style="opacity:0;transition:opacity .15s"/>
+        <g id="${tooltipId}-${i}" style="opacity:0;transition:opacity .15s" transform="translate(${cx},${cy - 18})">
+          <rect x="-18" y="-14" width="36" height="18" rx="5" fill="var(--navy)"/>
+          <text x="0" y="-2" text-anchor="middle" fill="#fff" font-size="10" font-weight="700" font-family="Inter,sans-serif">${values[i]}</text>
+        </g>
+      </g>`).join('');
+
+    const xLabels = labels.map((l,i) => {
+      const cx = x(i);
+      const isCur = i === new Date().getMonth();
+      return `<text x="${cx}" y="${H + 16}" text-anchor="middle" font-size="10" font-family="Inter,sans-serif"
+        fill="${isCur ? 'var(--navy)' : 'var(--gray-400)'}" font-weight="${isCur ? '700' : '400'}">${l}</text>`;
+    }).join('');
+
+    return `<svg viewBox="0 0 ${W} ${H+20}" style="width:100%;height:auto;overflow:visible">
+      <defs>
+        <linearGradient id="lg-${dotId}" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="var(--navy)" stop-opacity="0.12"/>
+          <stop offset="100%" stop-color="var(--navy)" stop-opacity="0"/>
+        </linearGradient>
+      </defs>
+      <path d="${areaD}" fill="url(#lg-${dotId})"/>
+      <path d="${d}" fill="none" stroke="var(--navy)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+      ${dots}
+      ${xLabels}
+    </svg>`;
+  }
 
   const activities = [
     { icon:'fas fa-plus-circle', cls:'navy', bg:'var(--navy-light)', msg:'<strong>Sonia Mejri</strong> a publié une nouvelle annonce – Appartement Lac 2', time:'Il y a 14 min' },
@@ -2709,15 +2768,14 @@ function renderDashboard() {
 
     <div class="charts-row">
       <div class="chart-card">
-        <div class="chart-title">Annonces publiées <span class="chart-sub">/ mois – 2026</span></div>
-        <div class="bar-chart">
-          ${bars.map((b,i) => `
-            <div class="bar-col">
-              <div class="bar-val">${b.v}</div>
-              <div class="bar ${i===11?'gold':i>=9?'navy':''}" style="height:${Math.round(b.h/maxH*100)}%"></div>
-              <div class="bar-label">${b.lbl}</div>
-            </div>`).join('')}
+        <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:4px">
+          <div class="chart-title" style="margin-bottom:0">${chartTitle} <span class="chart-sub">/ mois – 2026</span></div>
+          <div style="display:flex;align-items:baseline;gap:6px">
+            <span style="font-size:22px;font-weight:800;color:var(--navy)">${chartMax}</span>
+            <span style="font-size:11px;color:var(--green);font-weight:700">↑ record Déc.</span>
+          </div>
         </div>
+        <div style="margin-top:12px">${buildLineChart(chartValues, chartLabels)}</div>
       </div>
 
       ${isAdmin ? `
