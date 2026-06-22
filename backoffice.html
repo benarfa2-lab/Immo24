@@ -292,8 +292,13 @@
     .badge.draft { background: var(--gray-100); color: var(--gray-600); }
     .badge.pending { background: #FFF3E0; color: #E65100; }
     .badge.sold { background: #EFF6FF; color: var(--blue); }
+    .badge.reserved { background: var(--gold-light); color: var(--gold-dark); }
     .badge.soldout { background: #1B3A6B; color: #fff; }
     .badge.suspended { background: #FDECEA; color: var(--red); }
+    .badge.revision { background: #FFF3E0; color: #E65100; }
+    .badge.rejected { background: #FDECEA; color: var(--red); }
+    .badge.expired  { background: var(--gray-100); color: var(--gray-600); }
+    .badge.archived { background: var(--gray-100); color: var(--gray-600); }
     .badge.vente { background: var(--navy-light); color: var(--navy); }
     .badge.location { background: var(--gold-light); color: var(--gold-dark); }
     .badge.neuf { background: #E8F5F3; color: var(--green); }
@@ -2193,14 +2198,18 @@
           <i class="fas fa-clock" style="font-size:16px"></i>
           <div style="text-align:left"><div>Réservé</div><div style="font-size:11px;font-weight:400;opacity:.7">Compromis signé, en attente de finalisation</div></div>
         </button>
+        <button class="btn" style="background:#E8F5F3;color:var(--green);border:1.5px solid #6EE7B7;font-weight:700;justify-content:flex-start;gap:10px;padding:12px 16px" onclick="confirmMarkSold('archived')">
+          <i class="fas fa-archive" style="font-size:16px"></i>
+          <div style="text-align:left"><div>Archiver</div><div style="font-size:11px;font-weight:400;opacity:.7">Après finalisation — retire définitivement du stock actif</div></div>
+        </button>
         <button class="btn btn-outline" style="justify-content:flex-start;gap:10px;padding:12px 16px" onclick="confirmMarkSold('published')">
           <i class="fas fa-redo" style="font-size:16px"></i>
           <div style="text-align:left"><div>Remettre en ligne</div><div style="font-size:11px;font-weight:400;opacity:.7">Annuler la vente / libérer la réservation</div></div>
         </button>
       </div>
       <div style="margin-top:16px;padding:12px 14px;background:var(--gold-light);border-radius:8px;font-size:12px;color:#92400E">
-        <i class="fas fa-whatsapp" style="color:#25D366;margin-right:6px;font-size:13px"></i>
-        <strong>Astuce :</strong> Répondez simplement <strong>"VENDU"</strong> ou <strong>"RESERVÉ"</strong> au message de relance WhatsApp pour mettre à jour automatiquement le statut.
+        <i class="fab fa-whatsapp" style="color:#25D366;margin-right:6px;font-size:13px"></i>
+        <strong>Astuce :</strong> Répondez simplement <strong>"VENDU"</strong>, <strong>"RÉSERVÉ"</strong> ou <strong>"DISPO"</strong> au message de relance WhatsApp pour mettre à jour automatiquement le statut.
       </div>
     </div>
     <div class="modal-footer">
@@ -2768,11 +2777,14 @@ function parseFrDate(s) {
 }
 /* Jours restants avant expiration (négatif si expirée). null si statut non concerné. */
 function joursAvantExpiration(a) {
-  if (a.statut !== 'published' && a.statut !== 'pending') return null; // brouillon/vendu/suspendu non concernés
+  if (a.statut !== 'published' && a.statut !== 'pending') return null;
   const d = parseFrDate(a.date);
   if (!d) return null;
   const expire = new Date(d.getTime() + ANNONCE_VALIDITE_JOURS*86400000);
-  return Math.ceil((expire - new Date()) / 86400000);
+  const j = Math.ceil((expire - new Date()) / 86400000);
+  // Basculer automatiquement vers expired si dépassé
+  if (j <= 0 && a.statut === 'published') a.statut = 'expired';
+  return j;
 }
 function badgeExpiration(a) {
   const j = joursAvantExpiration(a);
@@ -2921,7 +2933,7 @@ function importAnnoncesCSV(input) {
 function renderAnnonces() {
   const filtered = getFilteredAnnonces();
 
-  const statusLabel = { published:'Publié', draft:'Brouillon', pending:'En attente', sold:'Vendu/Loué', suspended:'Suspendu' };
+  const statusLabel = { published:'Publié', draft:'Brouillon', pending:'En attente', revision:'À corriger', rejected:'Refusée', sold:'Vendu/Loué', suspended:'Suspendu', expired:'Expirée', archived:'Archivée' };
   const icons = { Appartement:'fa-building', Villa:'fa-house', Bureau:'fa-briefcase', Terrain:'fa-map', 'Local commercial':'fa-store', Immeuble:'fa-city' };
 
   // valeurs distinctes pour les filtres — calculées sur le périmètre du rôle
@@ -2969,7 +2981,7 @@ function renderAnnonces() {
             : `<button class="icon-btn edit" title="Vous ne pouvez pas modifier cette annonce" disabled style="opacity:.35;cursor:not-allowed"><i class="fas fa-pen"></i></button>`}
           ${(()=>{ const j=joursAvantExpiration(a); return (j!==null && j<=10 && (currentRole==='admin'||canEditAnnonce(a))) ? `<button class="icon-btn" title="Renouveler (${ANNONCE_VALIDITE_JOURS}j)" onclick="renouvelerAnnonce('${a.id}')" style="background:var(--gold-light);color:var(--gold-dark)"><i class="fas fa-rotate"></i></button>` : ''; })()}
           ${a.statut==='pending' && currentRole==='admin' ? `<button class="icon-btn approve" title="Valider"><i class="fas fa-check"></i></button>` : ''}
-          ${(canEditAnnonce(a) && (a.statut==='published'||a.statut==='pending')) ? `<button class="icon-btn sold" title="Marquer vendu / réservé" onclick="openMarkSoldModal('${a.id}')"><i class="fas fa-tag"></i></button>` : ''}
+          ${(canEditAnnonce(a) && ['published','pending','reserved'].includes(a.statut)) ? `<button class="icon-btn sold" title="Marquer vendu / réservé" onclick="openMarkSoldModal('${a.id}')"><i class="fas fa-tag"></i></button>` : ''}
           ${(currentRole==='admin'||canEditAnnonce(a)) ? `<button class="icon-btn delete" title="Supprimer" onclick="deleteAnnonce('${a.id}')"><i class="fas fa-trash"></i></button>` : ''}
         </div>
       </td>
@@ -2979,9 +2991,12 @@ function renderAnnonces() {
     all: ANNONCES.length,
     published: ANNONCES.filter(a=>a.statut==='published').length,
     pending: ANNONCES.filter(a=>a.statut==='pending').length,
+    revision: ANNONCES.filter(a=>a.statut==='revision').length,
     draft: ANNONCES.filter(a=>a.statut==='draft').length,
     sold: ANNONCES.filter(a=>a.statut==='sold').length,
     suspended: ANNONCES.filter(a=>a.statut==='suspended').length,
+    expired: ANNONCES.filter(a=>a.statut==='expired').length,
+    archived: ANNONCES.filter(a=>a.statut==='archived').length,
   };
 
   return `
@@ -3002,7 +3017,7 @@ function renderAnnonces() {
 
       <!-- Ligne 2 : filtres par statut (segmented) -->
       <div style="display:flex;gap:8px;flex-wrap:wrap;padding:0 20px 16px;border-bottom:1px solid var(--gray-100)">
-        ${[['all','Toutes','fa-layer-group'],['published','Publiées','fa-circle-check'],['pending','En attente','fa-clock'],['draft','Brouillons','fa-pen-ruler'],['sold','Vendues','fa-handshake']].map(([k,l,ic])=>{
+        ${[['all','Toutes','fa-layer-group'],['published','Publiées','fa-circle-check'],['pending','En attente','fa-clock'],['revision','À corriger','fa-rotate-left'],['draft','Brouillons','fa-pen-ruler'],['sold','Vendues','fa-handshake'],['expired','Expirées','fa-circle-exclamation'],['suspended','Suspendues','fa-ban']].map(([k,l,ic])=>{
           const active = currentFilter===k;
           return `<button onclick="setFilter('${k}')" style="display:inline-flex;align-items:center;gap:7px;white-space:nowrap;height:34px;padding:0 14px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;border:1.5px solid ${active?'var(--navy)':'var(--gray-200)'};background:${active?'var(--navy)':'#fff'};color:${active?'#fff':'var(--gray-600)'}">
             <i class="fas ${ic}" style="font-size:11px;opacity:.85"></i>${l}
@@ -3284,7 +3299,7 @@ function openEditAnnonce(id) {
   const types        = ['Appartement','Villa','Bureau','Terrain','Local commercial','Immeuble'];
   const natures      = ['—','S+1','S+2','S+3','S+4','S+5'];
   const transactions = ['Vente','Location','Cession','Location vacances'];
-  const statuts      = [['published','Publié'],['pending','En attente'],['draft','Brouillon'],['sold','Vendu/Loué'],['suspended','Suspendu']];
+  const statuts      = [['published','Publié'],['pending','En attente'],['revision','À corriger'],['rejected','Refusée'],['draft','Brouillon'],['sold','Vendu/Loué'],['reserved','Réservée'],['suspended','Suspendu'],['expired','Expirée'],['archived','Archivée']];
   const isAdmin = currentRole === 'admin';
   const opt = (arr, cur) => arr.map(v => `<option value="${v}" ${v===cur?'selected':''}>${v}</option>`).join('');
 
@@ -4497,6 +4512,23 @@ function applyWfAction(id, newStatut, reason) {
     item.history.push({ by:adminName, role:'admin', date:nowLabel(), text:'Approuvé et publié.', action:'approved' });
   }
   item.statut = newStatut;
+
+  // Répercuter sur ANNONCES[] / PROJETS[] selon le type
+  if (item.type === 'annonce') {
+    const ann = ANNONCES.find(a => a.id === item.ref);
+    if (ann) {
+      if (newStatut === 'approved')  ann.statut = 'published';
+      if (newStatut === 'rejected')  ann.statut = 'draft';
+      if (newStatut === 'revision')  ann.statut = 'revision';
+    }
+  } else if (item.type === 'projet') {
+    const proj = PROJETS.find(p => p.id === item.ref);
+    if (proj) {
+      if (newStatut === 'approved')  proj.statut = 'published';
+      if (newStatut === 'rejected')  proj.statut = 'draft';
+      if (newStatut === 'revision')  proj.statut = 'revision';
+    }
+  }
 
   // Notifier l'auteur (agent/promoteur)
   if (newStatut === 'approved') {
@@ -7540,7 +7572,7 @@ function confirmMarkSold(newStatut) {
   const id = document.getElementById('mark-sold-id').value;
   const a = ANNONCES.find(x => x.id === id);
   if (!a) return;
-  const labelMap = { sold: 'Vendu', reserved: 'Réservé', published: 'En ligne' };
+  const labelMap = { sold:'Vendu', reserved:'Réservé', published:'En ligne', archived:'Archivée', expired:'Expirée', suspended:'Suspendue' };
   a.statut = newStatut;
   closeModal('modal-mark-sold');
   showToast(`✓ Annonce ${id} marquée « ${labelMap[newStatut] || newStatut} »`, 'green');
