@@ -5250,7 +5250,6 @@ function renderProjetDetail(projetId) {
   const st = projetStats(projetId);
 
   const lotsRows = lots.map(l => {
-    const pct = l.montantTotal ? Math.round((l.montantPaye/l.montantTotal)*100) : 0;
     return `
     <tr>
       <td style="font-weight:700;font-size:12px;color:var(--navy)">${l.ref}</td>
@@ -5261,11 +5260,6 @@ function renderProjetDetail(projetId) {
       <td style="white-space:nowrap;font-size:12.5px;color:var(--gray-600)">${(+l.surface>0&&+l.prix>0)?fmtNum(Math.round(l.prix/l.surface))+' <span style="font-size:10px;color:var(--gray-400)">TND/m²</span>':'—'}</td>
       <td><span class="vente-badge ${l.statut}">${venteLabel[l.statut]||l.statut}</span></td>
       <td style="font-size:12.5px">${l.acquereur || '<span style="color:var(--gray-300)">—</span>'}</td>
-      <td style="min-width:120px">
-        ${l.statut==='disponible' ? '<span style="color:var(--gray-300);font-size:12px">—</span>' : `
-        <div style="font-size:11px;color:var(--gray-600);margin-bottom:3px">${fmtNum(l.montantPaye)} / ${fmtNum(l.montantTotal)}</div>
-        <div style="height:6px;background:var(--gray-100);border-radius:3px;overflow:hidden"><div style="height:100%;width:${pct}%;background:${pct>=100?'var(--green)':'var(--gold)'};border-radius:3px"></div></div>`}
-      </td>
       <td>
         <div class="action-group">
           <button class="icon-btn edit" title="Suivi commercial" onclick="openLotSuivi('${projetId}','${l.ref}')"><i class="fas fa-pen"></i></button>
@@ -5348,7 +5342,7 @@ function renderProjetDetail(projetId) {
         <table>
           <thead><tr>
             <th>Réf.</th><th>Type</th><th>Surface</th><th>Étage</th>
-            <th>Prix</th><th>Prix/m²</th><th>Statut</th><th>Acquéreur</th><th>Échéancier</th><th>Actions</th>
+            <th>Prix</th><th>Prix/m²</th><th>Statut</th><th>Acquéreur</th><th>Actions</th>
           </tr></thead>
           <tbody>${lotsRows}</tbody>
         </table>
@@ -6799,9 +6793,11 @@ function wizPublish() {
       pushNotif('admin', 'submission', 'fas fa-inbox', 'var(--navy)', `<strong>${submitter}</strong> a ajouté un bien (${ref}) au projet ${proj?proj.nom:''}`);
     }
 
-    // Rafraîchir la vue détail du projet
+    // Rafraîchir la vue active (détail projet OU suivi des ventes)
     if (currentView === 'projet-detail' && currentProjetId === projetId) {
       document.getElementById('main-content').innerHTML = renderProjetDetail(projetId);
+    } else if (currentView === 'suivi') {
+      document.getElementById('main-content').innerHTML = renderSuiviVentes();
     }
     renderNav();
     wizProjetId = null;
