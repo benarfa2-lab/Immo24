@@ -1151,7 +1151,7 @@
       background: #EDF9F0; color: #1A7A63;
       border: 1px solid #B2E8DA;
       font-size: 9px; font-weight: 700;
-      padding: 2px 8px; border-radius: 20px;
+      padding: 2px 8px; border-radius: 4px;
       text-transform: uppercase; letter-spacing: .4px;
     }
 
@@ -1524,8 +1524,8 @@
       color: rgba(255,255,255,.7);
     }
     .footer-grid {
-      display: grid; grid-template-columns: 2fr 1fr 1fr 1fr;
-      gap: 20px; margin-bottom: 14px;
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 32px; margin-bottom: 14px;
     }
     .footer-brand {}
     .footer-logo { font-size: 20px; font-weight: 800; color: var(--white); margin-bottom: 6px; }
@@ -1554,6 +1554,29 @@
       font-size: 11px; color: rgba(255,255,255,.35);
     }
     .footer-bottom a { color: var(--gold); }
+
+    /* ===== COOKIE BANNER ===== */
+    #cookie-banner {
+      position: fixed; bottom: 0; left: 0; right: 0; z-index: 9000;
+      background: rgba(18,41,82,.97);
+      backdrop-filter: blur(10px);
+      border-top: 1px solid rgba(255,255,255,.10);
+      padding: 12px 24px;
+      display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+      font-size: 12.5px; color: rgba(255,255,255,.72);
+      transform: translateY(0); transition: transform .35s ease;
+    }
+    #cookie-banner.hidden { transform: translateY(110%); }
+    #cookie-banner p { flex: 1; min-width: 200px; margin: 0; line-height: 1.5; }
+    #cookie-banner a { color: var(--gold); text-decoration: none; }
+    #cookie-banner a:hover { text-decoration: underline; }
+    .cookie-btn {
+      flex-shrink: 0; font-size: 12px; font-weight: 700; padding: 7px 18px;
+      border-radius: 6px; border: none; cursor: pointer; transition: opacity .2s;
+    }
+    .cookie-btn:hover { opacity: .88; }
+    .cookie-btn-accept { background: var(--gold); color: var(--navy-dark); }
+    .cookie-btn-decline { background: rgba(255,255,255,.12); color: rgba(255,255,255,.8); }
 
     /* ===== TRUST / ILS NOUS FONT CONFIANCE ===== */
     .trust-section { background: var(--gray-50); padding: 72px 0; }
@@ -1631,7 +1654,7 @@
     }
     .partner-info { flex: 1; min-width: 0; }
     .partner-name { font-size: 14px; font-weight: 700; color: var(--gray-800); margin-bottom: 4px; }
-    .partner-type-badge { font-size: 11px; font-weight: 600; padding: 2px 9px; border-radius: 50px; display: inline-block; }
+    .partner-type-badge { font-size: 11px; font-weight: 600; padding: 2px 9px; border-radius: 4px; display: inline-block; }
     .partner-type-badge.promoteur { background: var(--gold-light); color: var(--gold-dark); border: 1px solid #f0c96a; }
     .partner-type-badge.agence { background: var(--navy-light); color: var(--navy); border: 1px solid #C5D5EE; }
     .partner-verified { font-size: 10.5px; font-weight: 700; color: #1a8f74; margin-left: 6px; white-space: nowrap; }
@@ -2981,35 +3004,26 @@
           <a class="social-btn"><i class="fab fa-instagram"></i></a>
           <a class="social-btn"><i class="fab fa-linkedin-in"></i></a>
           <a class="social-btn"><i class="fab fa-whatsapp"></i></a>
-          <a class="social-btn"><i class="fab fa-youtube"></i></a>
         </div>
       </div>
 
-      <div>
-        <div class="footer-col-title">Rechercher</div>
-        <a class="footer-link">Appartements neufs</a>
-        <a class="footer-link">Villas et duplexes</a>
-        <a class="footer-link">Résidences côtières</a>
-        <a class="footer-link">Bureaux & Locaux</a>
-        <a class="footer-link">Terrains</a>
-        <a href="carte-prix.html" class="footer-link">Carte des prix m²</a>
-      </div>
-
-      <div>
-        <div class="footer-col-title">Services</div>
-        <a class="footer-link">Simulateur crédit</a>
-        <a class="footer-link">Aide FOPROLOS</a>
-        <a class="footer-link">Déménagement</a>
-        <a class="footer-link">Décoration</a>
-        <a class="footer-link">Guide acheteur</a>
-      </div>
-
-      <div>
-        <div class="footer-col-title">Immo24.tn</div>
-        <a href="apropos.html" class="footer-link">À propos</a>
-        <a class="footer-link">Promoteurs partenaires</a>
-        <a href="contact.html" class="footer-link">Contact</a>
-        <a class="footer-link">Presse</a>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px 32px">
+        <div>
+          <div class="footer-col-title">Explorer</div>
+          <a href="map-listings.html" class="footer-link">Toutes les annonces</a>
+          <a href="map-listings.html?propertyType=Appartement" class="footer-link">Appartements</a>
+          <a href="map-listings.html?propertyType=Villa" class="footer-link">Villas</a>
+          <a href="carte-prix.html" class="footer-link">Carte des prix m²</a>
+          <a href="map-listings.html?type=location" class="footer-link">Locations</a>
+        </div>
+        <div>
+          <div class="footer-col-title">Immo24.tn</div>
+          <a href="apropos.html" class="footer-link">À propos</a>
+          <a href="contact.html" class="footer-link">Contact</a>
+          <a href="inscription.html" class="footer-link">Espace pro</a>
+          <a href="cgu.html" class="footer-link">CGU</a>
+          <a href="confidentialite.html" class="footer-link">Confidentialité</a>
+        </div>
       </div>
     </div>
 
@@ -3504,6 +3518,27 @@ renderFeatured();
 updateSim();
 </script>
 <script src="responsive.js"></script>
+
+<!-- ===== COOKIE BANNER ===== -->
+<div id="cookie-banner" role="region" aria-label="Politique de cookies">
+  <p>Immo24.tn utilise des cookies pour améliorer votre expérience. En continuant, vous acceptez notre <a href="confidentialite.html">politique de confidentialité</a>.</p>
+  <button class="cookie-btn cookie-btn-decline" onclick="cookieDecline()">Refuser</button>
+  <button class="cookie-btn cookie-btn-accept" onclick="cookieAccept()">Accepter</button>
+</div>
+<script>
+(function() {
+  var pref = localStorage.getItem('immo24_cookies');
+  if (pref) document.getElementById('cookie-banner').classList.add('hidden');
+})();
+function cookieAccept() {
+  localStorage.setItem('immo24_cookies', 'accepted');
+  document.getElementById('cookie-banner').classList.add('hidden');
+}
+function cookieDecline() {
+  localStorage.setItem('immo24_cookies', 'declined');
+  document.getElementById('cookie-banner').classList.add('hidden');
+}
+</script>
 
 </body>
 </html>
