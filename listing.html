@@ -137,40 +137,41 @@
     .gthumb img { width:100%; height:100%; object-fit:cover; }
     .gallery-thumbs-inner { display:flex; gap:8px; padding:0 14px; }
 
-    /* Media type thumbs — style SeLoger : image de fond + overlay foncé */
-    .gthumb-media {
-      flex-shrink:0; width:100px; height:68px; border-radius:8px;
-      overflow:hidden; cursor:pointer; transition:all .2s;
-      border:2px solid transparent; position:relative;
+    /* ===== GALLERY ACTIONS (360 / Vidéo / Carte) ===== */
+    .gallery-actions {
+      background:var(--gray-800); padding:10px 16px 12px;
+      display:flex; gap:10px;
     }
-    .gthumb-media.active { border-color:var(--gold); }
-    .gthumb-media:hover .gthumb-media-overlay { background:rgba(0,0,0,.45); }
-    .gthumb-media:hover .gthumb-media-icon { transform:scale(1.12); }
-    /* Image de fond réelle du bien */
-    .gthumb-media img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
-    /* Overlay teinté par type */
-    .gthumb-media-overlay {
+    .gaction-thumb {
+      position:relative; width:130px; height:90px; border-radius:10px; overflow:hidden;
+      cursor:pointer; flex-shrink:0;
+      box-shadow:0 2px 10px rgba(0,0,0,.22);
+      transition:transform .2s, box-shadow .2s;
+    }
+    .gaction-thumb:hover { transform:translateY(-3px); box-shadow:0 6px 20px rgba(0,0,0,.32); }
+    .gaction-thumb img { width:100%; height:100%; object-fit:cover; filter:brightness(.65); transition:filter .25s; }
+    .gaction-thumb:hover img { filter:brightness(.5); }
+    .gaction-thumb.gaction-map img { filter:brightness(1); }
+    .gaction-thumb.gaction-map:hover img { filter:brightness(.85); }
+    .gaction-overlay {
       position:absolute; inset:0;
-      display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px;
-      transition:background .2s;
+      display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px;
     }
-    .gthumb-media--360 .gthumb-media-overlay  { background:rgba(10,20,50,.62); }
-    .gthumb-media--video .gthumb-media-overlay { background:rgba(20,5,0,.62); }
-    .gthumb-media--map .gthumb-media-overlay   { background:rgba(5,15,5,.58); }
-    /* Icône centrale */
-    .gthumb-media-icon {
-      width:28px; height:28px; border-radius:50%;
+    .gaction-icon {
+      width:44px; height:44px; border-radius:50%;
+      background:rgba(255,255,255,.20); border:2.5px solid rgba(255,255,255,.88);
       display:flex; align-items:center; justify-content:center;
-      font-size:12px; transition:transform .2s;
-      backdrop-filter:blur(4px);
+      color:#fff; backdrop-filter:blur(3px);
+      transition:background .2s, color .2s, border-color .2s;
     }
-    .gthumb-media--360  .gthumb-media-icon { background:rgba(230,168,23,.30); color:var(--gold);  border:1.5px solid rgba(230,168,23,.70); }
-    .gthumb-media--video .gthumb-media-icon { background:rgba(255,255,255,.18); color:#fff;        border:1.5px solid rgba(255,255,255,.55); }
-    .gthumb-media--map   .gthumb-media-icon { background:rgba(255,255,255,.18); color:#fff;        border:1.5px solid rgba(255,255,255,.55); }
-    /* Label */
-    .gthumb-media-label {
-      font-size:9px; font-weight:800; text-transform:uppercase; letter-spacing:.6px;
-      color:#fff; text-shadow:0 1px 3px rgba(0,0,0,.6);
+    .gaction-thumb:hover .gaction-icon { background:rgba(255,255,255,.92); color:var(--navy-dark); border-color:#fff; }
+    .gaction-icon-3d { font-size:13px; font-weight:900; letter-spacing:-.5px; flex-direction:column; gap:0; line-height:1; }
+    .gaction-icon-3d .icon-sub { font-size:8px; font-weight:700; opacity:.85; letter-spacing:.5px; }
+    .gaction-icon-play { font-size:16px; padding-left:3px; }
+    .gaction-icon-map  { font-size:20px; }
+    .gaction-label {
+      font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.5px;
+      color:rgba(255,255,255,.88); text-shadow:0 1px 4px rgba(0,0,0,.5);
     }
 
     /* ===== MAIN CONTENT ===== */
@@ -620,36 +621,42 @@
     <!-- Thumbnails -->
     <div class="gallery-thumbs">
       <div class="gallery-thumbs-inner" id="gthumbs">
-        <!-- Photos -->
         <div class="gthumb active" onclick="galleryGo(0)"><img src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=200&q=70" alt="" /></div>
         <div class="gthumb" onclick="galleryGo(1)"><img src="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=200&q=70" alt="" /></div>
         <div class="gthumb" onclick="galleryGo(2)"><img src="https://images.unsplash.com/photo-1616594039964-ae9021a400a0?w=200&q=70" alt="" /></div>
         <div class="gthumb" onclick="galleryGo(3)"><img src="https://images.unsplash.com/photo-1552321554-5fefe8c9ef14?w=200&q=70" alt="" /></div>
         <div class="gthumb" onclick="galleryGo(4)"><img src="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=200&q=70" alt="" /></div>
-        <!-- Visite 360° -->
-        <div class="gthumb-media gthumb-media--360" onclick="openTab('visite')" title="Visite virtuelle 360°">
-          <img src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=200&q=60" alt="" />
-          <div class="gthumb-media-overlay">
-            <div class="gthumb-media-icon"><i class="fas fa-cube"></i></div>
-            <span class="gthumb-media-label">360°</span>
-          </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== GALLERY ACTIONS : 360° / Vidéo / Carte ===== -->
+  <div class="gallery-actions">
+    <!-- Visite 360° -->
+    <div class="gaction-thumb" onclick="openTab('visite')" title="Visite virtuelle 360°">
+      <img src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=300&q=70" alt="Visite 360°" />
+      <div class="gaction-overlay">
+        <div class="gaction-icon gaction-icon-3d">
+          <span>3D</span>
+          <span class="icon-sub">360°</span>
         </div>
-        <!-- Vidéo -->
-        <div class="gthumb-media gthumb-media--video" onclick="openTab('video')" title="Voir la vidéo">
-          <img src="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=200&q=60" alt="" />
-          <div class="gthumb-media-overlay">
-            <div class="gthumb-media-icon"><i class="fas fa-play"></i></div>
-            <span class="gthumb-media-label">Vidéo</span>
-          </div>
-        </div>
-        <!-- Carte -->
-        <div class="gthumb-media gthumb-media--map" onclick="openTab('localisation')" title="Voir sur la carte">
-          <img src="https://images.unsplash.com/photo-1524661135-423995f22d0b?w=200&q=60" alt="" />
-          <div class="gthumb-media-overlay">
-            <div class="gthumb-media-icon"><i class="fas fa-map-marker-alt"></i></div>
-            <span class="gthumb-media-label">Carte</span>
-          </div>
-        </div>
+        <span class="gaction-label">Visite virtuelle</span>
+      </div>
+    </div>
+    <!-- Vidéo -->
+    <div class="gaction-thumb" onclick="openTab('video')" title="Voir la vidéo">
+      <img src="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=300&q=70" alt="Vidéo" />
+      <div class="gaction-overlay">
+        <div class="gaction-icon gaction-icon-play"><i class="fas fa-play"></i></div>
+        <span class="gaction-label">Vidéo</span>
+      </div>
+    </div>
+    <!-- Carte -->
+    <div class="gaction-thumb gaction-map" onclick="openTab('localisation')" title="Voir sur la carte">
+      <img src="https://staticmap.openstreetmap.de/staticmap.php?center=36.8778,10.3247&zoom=15&size=300x200&markers=36.8778,10.3247,red-pushpin" alt="Localisation" onerror="this.src='https://images.unsplash.com/photo-1524661135-423995f22d0b?w=300&q=70'" />
+      <div class="gaction-overlay">
+        <div class="gaction-icon gaction-icon-map"><i class="fas fa-map-marker-alt"></i></div>
+        <span class="gaction-label">Voir sur la carte</span>
       </div>
     </div>
   </div>
