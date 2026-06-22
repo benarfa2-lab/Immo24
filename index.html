@@ -9,6 +9,10 @@
   <meta property="og:description" content="Trouvez votre bien immobilier parmi des milliers d'annonces vérifiées en Tunisie." />
   <meta property="og:type" content="website" />
   <meta property="og:image" content="https://peaceful-duckanoo-de60fc.netlify.app/og-image.jpg" />
+  <meta property="og:url" content="https://peaceful-duckanoo-de60fc.netlify.app/" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Immo24.tn – L'immobilier professionnel en Tunisie" />
+  <meta name="twitter:image" content="https://peaceful-duckanoo-de60fc.netlify.app/og-image.jpg" />
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%231B3A6B'/><text x='16' y='22' text-anchor='middle' font-size='16' font-weight='900' font-family='sans-serif' fill='%23E6A817'>I</text></svg>" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
@@ -559,7 +563,7 @@
       flex-shrink: 0;
     }
     .section-title {
-      font-size: 32px; font-weight: 800;
+      font-size: clamp(22px, 4vw, 32px); font-weight: 800;
       color: var(--navy);
       font-family: var(--font-display);
       letter-spacing: -1px;
@@ -568,7 +572,7 @@
       overflow-wrap: break-word;
     }
     .section-sub {
-      font-size: 15px; color: var(--gray-600); max-width: 520px; margin: 0 auto;
+      font-size: clamp(13px, 2vw, 15px); color: var(--gray-600); max-width: 520px; margin: 0 auto;
       line-height: 1.6;
     }
 
@@ -810,12 +814,12 @@
     .hiw-slide.active { animation: hiwFade .4s ease; }
 
     .hiw-slide-num {
-      font-size: 88px; font-weight: 900;
+      font-size: clamp(52px, 8vw, 88px); font-weight: 900;
       color: var(--gold); line-height: 1;
       margin-bottom: 8px; letter-spacing: -4px;
     }
     .hiw-slide-title {
-      font-size: 26px; font-weight: 800; color: var(--white);
+      font-size: clamp(18px, 2.5vw, 26px); font-weight: 800; color: var(--white);
       margin-bottom: 14px; letter-spacing: -.3px;
     }
     .hiw-slide-desc {
