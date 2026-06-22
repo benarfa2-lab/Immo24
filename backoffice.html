@@ -5638,15 +5638,29 @@ function showToast(msg, type) {
 
 /* ---- PLACEHOLDER ---- */
 /* ---- PARAMETRES ---- */
+/* Onglet actif dans paramètres */
+let _paramTab = 'general';
+
 function renderParametres() {
   const c = SITE_CONFIG;
-  return `
-  <div class="view-header">
-    <div>
-      <div class="view-title">Paramètres du site</div>
-      <div class="view-sub">Informations de contact, liens légaux et métadonnées affichées sur Immo24.tn</div>
-    </div>
-  </div>
+  const tabs = [
+    { id:'general',        icon:'fa-sliders',       label:'Général' },
+    { id:'legal-cgu',      icon:'fa-file-lines',    label:'CGU' },
+    { id:'legal-conf',     icon:'fa-shield-halved', label:'Confidentialité' },
+  ];
+
+  const tabBar = `<div style="display:flex;gap:4px;margin-bottom:24px;border-bottom:2px solid var(--gray-200);padding-bottom:0">
+    ${tabs.map(t => `<button onclick="switchParamTab('${t.id}')" id="ptab-${t.id}"
+      style="padding:10px 18px;font-size:13px;font-weight:600;border:none;background:none;cursor:pointer;
+             border-bottom:2px solid ${_paramTab===t.id?'var(--navy)':'transparent'};
+             margin-bottom:-2px;color:${_paramTab===t.id?'var(--navy)':'var(--gray-400)'};
+             transition:color .18s;font-family:inherit;display:flex;align-items:center;gap:7px">
+      <i class="fas ${t.icon}"></i>${t.label}
+    </button>`).join('')}
+  </div>`;
+
+  /* ===== TAB: GÉNÉRAL ===== */
+  const tabGeneral = _paramTab !== 'general' ? '' : `
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;max-width:900px">
 
     <div class="table-card" style="padding:24px">
@@ -5676,7 +5690,7 @@ function renderParametres() {
     <div class="table-card" style="padding:24px">
       <div class="form-section-title" style="margin-bottom:20px">Liens légaux</div>
       <div class="form-group" style="margin-bottom:14px">
-        <label style="font-size:12.5px;font-weight:600;color:var(--gray-800)">URL — Conditions d'utilisation (CGU)</label>
+        <label style="font-size:12.5px;font-weight:600;color:var(--gray-800)">URL — CGU</label>
         <input type="text" id="cfg-url_cgu" value="${c.url_cgu}" class="form-control" placeholder="cgu.html" />
         <div style="font-size:11px;color:var(--gray-400);margin-top:4px">Chemin relatif ou URL absolue</div>
       </div>
@@ -5710,26 +5724,167 @@ function renderParametres() {
 
   </div>
   <div style="margin-top:20px;max-width:900px;display:flex;align-items:center;gap:12px">
-    <button class="btn btn-primary" onclick="saveParametres()"><i class="fas fa-check"></i> Enregistrer les paramètres</button>
+    <button class="btn btn-primary" onclick="saveParametres()"><i class="fas fa-check"></i> Enregistrer</button>
     <button class="btn btn-outline" onclick="resetParametres()"><i class="fas fa-rotate-left"></i> Réinitialiser</button>
   </div>`;
+
+  /* ===== LEGAL EDITOR (shared template) ===== */
+  function legalEditor(key, title, pageLink) {
+    if (_paramTab !== key) return '';
+    const defaultContent = key === 'legal-cgu' ? legalDefaultCGU() : legalDefaultConf();
+    const saved = SITE_CONFIG['content_' + key] || '';
+    const content = (saved || defaultContent).replace(/`/g, '\\`');
+    const hasCustom = !!saved;
+    return `
+    <div style="max-width:1100px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;gap:16px;flex-wrap:wrap">
+        <div>
+          <div style="font-size:14px;font-weight:700;color:var(--navy)">${title}</div>
+          <div style="font-size:12px;color:var(--gray-400);margin-top:3px">
+            ${hasCustom ? '<span style="color:var(--green)"><i class="fas fa-circle-check"></i> Contenu personnalisé actif</span>' : '<span>Contenu par défaut — modifiable ci-dessous</span>'}
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;flex-shrink:0">
+          <a href="${pageLink}" target="_blank" class="btn btn-outline btn-sm"><i class="fas fa-eye"></i> Voir la page</a>
+          ${hasCustom ? `<button class="btn btn-outline btn-sm" onclick="resetLegalContent('${key}')"><i class="fas fa-rotate-left"></i> Rétablir le défaut</button>` : ''}
+        </div>
+      </div>
+
+      <!-- TOOLBAR -->
+      <div style="display:flex;gap:4px;flex-wrap:wrap;padding:8px 10px;background:var(--gray-100);border:1.5px solid var(--gray-200);border-bottom:none;border-radius:var(--radius) var(--radius) 0 0">
+        <button onclick="legalInsert('${key}','h2')" title="Titre de section" style="padding:5px 10px;border:1.5px solid var(--gray-200);border-radius:6px;font-size:12px;font-weight:700;background:var(--white);cursor:pointer;color:var(--navy)">H2</button>
+        <button onclick="legalInsert('${key}','h3')" title="Sous-titre" style="padding:5px 10px;border:1.5px solid var(--gray-200);border-radius:6px;font-size:12px;font-weight:700;background:var(--white);cursor:pointer;color:var(--gray-600)">H3</button>
+        <div style="width:1px;background:var(--gray-200);margin:2px 4px"></div>
+        <button onclick="legalInsert('${key}','b')" title="Gras" style="padding:5px 10px;border:1.5px solid var(--gray-200);border-radius:6px;font-size:13px;font-weight:900;background:var(--white);cursor:pointer"><b>B</b></button>
+        <button onclick="legalInsert('${key}','i')" title="Italique" style="padding:5px 10px;border:1.5px solid var(--gray-200);border-radius:6px;font-size:13px;background:var(--white);cursor:pointer"><i>I</i></button>
+        <div style="width:1px;background:var(--gray-200);margin:2px 4px"></div>
+        <button onclick="legalInsert('${key}','p')" title="Paragraphe" style="padding:5px 10px;border:1.5px solid var(--gray-200);border-radius:6px;font-size:12px;background:var(--white);cursor:pointer;color:var(--gray-600)">¶ Para</button>
+        <button onclick="legalInsert('${key}','ul')" title="Liste à puces" style="padding:5px 10px;border:1.5px solid var(--gray-200);border-radius:6px;font-size:12px;background:var(--white);cursor:pointer;color:var(--gray-600)">• Liste</button>
+        <button onclick="legalInsert('${key}','li')" title="Élément de liste" style="padding:5px 10px;border:1.5px solid var(--gray-200);border-radius:6px;font-size:12px;background:var(--white);cursor:pointer;color:var(--gray-600)">↳ Item</button>
+        <button onclick="legalInsert('${key}','info')" title="Boîte info" style="padding:5px 10px;border:1.5px solid var(--gray-200);border-radius:6px;font-size:12px;background:var(--white);cursor:pointer;color:var(--navy)"><i class="fas fa-circle-info"></i> Info</button>
+        <div style="width:1px;background:var(--gray-200);margin:2px 4px"></div>
+        <button onclick="legalInsert('${key}','link')" title="Lien hypertexte" style="padding:5px 10px;border:1.5px solid var(--gray-200);border-radius:6px;font-size:12px;background:var(--white);cursor:pointer;color:var(--gray-600)"><i class="fas fa-link"></i> Lien</button>
+        <div style="flex:1"></div>
+        <button onclick="toggleLegalPreview('${key}')" id="prev-btn-${key}" style="padding:5px 12px;border:1.5px solid var(--navy);border-radius:6px;font-size:12px;font-weight:600;background:var(--navy);color:var(--white);cursor:pointer"><i class="fas fa-columns"></i> Aperçu</button>
+      </div>
+
+      <!-- EDITOR + PREVIEW -->
+      <div style="display:flex;gap:0;border:1.5px solid var(--gray-200);border-radius:0 0 var(--radius) var(--radius);overflow:hidden">
+        <textarea id="legal-editor-${key}"
+          style="flex:1;min-height:520px;padding:18px;font-size:12.5px;font-family:'Courier New',monospace;
+                 line-height:1.7;border:none;outline:none;resize:none;color:var(--gray-800);background:var(--white)"
+          spellcheck="false"
+          oninput="updateLegalPreview('${key}')"
+        >${content}</textarea>
+        <div id="legal-preview-${key}"
+          style="display:none;flex:1;padding:24px 28px;overflow-y:auto;max-height:520px;
+                 border-left:1.5px solid var(--gray-200);background:var(--gray-50);font-size:13.5px;line-height:1.8">
+        </div>
+      </div>
+      <div style="font-size:11px;color:var(--gray-400);margin-top:6px">
+        Éditeur HTML — les balises <code style="background:var(--gray-100);padding:1px 5px;border-radius:3px">&lt;h2&gt;</code>, <code style="background:var(--gray-100);padding:1px 5px;border-radius:3px">&lt;p&gt;</code>, <code style="background:var(--gray-100);padding:1px 5px;border-radius:3px">&lt;ul&gt;</code>, <code style="background:var(--gray-100);padding:1px 5px;border-radius:3px">&lt;strong&gt;</code> sont supportées.
+      </div>
+
+      <div style="margin-top:16px;display:flex;align-items:center;gap:10px">
+        <button class="btn btn-primary" onclick="saveLegalContent('${key}')"><i class="fas fa-check"></i> Enregistrer ${title}</button>
+        <span id="legal-saved-${key}" style="display:none;font-size:12px;color:var(--green)"><i class="fas fa-circle-check"></i> Enregistré</span>
+      </div>
+    </div>`;
+  }
+
+  return `
+  <div class="view-header">
+    <div>
+      <div class="view-title">Paramètres du site</div>
+      <div class="view-sub">Informations générales, pages légales et réseaux sociaux</div>
+    </div>
+  </div>
+  ${tabBar}
+  ${tabGeneral}
+  ${legalEditor('legal-cgu',  'Conditions générales d\'utilisation (CGU)', 'cgu.html')}
+  ${legalEditor('legal-conf', 'Politique de confidentialité', 'confidentialite.html')}
+  `;
+}
+
+function switchParamTab(tab) {
+  _paramTab = tab;
+  navigateTo('parametres');
+}
+
+function legalInsert(key, type) {
+  const ta = document.getElementById('legal-editor-' + key);
+  if (!ta) return;
+  const sel  = ta.selectionStart;
+  const selE = ta.selectionEnd;
+  const selected = ta.value.slice(sel, selE);
+  const snippets = {
+    h2:   `<h2>${selected || 'Titre de section'}</h2>`,
+    h3:   `<h3>${selected || 'Sous-titre'}</h3>`,
+    b:    `<strong>${selected || 'texte en gras'}</strong>`,
+    i:    `<em>${selected || 'texte en italique'}</em>`,
+    p:    `<p>${selected || 'Votre paragraphe ici.'}</p>`,
+    ul:   `<ul>\n  <li>Élément 1</li>\n  <li>Élément 2</li>\n</ul>`,
+    li:   `<li>${selected || 'Élément de liste'}</li>`,
+    info: `<div class="info-box">${selected || 'Note importante ici.'}</div>`,
+    link: `<a href="mailto:contact@immo24.tn">${selected || 'texte du lien'}</a>`,
+  };
+  const snippet = snippets[type] || '';
+  ta.value = ta.value.slice(0, sel) + snippet + ta.value.slice(selE);
+  ta.selectionStart = ta.selectionEnd = sel + snippet.length;
+  ta.focus();
+  updateLegalPreview(key);
+}
+
+function updateLegalPreview(key) {
+  const prev = document.getElementById('legal-preview-' + key);
+  if (!prev || prev.style.display === 'none') return;
+  const ta = document.getElementById('legal-editor-' + key);
+  if (!ta) return;
+  prev.innerHTML = ta.value;
+}
+
+function toggleLegalPreview(key) {
+  const prev = document.getElementById('legal-preview-' + key);
+  const btn  = document.getElementById('prev-btn-' + key);
+  if (!prev) return;
+  const visible = prev.style.display !== 'none';
+  prev.style.display = visible ? 'none' : 'block';
+  btn.style.background = visible ? 'var(--navy)' : 'var(--navy-light)';
+  btn.style.color      = visible ? 'var(--white)' : 'var(--navy)';
+  if (!visible) updateLegalPreview(key);
+}
+
+function saveLegalContent(key) {
+  const ta = document.getElementById('legal-editor-' + key);
+  if (!ta) return;
+  SITE_CONFIG['content_' + key] = ta.value;
+  localStorage.setItem('immo24_site_config', JSON.stringify(SITE_CONFIG));
+  const msg = document.getElementById('legal-saved-' + key);
+  if (msg) { msg.style.display = 'inline'; setTimeout(() => msg.style.display = 'none', 2500); }
+  showToast('Contenu de la page enregistré.');
+}
+
+function resetLegalContent(key) {
+  delete SITE_CONFIG['content_' + key];
+  localStorage.setItem('immo24_site_config', JSON.stringify(SITE_CONFIG));
+  showToast('Contenu rétabli par défaut.');
+  navigateTo('parametres');
 }
 
 function saveParametres() {
   const fields = ['nom','email','telephone','whatsapp','adresse','url_cgu','url_confidentialite','facebook','instagram','linkedin','meta_desc'];
-  const errors = [];
+  let valid = true;
   fields.forEach(k => {
     const el = document.getElementById('cfg-' + k);
     if (!el) return;
     if (k === 'email' && el.value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(el.value)) {
-      errors.push('Adresse e-mail invalide.');
-      el.style.borderColor = 'var(--red)';
+      el.style.borderColor = 'var(--red)'; valid = false;
     } else {
       el.style.borderColor = '';
       SITE_CONFIG[k] = el.value.trim();
     }
   });
-  if (errors.length) { showToast(errors[0], 'error'); return; }
+  if (!valid) { showToast('Adresse e-mail invalide.', 'error'); return; }
   localStorage.setItem('immo24_site_config', JSON.stringify(SITE_CONFIG));
   showToast('Paramètres enregistrés.');
 }
@@ -5737,8 +5892,146 @@ function saveParametres() {
 function resetParametres() {
   localStorage.removeItem('immo24_site_config');
   SITE_CONFIG = { nom:'Immo24.tn', email:'contact@immo24.tn', telephone:'+216 71 234 567', whatsapp:'+216 98 765 432', adresse:'Immeuble Espace Lac, Lac 2, 1053 Tunis', url_cgu:'cgu.html', url_confidentialite:'confidentialite.html', facebook:'', instagram:'', linkedin:'', meta_desc:'La première plateforme tunisienne dédiée à l\'immobilier professionnel.' };
+  _paramTab = 'general';
   navigateTo('parametres');
   showToast('Paramètres réinitialisés.');
+}
+
+function legalDefaultCGU() {
+  return `<div class="section" id="art1">
+  <h2 data-num="1">Présentation de la plateforme</h2>
+  <p>Immo24.tn est une plateforme immobilière professionnelle dédiée au marché tunisien. Elle permet la mise en relation entre acheteurs, locataires, agences immobilières et promoteurs certifiés.</p>
+  <p>La plateforme est éditée par la société <strong>Immo24 SARL</strong>, immatriculée au registre du commerce sous le numéro RC Tunis B-2024-XXXXX, dont le siège social est établi à Immeuble Espace Lac, Les Berges du Lac 2, 1053 Tunis, Tunisie.</p>
+  <div class="info-box">Pour toute question relative aux présentes CGU, contactez-nous à : <strong>legal@immo24.tn</strong></div>
+</div>
+
+<div class="section" id="art2">
+  <h2 data-num="2">Acceptation des conditions</h2>
+  <p>L'utilisation de la plateforme Immo24.tn implique l'acceptation pleine et entière des présentes conditions générales d'utilisation. Si vous n'acceptez pas ces conditions, vous devez cesser toute utilisation du service.</p>
+</div>
+
+<div class="section" id="art3">
+  <h2 data-num="3">Accès au service</h2>
+  <p>L'accès à Immo24.tn est gratuit pour les visiteurs. Certaines fonctionnalités nécessitent la création d'un compte professionnel vérifié.</p>
+  <ul>
+    <li>Maintenance planifiée ou d'urgence technique</li>
+    <li>Suspicion de fraude ou d'utilisation abusive</li>
+    <li>Violation des présentes CGU</li>
+  </ul>
+</div>
+
+<div class="section" id="art4">
+  <h2 data-num="4">Création de compte</h2>
+  <p>La création d'un compte professionnel est réservée aux personnes morales titulaires d'une autorisation professionnelle valide délivrée par les autorités tunisiennes compétentes.</p>
+</div>
+
+<div class="section" id="art5">
+  <h2 data-num="5">Publication d'annonces</h2>
+  <p>Les annonces publiées doivent respecter les conditions suivantes :</p>
+  <ul>
+    <li>Les informations doivent être exactes et complètes</li>
+    <li>Les photos doivent correspondre au bien réel</li>
+    <li>Le prix affiché doit être le prix réel</li>
+    <li>Toute annonce dupliquée ou fictive sera supprimée sans préavis</li>
+  </ul>
+</div>
+
+<div class="section" id="art6">
+  <h2 data-num="6">Responsabilité</h2>
+  <p>Immo24.tn agit en qualité d'intermédiaire technique et ne peut être tenu responsable des informations publiées par les utilisateurs professionnels, ni des transactions immobilières conclues entre les parties.</p>
+</div>
+
+<div class="section" id="art7">
+  <h2 data-num="7">Propriété intellectuelle</h2>
+  <p>L'ensemble des éléments constituant Immo24.tn est la propriété exclusive d'Immo24 SARL et est protégé par la législation tunisienne et internationale relative à la propriété intellectuelle.</p>
+</div>
+
+<div class="section" id="art8">
+  <h2 data-num="8">Protection des données personnelles</h2>
+  <p>Le traitement des données personnelles collectées est régi par notre <a href="confidentialite.html">Politique de confidentialité</a>, conforme à la loi organique n° 2004-63 du 27 juillet 2004.</p>
+</div>
+
+<div class="section" id="art9">
+  <h2 data-num="9">Modification des CGU</h2>
+  <p>Immo24.tn se réserve le droit de modifier les présentes conditions générales à tout moment. Les utilisateurs seront notifiés au moins 15 jours avant l'entrée en vigueur des modifications.</p>
+</div>
+
+<div class="section" id="art10">
+  <h2 data-num="10">Droit applicable et juridiction compétente</h2>
+  <p>Les présentes conditions générales sont régies par le droit tunisien. Tout litige sera soumis à la compétence exclusive des tribunaux de Tunis.</p>
+  <div class="info-box">Contact juridique : <strong>legal@immo24.tn</strong> — Immo24 SARL, Immeuble Espace Lac, Les Berges du Lac 2, 1053 Tunis</div>
+</div>`;
+}
+
+function legalDefaultConf() {
+  return `<div class="section" id="dp1">
+  <h2 data-num="1">Responsable du traitement</h2>
+  <p>Le responsable du traitement est <strong>Immo24 SARL</strong>, Immeuble Espace Lac, Les Berges du Lac 2, 1053 Tunis.</p>
+  <p>E-mail : <a href="mailto:dpo@immo24.tn">dpo@immo24.tn</a></p>
+  <div class="info-box">Immo24.tn est déclaré auprès de l'INPDP sous le numéro <strong>2024-XXXXX</strong>.</div>
+</div>
+
+<div class="section" id="dp2">
+  <h2 data-num="2">Données collectées</h2>
+  <p>Nous collectons les catégories de données suivantes :</p>
+  <ul>
+    <li><strong>Identité</strong> : nom, prénom, raison sociale</li>
+    <li><strong>Contact</strong> : e-mail, téléphone, adresse</li>
+    <li><strong>Navigation</strong> : adresse IP, pages visitées, horodatage</li>
+    <li><strong>Annonces</strong> : biens publiés, photos, prix</li>
+    <li><strong>Messages</strong> : demandes de contact, leads</li>
+  </ul>
+</div>
+
+<div class="section" id="dp3">
+  <h2 data-num="3">Finalités du traitement</h2>
+  <p>Vos données sont traitées pour : gestion des comptes, publication d'annonces, mise en relation, notifications, statistiques anonymisées et détection des fraudes.</p>
+</div>
+
+<div class="section" id="dp4">
+  <h2 data-num="4">Base légale du traitement</h2>
+  <ul>
+    <li><strong>Exécution du contrat</strong> : gestion de votre compte</li>
+    <li><strong>Obligation légale</strong> : conservation des données de facturation</li>
+    <li><strong>Intérêt légitime</strong> : sécurité et prévention des fraudes</li>
+    <li><strong>Consentement</strong> : communications marketing et cookies non essentiels</li>
+  </ul>
+</div>
+
+<div class="section" id="dp5">
+  <h2 data-num="5">Durée de conservation</h2>
+  <ul>
+    <li>Données de compte actif : durée de l'abonnement + 3 ans</li>
+    <li>Annonces publiées : 5 ans après publication</li>
+    <li>Logs de navigation : 12 mois</li>
+    <li>Données de facturation : 10 ans (obligation fiscale)</li>
+  </ul>
+</div>
+
+<div class="section" id="dp6">
+  <h2 data-num="6">Partage des données</h2>
+  <p>Vos données ne sont jamais vendues. Elles peuvent être partagées avec nos hébergeurs techniques et, sur réquisition judiciaire, avec les autorités compétentes.</p>
+</div>
+
+<div class="section" id="dp7">
+  <h2 data-num="7">Cookies</h2>
+  <p>Nous utilisons des cookies essentiels (session, sécurité) et des cookies analytiques anonymisés. Vous pouvez gérer vos préférences en contactant <a href="mailto:dpo@immo24.tn">dpo@immo24.tn</a>.</p>
+</div>
+
+<div class="section" id="dp8">
+  <h2 data-num="8">Vos droits</h2>
+  <p>Conformément à la loi n° 2004-63, vous disposez des droits d'accès, de rectification, d'effacement et d'opposition. Adressez votre demande avec une pièce d'identité à <a href="mailto:dpo@immo24.tn">dpo@immo24.tn</a>. Nous répondons dans un délai de 30 jours.</p>
+</div>
+
+<div class="section" id="dp9">
+  <h2 data-num="9">Contact et réclamations</h2>
+  <div class="info-box">
+    <strong>Délégué à la Protection des Données (DPO)</strong><br>
+    E-mail : <a href="mailto:dpo@immo24.tn">dpo@immo24.tn</a><br>
+    Immo24 SARL — Immeuble Espace Lac, Les Berges du Lac 2, 1053 Tunis
+  </div>
+  <p>En cas de réclamation, vous pouvez saisir l'INPDP : <a href="https://www.inpdp.nat.tn" target="_blank">www.inpdp.nat.tn</a></p>
+</div>`;
 }
 
 function renderPlaceholder(view) {

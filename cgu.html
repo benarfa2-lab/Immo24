@@ -90,7 +90,7 @@
   <p>Dernière mise à jour : 1er janvier 2026 — Version 2.1</p>
 </div>
 
-<div class="container">
+<div class="container" id="legal-content">
 
   <div class="toc">
     <div class="toc-title">Sommaire</div>
@@ -203,5 +203,17 @@
   </div>
 </footer>
 
+<script>
+(function() {
+  try {
+    const cfg = JSON.parse(localStorage.getItem('immo24_site_config') || '{}');
+    const custom = cfg['content_legal-cgu'];
+    if (custom) {
+      const el = document.getElementById('legal-content');
+      if (el) el.innerHTML = custom;
+    }
+  } catch(e) {}
+})();
+</script>
 </body>
 </html>
