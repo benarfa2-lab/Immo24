@@ -524,13 +524,18 @@
     /* ===== SECTION HEADERS ===== */
     .section-header { text-align: center; margin-bottom: 40px; }
     .section-tag {
-      display: inline-block;
-      background: var(--gold-light);
-      color: var(--gold-dark);
+      display: inline-flex; align-items: center; gap: 10px;
       font-size: 11px; font-weight: 700;
-      padding: 4px 12px; border-radius: 50px;
-      text-transform: uppercase; letter-spacing: .6px;
-      margin-bottom: 12px;
+      color: var(--gold-dark);
+      text-transform: uppercase; letter-spacing: 1px;
+      margin-bottom: 14px;
+    }
+    .section-tag::before {
+      content: '';
+      display: block; width: 28px; height: 2.5px;
+      background: var(--gold);
+      border-radius: 2px;
+      flex-shrink: 0;
     }
     .section-title {
       font-size: 32px; font-weight: 800;
@@ -626,8 +631,23 @@
 
     .listings-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: 5fr 3fr 3fr;
+      grid-template-rows: auto auto;
       gap: 20px;
+    }
+    /* featured first card: taller image, spans 2 rows */
+    .listings-grid .lcard:first-child {
+      grid-row: span 2;
+    }
+    .listings-grid .lcard:first-child .lcard-img {
+      height: 280px;
+    }
+    .listings-grid .lcard:first-child .lcard-price {
+      font-size: 24px;
+    }
+    .listings-grid .lcard:first-child .lcard-title {
+      font-size: 15px;
+      white-space: normal;
     }
 
     /* listing card */
@@ -1122,7 +1142,7 @@
     }
     .finance-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; }
     .finance-text .section-title { color: var(--navy); text-align: left; }
-    .finance-text .section-tag { background: var(--gold-light); color: var(--gold-dark); border: 1px solid rgba(230,168,23,.3); }
+    .finance-text .section-tag { color: var(--gold-dark); }
     .finance-text .section-sub { color: var(--gray-600); text-align: left; margin: 0; }
     .finance-features { margin-top: 24px; display: flex; flex-direction: column; gap: 14px; }
     .finance-feat {
@@ -1649,7 +1669,9 @@
     .hero-arrow { display: none; }
     .actions-grid { grid-template-columns: 1fr 1fr; }
     .types-grid { grid-template-columns: repeat(3, 1fr); }
-    .listings-grid { grid-template-columns: 1fr 1fr; }
+    .listings-grid { grid-template-columns: 1fr 1fr; grid-template-rows: auto; }
+    .listings-grid .lcard:first-child { grid-row: span 1; }
+    .listings-grid .lcard:first-child .lcard-img { height: 200px; }
     .regions-grid { grid-template-columns: 1fr 1fr; grid-template-rows: auto; }
     .promoteurs-grid { grid-template-columns: repeat(3, 1fr); }
     .finance-grid { grid-template-columns: 1fr; gap: 24px; }

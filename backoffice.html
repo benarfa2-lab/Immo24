@@ -2683,13 +2683,13 @@ function renderDashboard() {
     { icon:'fas fa-chart-line', cls:'red', val:'68%', lbl:'Taux d\'occupation', trend:'+8%', up:true },
   ];
 
-  const kpiHTML = kpis.map(k => `
+  const kpiHTML = kpis.map((k, i) => `
     <div class="kpi-card">
       <div class="kpi-header">
-        <div class="kpi-icon ${k.cls}"><i class="${k.icon}"></i></div>
+        <div class="kpi-icon ${k.cls}" style="${i===0?'width:46px;height:46px;border-radius:50%;font-size:18px;box-shadow:0 4px 14px rgba(27,58,107,.15)':''}"><i class="${k.icon}"></i></div>
         <span class="kpi-trend ${k.up?'up':'down'}">${k.up?'↑':'↓'} ${k.trend}</span>
       </div>
-      <div class="kpi-value">${k.val}</div>
+      <div class="kpi-value" style="${i===0?'font-size:30px':'}'}">${k.val}</div>
       <div class="kpi-label">${k.lbl}</div>
     </div>`).join('');
 
@@ -3725,9 +3725,10 @@ function renderSuiviVentes() {
   const cnt = s => scoped.filter(b=>b.statut===s).length;
   const list = suiviFilter==='all' ? scoped : scoped.filter(b=>b.statut===suiviFilter);
 
-  const kpi = (icon,cls,val,lbl) => `<div class="kpi-card">
-      <div class="kpi-header"><div class="kpi-icon ${cls}"><i class="${icon}"></i></div></div>
-      <div class="kpi-value">${val}</div><div class="kpi-label">${lbl}</div></div>`;
+  let _kpiIdx = 0;
+  const kpi = (icon,cls,val,lbl) => { const i=_kpiIdx++; return `<div class="kpi-card">
+      <div class="kpi-header"><div class="kpi-icon ${cls}" style="${i===0?'width:46px;height:46px;border-radius:50%;font-size:18px;box-shadow:0 4px 14px rgba(27,58,107,.12)':''}"><i class="${icon}"></i></div></div>
+      <div class="kpi-value" style="${i===0?'font-size:30px':''}">${val}</div><div class="kpi-label">${lbl}</div></div>`; };
 
   const tab = (k,l,n) => `<button onclick="setSuiviFilter('${k}')" style="display:inline-flex;align-items:center;gap:7px;white-space:nowrap;height:34px;padding:0 14px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:1.5px solid ${suiviFilter===k?'var(--navy)':'var(--gray-200)'};background:${suiviFilter===k?'var(--navy)':'#fff'};color:${suiviFilter===k?'#fff':'var(--gray-600)'}">${l} <span style="opacity:.7">(${n})</span></button>`;
 
@@ -4491,11 +4492,12 @@ function renderStats() {
   const maxTypeClics = Math.max(1, ...typeRows.map(([,v])=>v.clics));
   const typeIcons = { Appartement:'fa-building', Villa:'fa-house', Bureau:'fa-briefcase', Terrain:'fa-map', 'Local commercial':'fa-store', Immeuble:'fa-city' };
 
-  const kpi = (icon,cls,val,lbl,trend) => `<div class="kpi-card">
-      <div class="kpi-header"><div class="kpi-icon ${cls}"><i class="${icon}"></i></div>
+  let _kpiIdx2 = 0;
+  const kpi = (icon,cls,val,lbl,trend) => { const i=_kpiIdx2++; return `<div class="kpi-card">
+      <div class="kpi-header"><div class="kpi-icon ${cls}" style="${i===0?'width:46px;height:46px;border-radius:50%;font-size:18px;box-shadow:0 4px 14px rgba(27,58,107,.12)':''}"><i class="${icon}"></i></div>
       ${trend?`<span class="kpi-trend up">↑ ${trend}</span>`:''}</div>
-      <div class="kpi-value">${val}</div><div class="kpi-label">${lbl}</div>
-    </div>`;
+      <div class="kpi-value" style="${i===0?'font-size:30px':''}">${val}</div><div class="kpi-label">${lbl}</div>
+    </div>`; };
 
   return `
     <!-- KPIs principaux -->
