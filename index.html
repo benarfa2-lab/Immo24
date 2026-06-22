@@ -64,7 +64,7 @@
       padding: 0 32px; gap: 24px;
       transition: background .3s, box-shadow .3s;
     }
-    .navbar.scrolled { background: var(--navy); box-shadow: 0 2px 16px rgba(0,0,0,.2); }
+    .navbar.scrolled { background: var(--navy); box-shadow: 0 2px 16px rgba(8,20,55,.25); }
     .navbar:not(.scrolled) { background: transparent; }
     .nav-logo { display: flex; align-items: center; flex-shrink: 0; text-decoration: none; }
     .nav-ctas { display: flex; gap: 6px; margin-left: 8px; }
@@ -160,7 +160,7 @@
       border-radius: 8px;
       padding: 5px 10px;
       font-size: 11px; font-weight: 700; color: var(--navy);
-      box-shadow: 0 4px 14px rgba(0,0,0,.35);
+      box-shadow: 0 4px 14px rgba(8,20,55,.45);
       white-space: nowrap;
       position: relative;
       border-top: 3px solid var(--gold);
@@ -179,7 +179,7 @@
       transform: rotate(-45deg);
       background: linear-gradient(150deg, #24508f 0%, var(--navy) 55%, var(--navy-dark) 100%);
       border: 2px solid #fff;
-      box-shadow: 0 6px 14px rgba(8,20,55,.45), 0 2px 5px rgba(0,0,0,.3);
+      box-shadow: 0 6px 14px rgba(8,20,55,.45), 0 2px 5px rgba(8,20,55,.35);
       position: relative;
     }
     /* pastille dorée centrale (le « point » du pin) */
@@ -194,7 +194,7 @@
     /* ombre portée au sol (ellipse floutée) */
     .hpin-dot-shadow {
       width: 14px; height: 5px; border-radius: 50%;
-      background: rgba(0,0,0,.28);
+      background: rgba(8,20,55,.35);
       margin-top: 7px;
       filter: blur(2.5px);
     }
@@ -521,8 +521,28 @@
     .action-arrow { color: var(--gray-400); font-size: 11px; flex-shrink: 0; transition: transform .2s; }
     .action-item:hover .action-arrow { color: var(--gold); transform: translateX(3px); }
 
+    /* ===== GRAIN OVERLAY ON HERO ===== */
+    .hero-overlay::after {
+      content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 2;
+      opacity: 0.055;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      background-size: 200px 200px;
+      mix-blend-mode: soft-light;
+    }
+
+    /* ===== SCROLL REVEALS ===== */
+    .reveal {
+      opacity: 0;
+      transform: translateY(26px);
+      transition: opacity 0.55s cubic-bezier(.22,1,.36,1), transform 0.55s cubic-bezier(.22,1,.36,1);
+      transition-delay: var(--reveal-delay, 0ms);
+    }
+    .reveal.visible { opacity: 1; transform: none; }
+
     /* ===== SECTION HEADERS ===== */
     .section-header { text-align: center; margin-bottom: 40px; }
+    .section-header--left { text-align: left; }
+    .section-header--left .section-sub { margin: 0; }
     .section-tag {
       display: inline-flex; align-items: center; gap: 10px;
       font-size: 11px; font-weight: 700;
@@ -700,7 +720,7 @@
 
     .lcard-photos {
       position: absolute; bottom: 10px; right: 10px;
-      background: rgba(0,0,0,.52); color: #fff;
+      background: rgba(8,20,55,.55); color: #fff;
       font-size: 10px; padding: 3px 8px; border-radius: 50px;
       display: flex; align-items: center; gap: 4px;
     }
@@ -814,7 +834,7 @@
     .hiw-visual { display: flex; align-items: center; justify-content: flex-end; }
     .hiw-visual img {
       width: 100%; max-width: 560px; border-radius: 14px;
-      box-shadow: 0 28px 64px rgba(0,0,0,.55);
+      box-shadow: 0 28px 64px rgba(8,20,55,.5);
       object-fit: cover; aspect-ratio: 4/3;
     }
 
@@ -822,7 +842,7 @@
     .hiw-map-mockup {
       width: 100%; max-width: 560px; aspect-ratio: 4/3;
       border-radius: 14px; overflow: hidden; position: relative;
-      box-shadow: 0 28px 64px rgba(0,0,0,.55);
+      box-shadow: 0 28px 64px rgba(8,20,55,.5);
       background: #d4dbe2;
       background-image:
         linear-gradient(rgba(255,255,255,.7) 1.5px, transparent 1.5px),
@@ -2015,13 +2035,13 @@
 <!-- ===== ILS NOUS FONT CONFIANCE ===== -->
 <section class="trust-section">
   <div class="container">
-    <div class="section-header">
+    <div class="section-header reveal">
       <div class="section-tag">Réseau</div>
       <h2 class="section-title">Ils nous font confiance</h2>
       <p class="section-sub">Les acteurs de référence de l'immobilier tunisien publient sur Immo24.tn</p>
     </div>
 
-    <div class="trust-inline-cta">
+    <div class="trust-inline-cta reveal">
       <div class="trust-inline-cta-inner">
         <i class="fas fa-building" style="font-size:26px;color:var(--gold);flex-shrink:0"></i>
         <div class="trust-inline-cta-texts">
@@ -2034,57 +2054,57 @@
       </div>
     </div>
 
-    <div class="trust-logos">
-      <div class="trust-logo-chip">
+    <div class="trust-logos stagger-group">
+      <div class="trust-logo-chip reveal">
         <div class="trust-logo-avatar" style="background:#1B3A6B;color:#E6A817">BI</div>
         <div class="trust-logo-info">
           <div class="trust-logo-name">Bullaregia Immobilière</div>
           <div class="trust-logo-type">Promoteur · La Marsa</div>
         </div>
       </div>
-      <div class="trust-logo-chip">
+      <div class="trust-logo-chip reveal">
         <div class="trust-logo-avatar" style="background:#2A9D8F;color:#fff">OI</div>
         <div class="trust-logo-info">
           <div class="trust-logo-name">Odéon Immobilière</div>
           <div class="trust-logo-type">Promoteur · Les Berges du Lac</div>
         </div>
       </div>
-      <div class="trust-logo-chip">
+      <div class="trust-logo-chip reveal">
         <div class="trust-logo-avatar" style="background:#E6A817;color:#122952">RL</div>
         <div class="trust-logo-info">
           <div class="trust-logo-name">Réalco</div>
           <div class="trust-logo-type">Promoteur · Sousse</div>
         </div>
       </div>
-      <div class="trust-logo-chip">
+      <div class="trust-logo-chip reveal">
         <div class="trust-logo-avatar" style="background:#264d9b;color:#fff">CI</div>
         <div class="trust-logo-info">
           <div class="trust-logo-name">Carthage Immobilier</div>
           <div class="trust-logo-type">Agence · Carthage</div>
         </div>
       </div>
-      <div class="trust-logo-chip">
+      <div class="trust-logo-chip reveal">
         <div class="trust-logo-avatar" style="background:#343A40;color:#E6A817">EI</div>
         <div class="trust-logo-info">
           <div class="trust-logo-name">Étoile Immobilier</div>
           <div class="trust-logo-type">Agence · Grand Tunis</div>
         </div>
       </div>
-      <div class="trust-logo-chip">
+      <div class="trust-logo-chip reveal">
         <div class="trust-logo-avatar" style="background:#C8900E;color:#fff">IG</div>
         <div class="trust-logo-info">
           <div class="trust-logo-name">Immob. du Golfe</div>
           <div class="trust-logo-type">Agence · Sidi Bou Saïd</div>
         </div>
       </div>
-      <div class="trust-logo-chip">
+      <div class="trust-logo-chip reveal">
         <div class="trust-logo-avatar" style="background:#122952;color:#E6A817">PD</div>
         <div class="trust-logo-info">
           <div class="trust-logo-name">Prestige Dev.</div>
           <div class="trust-logo-type">Promoteur · Ariana</div>
         </div>
       </div>
-      <div class="trust-logo-chip">
+      <div class="trust-logo-chip reveal">
         <div class="trust-logo-avatar" style="background:#2A9D8F;color:#fff">TP</div>
         <div class="trust-logo-info">
           <div class="trust-logo-name">TunisPromo</div>
@@ -2105,14 +2125,14 @@
 <!-- ===== TYPES DE BIENS ===== -->
 <section class="types-section" style="background:var(--gray-50)">
   <div class="container">
-    <div class="section-header">
+    <div class="section-header section-header--left reveal">
       <div class="section-tag">Catégories</div>
       <h2 class="section-title">Cherchez par type de bien</h2>
       <p class="section-sub">Parcourez notre catalogue selon la nature de votre projet immobilier.</p>
     </div>
-    <div class="types-grid">
+    <div class="types-grid stagger-group">
 
-      <a href="map-listings.html?propertyType=Appartement" class="type-card">
+      <a class="reveal" href="map-listings.html?propertyType=Appartement" class="type-card">
         <div class="type-icon-wrap">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg>
         </div>
@@ -2120,7 +2140,7 @@
         <div class="type-count">1 240 annonces</div>
       </a>
 
-      <a href="map-listings.html?propertyType=Villa" class="type-card">
+      <a class="reveal" href="map-listings.html?propertyType=Villa" class="type-card">
         <div class="type-icon-wrap">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 20h20M4 20V10l8-7 8 7v10"/><path d="M10 20v-5h4v5"/><path d="M4 10h16"/></svg>
         </div>
@@ -2128,7 +2148,7 @@
         <div class="type-count">380 annonces</div>
       </a>
 
-      <a href="map-listings.html?propertyType=Duplex" class="type-card">
+      <a class="reveal" href="map-listings.html?propertyType=Duplex" class="type-card">
         <div class="type-icon-wrap">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="12" y1="3" x2="12" y2="21"/></svg>
         </div>
@@ -2136,7 +2156,7 @@
         <div class="type-count">215 annonces</div>
       </a>
 
-      <a href="map-listings.html?propertyType=Bureau" class="type-card">
+      <a class="reveal" href="map-listings.html?propertyType=Bureau" class="type-card">
         <div class="type-icon-wrap">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="3" width="20" height="14" rx="1"/><path d="M8 21h8M12 17v4"/><path d="M2 10h20"/></svg>
         </div>
@@ -2144,7 +2164,7 @@
         <div class="type-count">98 annonces</div>
       </a>
 
-      <a href="map-listings.html?propertyType=Terrain" class="type-card">
+      <a class="reveal" href="map-listings.html?propertyType=Terrain" class="type-card">
         <div class="type-icon-wrap">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="1"/><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/></svg>
         </div>
@@ -2855,10 +2875,10 @@
       <a href="#" class="view-all-link">Tous les articles <i class="fas fa-arrow-right"></i></a>
     </div>
 
-    <div class="actu-grid">
+    <div class="actu-grid stagger-group">
 
       <!-- article principal -->
-      <div class="actu-main">
+      <div class="actu-main reveal">
         <div class="actu-main-img">
           <img src="https://images.unsplash.com/photo-1554469384-e58fac16e23a?w=800&q=80" alt="Loi immobilière" loading="lazy"/>
         </div>
@@ -2877,7 +2897,7 @@
       <!-- articles secondaires -->
       <div class="actu-side">
 
-        <div class="actu-card">
+        <div class="actu-card reveal">
           <div class="actu-card-img">
             <img src="https://images.unsplash.com/photo-1560520653-9e0e4c89eb11?w=300&q=80" loading="lazy"/>
           </div>
@@ -2888,7 +2908,7 @@
           </div>
         </div>
 
-        <div class="actu-card">
+        <div class="actu-card reveal">
           <div class="actu-card-img">
             <img src="https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=300&q=80" loading="lazy"/>
           </div>
@@ -2899,7 +2919,7 @@
           </div>
         </div>
 
-        <div class="actu-card">
+        <div class="actu-card reveal">
           <div class="actu-card-img">
             <img src="https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=300&q=80" loading="lazy"/>
           </div>
@@ -3462,6 +3482,22 @@ const counterObserver = new IntersectionObserver((entries) => {
 }, { threshold: 0.3 });
 
 document.querySelectorAll('.trust-counters').forEach(el => counterObserver.observe(el));
+
+/* ===== SCROLL REVEALS ===== */
+document.querySelectorAll('.stagger-group').forEach(group => {
+  group.querySelectorAll('.reveal').forEach((el, i) => {
+    el.style.setProperty('--reveal-delay', (i * 75) + 'ms');
+  });
+});
+const revealObs = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+      revealObs.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+document.querySelectorAll('.reveal').forEach(el => revealObs.observe(el));
 
 /* ===== INIT ===== */
 renderFeatured();
