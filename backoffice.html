@@ -3290,21 +3290,8 @@ function saveProjet(action) {
 
 /* ---- ÉDITION D'UNE ANNONCE (super admin + agence) ---- */
 let editAnnonceId = null;
-function openEditAnnonce(id) {
-  const a = ANNONCES.find(x => x.id === id);
-  if (!a) return;
-  if (!canEditAnnonce(a)) { showToast('⛔ Vous n\'êtes pas autorisé à modifier cette annonce'); return; }
-  editAnnonceId = id;
-
-  const types        = ['Appartement','Villa','Bureau','Terrain','Local commercial','Immeuble'];
-  const natures      = ['—','S+1','S+2','S+3','S+4','S+5'];
-  const transactions = ['Vente','Location','Cession','Location vacances'];
-  const statuts      = [['published','Publié'],['pending','En attente'],['revision','À corriger'],['rejected','Refusée'],['draft','Brouillon'],['sold','Vendu/Loué'],['reserved','Réservée'],['suspended','Suspendu'],['expired','Expirée'],['archived','Archivée']];
-  const isAdmin = currentRole === 'admin';
-  const opt = (arr, cur) => arr.map(v => `<option value="${v}" ${v===cur?'selected':''}>${v}</option>`).join('');
-
-  document.getElementById('edit-ann-title').textContent = `Modifier l'annonce · ${a.id}`;
-  document.getElementById('edit-ann-body').innerHTML = `
+function buildEditAnnonceHTML(a, statuts, isAdmin, opt, types, natures, transactions) {
+  return `
     <div class="form-section">
       <div class="form-section-title">Informations du bien</div>
       <div class="form-grid">
@@ -3355,7 +3342,7 @@ function openEditAnnonce(id) {
           <label>Quartier / Zone</label>
           <input type="text" id="ea-quartier" value="${(a.quartier||'').replace(/"/g,'&quot;')}" />
         </div>
-        ${isAdmin ? `
+        ${isAdmin && !editLotCtx ? `
         <div class="form-group">
           <label>Agent</label>
           <input type="text" id="ea-agent" value="${(a.agent||'').replace(/"/g,'&quot;')}" placeholder="Nom de l'agent" />
@@ -3480,12 +3467,30 @@ function openEditAnnonce(id) {
         </div>
       </div>
     </div>`;
+}
+
+function openEditAnnonce(id) {
+  const a = ANNONCES.find(x => x.id === id);
+  if (!a) return;
+  if (!canEditAnnonce(a)) { showToast('⛔ Vous n\'êtes pas autorisé à modifier cette annonce'); return; }
+  editAnnonceId = id;
+  editLotCtx = null;
+
+  const types        = ['Appartement','Villa','Bureau','Terrain','Local commercial','Immeuble'];
+  const natures      = ['—','S+1','S+2','S+3','S+4','S+5'];
+  const transactions = ['Vente','Location','Cession','Location vacances'];
+  const statuts      = [['published','Publié'],['pending','En attente'],['revision','À corriger'],['rejected','Refusée'],['draft','Brouillon'],['sold','Vendu/Loué'],['reserved','Réservée'],['suspended','Suspendu'],['expired','Expirée'],['archived','Archivée']];
+  const isAdmin = currentRole === 'admin';
+  const opt = (arr, cur) => arr.map(v => `<option value="${v}" ${v===cur?'selected':''}>${v}</option>`).join('');
+
+  document.getElementById('edit-ann-title').textContent = `Modifier l'annonce · ${a.id}`;
+  document.getElementById('edit-ann-body').innerHTML = buildEditAnnonceHTML(a, statuts, isAdmin, opt, types, natures, transactions);
   openModal('modal-edit-annonce');
-  // Initialiser la grille photos après rendu du DOM
   setTimeout(() => eaInitPhotos(a), 0);
 }
 
 function saveEditAnnonce() {
+  if (editLotCtx) { saveLotEditModal(); return; }
   const a = ANNONCES.find(x => x.id === editAnnonceId);
   if (!a) return;
   const val = id => { const el = document.getElementById(id); return el ? el.value.trim() : undefined; };
@@ -3646,6 +3651,95 @@ function renderSuiviVentes() {
 
 /* Modale de mise à jour commerciale d'un bien */
 let suiviCtx = { projetId:null, ref:null };
+/* Ouvre le formulaire d'édition enrichi pour un lot de projet */
+let editLotCtx = null; // { projetId, ref } — indique qu'on édite un lot, pas une annonce ANNONCES[]
+
+function openLotEditModal(projetId, ref) {
+  const b = (ANNONCES_PROJET[projetId] || []).find(x => x.ref === ref);
+  const proj = PROJETS.find(p => p.id === projetId);
+  if (!b) return;
+
+  // Construire un objet annonce "virtuel" compatible avec openEditAnnonce
+  const fakeAnnonce = {
+    id: ref,
+    titre: `${b.type} – ${proj ? proj.nom : projetId}`,
+    type: b.type.includes('Bureau') ? 'Bureau' : b.type.includes('Duplex') ? 'Appartement' : 'Appartement',
+    nature: b.type.startsWith('S+') ? b.type : '—',
+    transaction: 'Vente',
+    statut: b.statut === 'vendu' ? 'sold' : b.statut === 'reserve' ? 'reserved' : 'published',
+    prix: b.prix,
+    periodicite: 'vente',
+    surface: b.surface,
+    surfaceCouverte: b.surface,
+    gouvernorat: proj ? proj.gouvernorat : '',
+    quartier: proj ? proj.quartier : '',
+    etage: String(b.etage),
+    agent: '',
+    promoteur: proj ? proj.promoteur : '',
+    tf: proj ? proj.tf : '',
+    tva: proj ? proj.tva : false,
+    foprolos: proj ? proj.foprolos : false,
+    primo: proj ? proj.primo : false,
+    description: b.description || '',
+    adresse: b.adresse || '',
+    equipements: b.equipements || [],
+    nego: b.nego || false,
+    exclu: false,
+    visite360: b.visite360 || '',
+    proximites: b.proximites || '',
+    photos: b.photos || [],
+    plan: b.plan || null,
+    acquereur: b.acquereur || '',
+  };
+
+  editLotCtx = { projetId, ref };
+  editAnnonceId = ref; // réutilise la variable de saveEditAnnonce
+
+  // Injecter dans le DOM du modal
+  const types        = ['Appartement','Villa','Bureau','Terrain','Local commercial','Immeuble'];
+  const natures      = ['—','S+1','S+2','S+3','S+4','S+5'];
+  const transactions = ['Vente','Location','Cession','Location vacances'];
+  const statuts      = [['disponible','Disponible'],['reserve','Réservé'],['vendu','Vendu']];
+  const isAdmin = currentRole === 'admin' || currentRole === 'promoteur';
+  const opt = (arr, cur) => arr.map(v => `<option value="${v}" ${v===cur?'selected':''}>${v}</option>`).join('');
+  const a = fakeAnnonce;
+
+  document.getElementById('edit-ann-title').textContent = `Modifier le bien · ${ref}`;
+  document.getElementById('edit-ann-body').innerHTML = buildEditAnnonceHTML(a, statuts, isAdmin, opt, types, natures, transactions);
+  openModal('modal-edit-annonce');
+  setTimeout(() => eaInitPhotos(a), 0);
+}
+
+function saveLotEditModal() {
+  if (!editLotCtx) return false;
+  const b = (ANNONCES_PROJET[editLotCtx.projetId] || []).find(x => x.ref === editLotCtx.ref);
+  if (!b) return false;
+  const val = id => { const el = document.getElementById(id); return el ? el.value.trim() : undefined; };
+  const chk = id => { const el = document.getElementById(id); return el ? el.checked : undefined; };
+
+  b.type        = val('ea-nature') && val('ea-nature') !== '—' ? val('ea-nature') : (val('ea-type') || b.type);
+  b.prix        = parseFloat(val('ea-prix')) || b.prix;
+  b.surface     = parseFloat(val('ea-surface')) || b.surface;
+  b.etage       = val('ea-etage') ?? b.etage;
+  b.statut      = (() => { const s = val('ea-statut'); return s==='sold'?'vendu':s==='reserved'?'reserve':'disponible'; })();
+  b.acquereur   = val('ea-acquereur') || (b.statut==='disponible' ? '' : b.acquereur);
+  b.description = val('ea-description') ?? b.description;
+  b.adresse     = val('ea-adresse') ?? b.adresse;
+  b.visite360   = val('ea-visite360') ?? b.visite360;
+  b.proximites  = val('ea-proximites') ?? b.proximites;
+  b.nego        = chk('ea-nego') ?? b.nego;
+  const equipEls = document.querySelectorAll('.ea-equip');
+  if (equipEls.length) b.equipements = [...equipEls].filter(c=>c.checked).map(c=>c.value);
+  b.photos = eaPhotos.slice();
+  if (eaPlanFile) { b.plan = eaPlanFile; eaPlanFile = null; }
+
+  editLotCtx = null;
+  closeModal('modal-edit-annonce');
+  document.getElementById('main-content').innerHTML = (currentView === 'suivi') ? renderSuiviVentes() : renderProjetDetail(currentProjetId);
+  showToast('✅ Bien mis à jour');
+  return true;
+}
+
 function openLotSuivi(projetId, ref) {
   const b = (ANNONCES_PROJET[projetId]||[]).find(x => x.ref === ref);
   if (!b) return;
@@ -5379,8 +5473,7 @@ function renderProjetDetail(projetId) {
       <td style="font-size:12.5px">${l.acquereur || '<span style="color:var(--gray-300)">—</span>'}</td>
       <td>
         <div class="action-group">
-          <button class="icon-btn edit" title="Suivi commercial" onclick="openLotSuivi('${projetId}','${l.ref}')"><i class="fas fa-pen"></i></button>
-          <button class="icon-btn view" title="Télécharger plan" style="background:#EFF6FF;color:var(--blue)"><i class="fas fa-drafting-compass"></i></button>
+          <button class="icon-btn edit" title="Modifier le bien" onclick="openLotEditModal('${projetId}','${l.ref}')"><i class="fas fa-pen"></i></button>
         </div>
       </td>
     </tr>`;
