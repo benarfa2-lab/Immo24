@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Politique de confidentialité — Immo24.tn</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%231B3A6B'/><text x='16' y='22' text-anchor='middle' font-size='16' font-weight='900' font-family='sans-serif' fill='%23E6A817'>I</text></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --navy: #1B3A6B; --navy-dark: #122952; --navy-light: #EEF2F9;
+      --gold: #E6A817; --gray-50: #F8F9FA; --gray-200: #E9ECEF;
+      --gray-400: #ADB5BD; --gray-600: #6C757D; --gray-800: #343A40;
+      --white: #FFFFFF; --green: #2A9D8F; --font-display: 'Outfit', 'Inter', sans-serif;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', sans-serif; color: var(--gray-800); background: var(--gray-50); line-height: 1.7; }
+    a { color: var(--navy); text-decoration: underline; text-underline-offset: 3px; }
+    a:hover { color: var(--gold); }
+
+    nav {
+      background: var(--navy); padding: 14px 24px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .nav-logo { font-family: var(--font-display); font-size: 20px; font-weight: 900; color: #fff; text-decoration: none; }
+    .nav-logo span { color: var(--gold); }
+    .nav-back { font-size: 13px; color: rgba(255,255,255,.7); text-decoration: none; display: flex; align-items: center; gap: 6px; transition: color .2s; }
+    .nav-back:hover { color: var(--gold); }
+
+    .page-hero {
+      background: linear-gradient(135deg, var(--navy) 0%, var(--navy-dark) 100%);
+      padding: 48px 24px 44px; text-align: center; color: #fff;
+    }
+    .page-hero h1 { font-family: var(--font-display); font-size: clamp(22px, 4vw, 32px); font-weight: 900; letter-spacing: -.5px; margin-bottom: 10px; }
+    .page-hero p { font-size: 13px; color: rgba(255,255,255,.55); }
+
+    .container { max-width: 760px; margin: 0 auto; padding: 52px 24px 80px; }
+
+    .toc { background: var(--white); border: 1px solid var(--gray-200); border-radius: 10px; padding: 20px 24px; margin-bottom: 40px; }
+    .toc-title { font-family: var(--font-display); font-size: 14px; font-weight: 800; color: var(--navy); margin-bottom: 12px; }
+    .toc ol { padding-left: 18px; }
+    .toc li { font-size: 13px; color: var(--gray-600); margin-bottom: 5px; }
+    .toc a { color: var(--navy); text-decoration: none; }
+    .toc a:hover { color: var(--gold); text-decoration: underline; }
+
+    .section { margin-bottom: 40px; }
+    .section h2 {
+      font-family: var(--font-display); font-size: 18px; font-weight: 800;
+      color: var(--navy); margin-bottom: 14px;
+      padding-bottom: 10px; border-bottom: 2px solid var(--navy-light);
+      display: flex; align-items: center; gap: 10px;
+    }
+    .section h2::before {
+      content: attr(data-num);
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 26px; height: 26px; border-radius: 6px;
+      background: var(--navy); color: #fff;
+      font-size: 12px; font-weight: 900; flex-shrink: 0;
+    }
+    .section p { font-size: 14px; color: var(--gray-600); margin-bottom: 14px; }
+    .section ul { padding-left: 20px; margin-bottom: 14px; }
+    .section ul li { font-size: 14px; color: var(--gray-600); margin-bottom: 6px; }
+    .section strong { color: var(--gray-800); }
+    .section h3 { font-size: 14px; font-weight: 700; color: var(--navy); margin: 20px 0 8px; }
+
+    .data-table { width: 100%; border-collapse: collapse; margin: 16px 0; border-radius: 8px; overflow: hidden; border: 1px solid var(--gray-200); }
+    .data-table th { background: var(--navy); color: #fff; padding: 10px 14px; font-size: 12px; text-align: left; font-weight: 700; }
+    .data-table td { padding: 10px 14px; font-size: 13px; color: var(--gray-600); border-bottom: 1px solid var(--gray-200); }
+    .data-table tr:last-child td { border-bottom: none; }
+    .data-table tr:nth-child(even) td { background: var(--gray-50); }
+
+    .info-box { background: var(--navy-light); border-left: 3px solid var(--navy); border-radius: 0 8px 8px 0; padding: 14px 18px; margin: 16px 0; font-size: 13px; color: var(--navy); }
+    .rights-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 16px; }
+    .right-item { background: var(--white); border: 1px solid var(--gray-200); border-radius: 8px; padding: 14px; }
+    .right-item-icon { font-size: 18px; color: var(--gold); margin-bottom: 6px; }
+    .right-item-title { font-size: 13px; font-weight: 700; color: var(--navy); margin-bottom: 4px; }
+    .right-item-desc { font-size: 12px; color: var(--gray-600); line-height: 1.5; }
+
+    footer { background: var(--navy-dark); padding: 20px 24px; text-align: center; }
+    .footer-bottom { font-size: 12px; color: rgba(255,255,255,.35); }
+    .footer-bottom a { color: var(--gold); margin: 0 6px; text-decoration: none; }
+
+    @media (max-width: 560px) { .rights-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">IMMO<span>24</span>.tn</a>
+  <a href="index.html" class="nav-back">&#8592; Retour à l'accueil</a>
+</nav>
+
+<div class="page-hero">
+  <h1>Politique de confidentialité</h1>
+  <p>Dernière mise à jour : 1er janvier 2026 — Conforme à la loi n° 2004-63</p>
+</div>
+
+<div class="container">
+
+  <div class="toc">
+    <div class="toc-title">Sommaire</div>
+    <ol>
+      <li><a href="#dp1">Responsable du traitement</a></li>
+      <li><a href="#dp2">Données collectées</a></li>
+      <li><a href="#dp3">Finalités du traitement</a></li>
+      <li><a href="#dp4">Base légale</a></li>
+      <li><a href="#dp5">Durée de conservation</a></li>
+      <li><a href="#dp6">Partage des données</a></li>
+      <li><a href="#dp7">Cookies</a></li>
+      <li><a href="#dp8">Vos droits</a></li>
+      <li><a href="#dp9">Contact</a></li>
+    </ol>
+  </div>
+
+  <div class="section" id="dp1">
+    <h2 data-num="1">Responsable du traitement</h2>
+    <p>Le responsable du traitement des données personnelles collectées sur Immo24.tn est :</p>
+    <p><strong>Immo24 SARL</strong><br>
+    Immeuble Espace Lac, Les Berges du Lac 2, 1053 Tunis, Tunisie<br>
+    E-mail : <a href="mailto:dpo@immo24.tn">dpo@immo24.tn</a><br>
+    Téléphone : +216 71 234 567</p>
+    <div class="info-box">Immo24.tn est déclaré auprès de l'Instance Nationale de Protection des Données Personnelles (INPDP) sous le numéro <strong>2024-XXXXX</strong>.</div>
+  </div>
+
+  <div class="section" id="dp2">
+    <h2 data-num="2">Données collectées</h2>
+    <p>Nous collectons les catégories de données suivantes :</p>
+    <table class="data-table">
+      <thead>
+        <tr><th>Catégorie</th><th>Exemples</th><th>Obligatoire</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Identité</td><td>Nom, prénom, raison sociale</td><td>Oui (compte pro)</td></tr>
+        <tr><td>Contact</td><td>E-mail, téléphone, adresse</td><td>Oui (compte pro)</td></tr>
+        <tr><td>Navigation</td><td>Adresse IP, pages visitées, horodatage</td><td>Automatique</td></tr>
+        <tr><td>Annonces</td><td>Biens publiés, photos, prix</td><td>Oui (publication)</td></tr>
+        <tr><td>Messages</td><td>Demandes de contact, leads</td><td>Sur demande</td></tr>
+      </tbody>
+    </table>
+    <p>Nous ne collectons aucune donnée sensible au sens de l'article 9 du RGPD (origine raciale, opinions politiques, données de santé, etc.).</p>
+  </div>
+
+  <div class="section" id="dp3">
+    <h2 data-num="3">Finalités du traitement</h2>
+    <p>Vos données sont traitées pour les finalités suivantes :</p>
+    <ul>
+      <li>Gestion des comptes professionnels et authentification ;</li>
+      <li>Publication et modération des annonces immobilières ;</li>
+      <li>Mise en relation entre particuliers et professionnels ;</li>
+      <li>Envoi de notifications transactionnelles (confirmation, alertes) ;</li>
+      <li>Analyse statistique anonymisée de l'utilisation de la plateforme ;</li>
+      <li>Amélioration des fonctionnalités et détection des fraudes.</li>
+    </ul>
+    <p>Vos données ne sont pas utilisées à des fins de profilage commercial sans votre consentement explicite.</p>
+  </div>
+
+  <div class="section" id="dp4">
+    <h2 data-num="4">Base légale du traitement</h2>
+    <p>Le traitement de vos données repose sur les bases légales suivantes :</p>
+    <ul>
+      <li><strong>Exécution du contrat</strong> : gestion de votre compte et fourniture du service ;</li>
+      <li><strong>Obligation légale</strong> : conservation des données de facturation ;</li>
+      <li><strong>Intérêt légitime</strong> : sécurité du service et prévention des fraudes ;</li>
+      <li><strong>Consentement</strong> : communications marketing et cookies non essentiels.</li>
+    </ul>
+  </div>
+
+  <div class="section" id="dp5">
+    <h2 data-num="5">Durée de conservation</h2>
+    <ul>
+      <li>Données de compte actif : pendant la durée de l'abonnement + 3 ans ;</li>
+      <li>Annonces publiées : 5 ans après publication ;</li>
+      <li>Données de navigation (logs) : 12 mois ;</li>
+      <li>Messages et leads : 3 ans ;</li>
+      <li>Données de facturation : 10 ans (obligation fiscale).</li>
+    </ul>
+  </div>
+
+  <div class="section" id="dp6">
+    <h2 data-num="6">Partage des données</h2>
+    <p>Vos données ne sont jamais vendues à des tiers. Elles peuvent être partagées avec :</p>
+    <ul>
+      <li><strong>Hébergeurs et sous-traitants techniques</strong> : dans le cadre de la fourniture du service ;</li>
+      <li><strong>Autorités compétentes</strong> : sur réquisition judiciaire ;</li>
+      <li><strong>Partenaires vérifiés</strong> : uniquement avec votre consentement explicite.</li>
+    </ul>
+    <p>Tout transfert de données hors de Tunisie est encadré par des garanties contractuelles appropriées.</p>
+  </div>
+
+  <div class="section" id="dp7">
+    <h2 data-num="7">Cookies</h2>
+    <h3>Cookies essentiels</h3>
+    <p>Ces cookies sont nécessaires au fonctionnement du service (session, sécurité). Ils ne peuvent pas être désactivés.</p>
+    <h3>Cookies analytiques</h3>
+    <p>Nous utilisons des cookies d'analyse pour comprendre comment les visiteurs utilisent le site. Ces données sont anonymisées et agrégées. Vous pouvez refuser ces cookies.</p>
+    <h3>Gestion des préférences</h3>
+    <p>Vous pouvez modifier vos préférences cookies à tout moment en contactant <a href="mailto:dpo@immo24.tn">dpo@immo24.tn</a>.</p>
+  </div>
+
+  <div class="section" id="dp8">
+    <h2 data-num="8">Vos droits</h2>
+    <p>Conformément à la loi n° 2004-63, vous disposez des droits suivants :</p>
+    <div class="rights-grid">
+      <div class="right-item">
+        <div class="right-item-icon">👁</div>
+        <div class="right-item-title">Droit d'accès</div>
+        <div class="right-item-desc">Obtenir une copie de vos données personnelles traitées par Immo24.tn.</div>
+      </div>
+      <div class="right-item">
+        <div class="right-item-icon">✏️</div>
+        <div class="right-item-title">Droit de rectification</div>
+        <div class="right-item-desc">Corriger des données inexactes ou incomplètes vous concernant.</div>
+      </div>
+      <div class="right-item">
+        <div class="right-item-icon">🗑</div>
+        <div class="right-item-title">Droit à l'effacement</div>
+        <div class="right-item-desc">Demander la suppression de vos données dans les cas prévus par la loi.</div>
+      </div>
+      <div class="right-item">
+        <div class="right-item-icon">🚫</div>
+        <div class="right-item-title">Droit d'opposition</div>
+        <div class="right-item-desc">Vous opposer au traitement de vos données à des fins de marketing.</div>
+      </div>
+    </div>
+    <p style="margin-top:16px">Pour exercer vos droits, envoyez une demande écrite à <a href="mailto:dpo@immo24.tn">dpo@immo24.tn</a> avec une copie de votre pièce d'identité. Nous vous répondrons dans un délai de 30 jours.</p>
+  </div>
+
+  <div class="section" id="dp9">
+    <h2 data-num="9">Contact et réclamations</h2>
+    <p>Pour toute question relative à la protection de vos données :</p>
+    <div class="info-box">
+      <strong>Délégué à la Protection des Données (DPO)</strong><br>
+      E-mail : <a href="mailto:dpo@immo24.tn">dpo@immo24.tn</a><br>
+      Immo24 SARL — Immeuble Espace Lac, Les Berges du Lac 2, 1053 Tunis
+    </div>
+    <p>En cas de réclamation non résolue, vous pouvez saisir l'<strong>Instance Nationale de Protection des Données Personnelles (INPDP)</strong> à l'adresse : <a href="https://www.inpdp.nat.tn" target="_blank" rel="noopener">www.inpdp.nat.tn</a>.</p>
+  </div>
+
+</div>
+
+<footer>
+  <div class="footer-bottom">
+    © 2026 Immo24.tn —
+    <a href="index.html">Accueil</a>
+    <a href="contact.html">Contact</a>
+    <a href="cgu.html">CGU</a>
+  </div>
+</footer>
+
+</body>
+</html>

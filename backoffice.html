@@ -465,6 +465,9 @@
     .form-group.full { grid-column: 1 / -1; }
     label { font-size: 12px; font-weight: 600; color: var(--gray-800); }
     label .req { color: var(--red); }
+    .field-error { font-size: 11.5px; color: var(--red); display: none; margin-top: 3px; }
+    .field-error.visible { display: block; }
+    input.ea-invalid, textarea.ea-invalid { border-color: var(--red) !important; }
     input[type="text"], input[type="number"], input[type="email"], input[type="tel"],
     select, textarea {
       border: 1.5px solid var(--gray-300); border-radius: 8px;
@@ -2496,6 +2499,21 @@ const ZONES_TABS = [
 ];
 const PROJETS_VOGUE = ['PR-001','PR-002','PR-003','PR-004'];
 
+/* ===================== SITE CONFIG ===================== */
+let SITE_CONFIG = JSON.parse(localStorage.getItem('immo24_site_config') || 'null') || {
+  nom: 'Immo24.tn',
+  email: 'contact@immo24.tn',
+  telephone: '+216 71 234 567',
+  whatsapp: '+216 98 765 432',
+  adresse: 'Immeuble Espace Lac, Lac 2, 1053 Tunis',
+  url_cgu: 'cgu.html',
+  url_confidentialite: 'confidentialite.html',
+  facebook: '',
+  instagram: '',
+  linkedin: '',
+  meta_desc: 'La première plateforme tunisienne dédiée à l\'immobilier professionnel.',
+};
+
 /* ===================== NAV CONFIG ===================== */
 const navConfig = {
   admin: [
@@ -2656,6 +2674,7 @@ function _doRenderView(c) {
     case 'profil':         c.innerHTML = renderProfil(); break;
     case 'workflow':       c.innerHTML = renderWorkflow(); break;
     case 'suivi':          c.innerHTML = renderSuiviVentes(); break;
+    case 'parametres':     c.innerHTML = renderParametres(); break;
     default: c.innerHTML = renderPlaceholder(currentView);
   }
 }
@@ -3439,7 +3458,8 @@ function buildEditAnnonceHTML(a, statuts, isAdmin, opt, types, natures, transact
       <div class="form-grid">
         <div class="form-group full">
           <label>Titre de l'annonce <span class="req">*</span></label>
-          <input type="text" id="ea-titre" value="${(a.titre||'').replace(/"/g,'&quot;')}" />
+          <input type="text" id="ea-titre" value="${(a.titre||'').replace(/"/g,'&quot;')}" oninput="validateEaField(this,'titre')" />
+          <span class="field-error" id="ea-err-titre">Le titre doit faire au moins 5 caractères.</span>
         </div>
         <div class="form-group">
           <label>Type de bien</label>
@@ -3460,7 +3480,8 @@ function buildEditAnnonceHTML(a, statuts, isAdmin, opt, types, natures, transact
         </div>
         <div class="form-group">
           <label>Prix (TND) <span class="req">*</span></label>
-          <input type="number" min="0" id="ea-prix" value="${Number(a.prix)||0}" />
+          <input type="number" min="0" id="ea-prix" value="${Number(a.prix)||0}" oninput="validateEaField(this,'prix')" />
+          <span class="field-error" id="ea-err-prix">Le prix doit être supérieur à 0.</span>
         </div>
         <div class="form-group">
           <label>Périodicité</label>
@@ -3631,13 +3652,37 @@ function openEditAnnonce(id) {
   setTimeout(() => eaInitPhotos(a), 0);
 }
 
+function validateEaField(el, field) {
+  const rules = {
+    titre: { test: v => v.trim().length >= 5, err: 'ea-err-titre' },
+    prix:  { test: v => parseFloat(v) > 0,    err: 'ea-err-prix'  },
+  };
+  const rule = rules[field];
+  if (!rule) return true;
+  const ok = rule.test(el.value);
+  el.classList.toggle('ea-invalid', !ok);
+  const errEl = document.getElementById(rule.err);
+  if (errEl) errEl.classList.toggle('visible', !ok);
+  return ok;
+}
+
+function validateEditForm() {
+  const titreEl = document.getElementById('ea-titre');
+  const prixEl  = document.getElementById('ea-prix');
+  let ok = true;
+  if (titreEl && !validateEaField(titreEl, 'titre')) ok = false;
+  if (prixEl  && !validateEaField(prixEl,  'prix'))  ok = false;
+  if (!ok) showToast('Corrigez les champs en erreur avant d\'enregistrer.', 'error');
+  return ok;
+}
+
 function saveEditAnnonce() {
   if (editLotCtx) { saveLotEditModal(); return; }
+  if (!validateEditForm()) return;
   const a = ANNONCES.find(x => x.id === editAnnonceId);
   if (!a) return;
   const val = id => { const el = document.getElementById(id); return el ? el.value.trim() : undefined; };
   const titre = val('ea-titre');
-  if (!titre) { showToast('Le titre est obligatoire.', 'error'); return; }
   const checked = id => { const el = document.getElementById(id); return el ? el.checked : undefined; };
   a.titre          = titre;
   a.type           = val('ea-type') ?? a.type;
@@ -5592,6 +5637,110 @@ function showToast(msg, type) {
 }
 
 /* ---- PLACEHOLDER ---- */
+/* ---- PARAMETRES ---- */
+function renderParametres() {
+  const c = SITE_CONFIG;
+  return `
+  <div class="view-header">
+    <div>
+      <div class="view-title">Paramètres du site</div>
+      <div class="view-sub">Informations de contact, liens légaux et métadonnées affichées sur Immo24.tn</div>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;max-width:900px">
+
+    <div class="table-card" style="padding:24px">
+      <div class="form-section-title" style="margin-bottom:20px">Informations de contact</div>
+      <div class="form-group" style="margin-bottom:14px">
+        <label style="font-size:12.5px;font-weight:600;color:var(--gray-800)">Nom du site</label>
+        <input type="text" id="cfg-nom" value="${c.nom}" class="form-control" />
+      </div>
+      <div class="form-group" style="margin-bottom:14px">
+        <label style="font-size:12.5px;font-weight:600;color:var(--gray-800)">E-mail de contact</label>
+        <input type="email" id="cfg-email" value="${c.email}" class="form-control" />
+      </div>
+      <div class="form-group" style="margin-bottom:14px">
+        <label style="font-size:12.5px;font-weight:600;color:var(--gray-800)">Téléphone</label>
+        <input type="tel" id="cfg-telephone" value="${c.telephone}" class="form-control" />
+      </div>
+      <div class="form-group" style="margin-bottom:14px">
+        <label style="font-size:12.5px;font-weight:600;color:var(--gray-800)">WhatsApp</label>
+        <input type="tel" id="cfg-whatsapp" value="${c.whatsapp}" class="form-control" />
+      </div>
+      <div class="form-group" style="margin-bottom:0">
+        <label style="font-size:12.5px;font-weight:600;color:var(--gray-800)">Adresse</label>
+        <input type="text" id="cfg-adresse" value="${c.adresse}" class="form-control" />
+      </div>
+    </div>
+
+    <div class="table-card" style="padding:24px">
+      <div class="form-section-title" style="margin-bottom:20px">Liens légaux</div>
+      <div class="form-group" style="margin-bottom:14px">
+        <label style="font-size:12.5px;font-weight:600;color:var(--gray-800)">URL — Conditions d'utilisation (CGU)</label>
+        <input type="text" id="cfg-url_cgu" value="${c.url_cgu}" class="form-control" placeholder="cgu.html" />
+        <div style="font-size:11px;color:var(--gray-400);margin-top:4px">Chemin relatif ou URL absolue</div>
+      </div>
+      <div class="form-group" style="margin-bottom:20px">
+        <label style="font-size:12.5px;font-weight:600;color:var(--gray-800)">URL — Politique de confidentialité</label>
+        <input type="text" id="cfg-url_confidentialite" value="${c.url_confidentialite}" class="form-control" placeholder="confidentialite.html" />
+      </div>
+      <div class="form-section-title" style="margin-bottom:16px">Réseaux sociaux</div>
+      <div class="form-group" style="margin-bottom:14px">
+        <label style="font-size:12.5px;font-weight:600;color:var(--gray-800)"><i class="fab fa-facebook" style="color:#1877f2;margin-right:6px"></i>Facebook</label>
+        <input type="url" id="cfg-facebook" value="${c.facebook}" class="form-control" placeholder="https://facebook.com/immo24tn" />
+      </div>
+      <div class="form-group" style="margin-bottom:14px">
+        <label style="font-size:12.5px;font-weight:600;color:var(--gray-800)"><i class="fab fa-instagram" style="color:#e1306c;margin-right:6px"></i>Instagram</label>
+        <input type="url" id="cfg-instagram" value="${c.instagram}" class="form-control" placeholder="https://instagram.com/immo24tn" />
+      </div>
+      <div class="form-group" style="margin-bottom:0">
+        <label style="font-size:12.5px;font-weight:600;color:var(--gray-800)"><i class="fab fa-linkedin" style="color:#0077b5;margin-right:6px"></i>LinkedIn</label>
+        <input type="url" id="cfg-linkedin" value="${c.linkedin}" class="form-control" placeholder="https://linkedin.com/company/immo24tn" />
+      </div>
+    </div>
+
+    <div class="table-card" style="padding:24px;grid-column:1/-1">
+      <div class="form-section-title" style="margin-bottom:16px">SEO & Métadonnées</div>
+      <div class="form-group" style="margin-bottom:0">
+        <label style="font-size:12.5px;font-weight:600;color:var(--gray-800)">Description meta (page d'accueil)</label>
+        <textarea id="cfg-meta_desc" class="form-control" rows="2" style="resize:none;font-size:13px;padding:10px 14px;border:1.5px solid var(--gray-200);border-radius:var(--radius);font-family:inherit;line-height:1.6;outline:none;transition:border-color .18s">${c.meta_desc}</textarea>
+        <div style="font-size:11px;color:var(--gray-400);margin-top:4px">Recommandé : 120–160 caractères</div>
+      </div>
+    </div>
+
+  </div>
+  <div style="margin-top:20px;max-width:900px;display:flex;align-items:center;gap:12px">
+    <button class="btn btn-primary" onclick="saveParametres()"><i class="fas fa-check"></i> Enregistrer les paramètres</button>
+    <button class="btn btn-outline" onclick="resetParametres()"><i class="fas fa-rotate-left"></i> Réinitialiser</button>
+  </div>`;
+}
+
+function saveParametres() {
+  const fields = ['nom','email','telephone','whatsapp','adresse','url_cgu','url_confidentialite','facebook','instagram','linkedin','meta_desc'];
+  const errors = [];
+  fields.forEach(k => {
+    const el = document.getElementById('cfg-' + k);
+    if (!el) return;
+    if (k === 'email' && el.value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(el.value)) {
+      errors.push('Adresse e-mail invalide.');
+      el.style.borderColor = 'var(--red)';
+    } else {
+      el.style.borderColor = '';
+      SITE_CONFIG[k] = el.value.trim();
+    }
+  });
+  if (errors.length) { showToast(errors[0], 'error'); return; }
+  localStorage.setItem('immo24_site_config', JSON.stringify(SITE_CONFIG));
+  showToast('Paramètres enregistrés.');
+}
+
+function resetParametres() {
+  localStorage.removeItem('immo24_site_config');
+  SITE_CONFIG = { nom:'Immo24.tn', email:'contact@immo24.tn', telephone:'+216 71 234 567', whatsapp:'+216 98 765 432', adresse:'Immeuble Espace Lac, Lac 2, 1053 Tunis', url_cgu:'cgu.html', url_confidentialite:'confidentialite.html', facebook:'', instagram:'', linkedin:'', meta_desc:'La première plateforme tunisienne dédiée à l\'immobilier professionnel.' };
+  navigateTo('parametres');
+  showToast('Paramètres réinitialisés.');
+}
+
 function renderPlaceholder(view) {
   const icons = { profil:'fa-user', abonnement:'fa-star', parametres:'fa-sliders', logs:'fa-list-check' };
   return `<div class="table-card"><div class="empty-state">
