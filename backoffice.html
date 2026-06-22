@@ -43,6 +43,8 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
     body { font-family: 'Inter', sans-serif; color: var(--gray-800); background: var(--gray-50); display: flex; height: 100vh; overflow: hidden; }
+    .skip-link { position:absolute; top:-100px; left:12px; z-index:9999; background:var(--navy); color:#fff; padding:9px 16px; border-radius:0 0 8px 8px; font-size:13px; font-weight:700; text-decoration:none; transition:top .2s; }
+    .skip-link:focus { top:0; }
     a { text-decoration: none; color: inherit; }
     button { cursor: pointer; font-family: inherit; border: none; }
     input, select, textarea { font-family: inherit; }
@@ -1009,6 +1011,7 @@
   </style>
 </head>
 <body>
+<a href="#main-content" class="skip-link">Aller au contenu principal</a>
 
 <!-- ============ SIDEBAR ============ -->
 <aside class="sidebar">
@@ -2267,14 +2270,14 @@
    surface = surface utile (m²) ; surfaceCouverte = surface couverte (m²)
    tf = titre foncier / réquisition ; tva, foprolos, primo = avantages fiscaux (neuf) */
 const ANNONCES = [
-  { id:'AN-1041', titre:'Appartement S+3 Lac 2 vue lac', type:'Appartement', nature:'S+3', transaction:'Vente', prix:385000, periodicite:'vente', surface:140, surfaceCouverte:155, gouvernorat:'Tunis', quartier:'Lac 2', statut:'published', agent:'Sonia Mejri', promoteur:'', tf:'TF 124578 Tunis', tva:true, foprolos:false, primo:true, vues:324, clics:512, whatsapp:48, brochure:21, demandes:12, date:'12/05/2026' },
-  { id:'AN-1040', titre:'Villa R+1 Marsa piscine privée', type:'Villa', nature:'S+4', transaction:'Vente', prix:920000, periodicite:'vente', surface:380, surfaceCouverte:310, gouvernorat:'Tunis', quartier:'La Marsa', statut:'published', agent:'Mehdi Trabelsi', promoteur:'', tf:'TF 098321 Tunis', tva:false, foprolos:false, primo:false, vues:218, clics:301, whatsapp:33, brochure:14, demandes:8, date:'20/03/2026' },
-  { id:'AN-1039', titre:'Bureau 80m² Ennasr II', type:'Bureau', nature:'—', transaction:'Location', prix:2200, periodicite:'mois', surface:80, surfaceCouverte:80, gouvernorat:'Ariana', quartier:'Ennasr II', statut:'pending', agent:'Sonia Mejri', promoteur:'', tf:'Réquisition 4521 Ariana', tva:true, foprolos:false, primo:false, vues:97, clics:120, whatsapp:9, brochure:3, demandes:3, date:'08/05/2026' },
-  { id:'AN-1038', titre:'S+2 Manar I ensoleillé', type:'Appartement', nature:'S+2', transaction:'Vente', prix:175000, periodicite:'vente', surface:85, surfaceCouverte:95, gouvernorat:'Tunis', quartier:'Manar I', statut:'draft', agent:'Yassine Khelil', promoteur:'', tf:'TF 201145 Tunis', tva:true, foprolos:true, primo:true, vues:0, clics:0, whatsapp:0, brochure:0, demandes:0, date:'07/05/2026' },
-  { id:'AN-1037', titre:'Terrain 500m² Hammamet Nord', type:'Terrain', nature:'—', transaction:'Vente', prix:210000, periodicite:'vente', surface:500, surfaceCouverte:0, gouvernorat:'Nabeul', quartier:'Hammamet Nord', statut:'published', agent:'Mehdi Trabelsi', promoteur:'', tf:'TF 556012 Nabeul', tva:false, foprolos:false, primo:false, vues:441, clics:680, whatsapp:71, brochure:38, demandes:19, date:'02/05/2026' },
-  { id:'AN-1036', titre:'Appartement S+1 Charguia I', type:'Appartement', nature:'S+1', transaction:'Location', prix:700, periodicite:'mois', surface:55, surfaceCouverte:62, gouvernorat:'Ariana', quartier:'Charguia', statut:'sold', agent:'Yassine Khelil', promoteur:'', tf:'TF 330987 Ariana', tva:false, foprolos:false, primo:false, vues:563, clics:902, whatsapp:96, brochure:42, demandes:27, date:'28/04/2026' },
-  { id:'AN-1035', titre:'Local commercial Bab El Bhar', type:'Local commercial', nature:'—', transaction:'Cession', prix:450000, periodicite:'cession', surface:200, surfaceCouverte:200, gouvernorat:'Tunis', quartier:'Centre ville', statut:'suspended', agent:'Sonia Mejri', promoteur:'', tf:'TF 014702 Tunis', tva:true, foprolos:false, primo:false, vues:88, clics:110, whatsapp:6, brochure:2, demandes:2, date:'25/04/2026' },
-  { id:'AN-1034', titre:'Duplex S+4 Résidence Les Jasmins', type:'Appartement', nature:'S+4', transaction:'Vente', prix:678000, periodicite:'vente', surface:217, surfaceCouverte:240, gouvernorat:'Tunis', quartier:'Lac 2', statut:'published', agent:'', promoteur:'Immobilis Group', tf:'TF 124578 Tunis', tva:true, foprolos:false, primo:true, vues:189, clics:255, whatsapp:27, brochure:33, demandes:11, date:'06/05/2026' },
+  { id:'AN-1041', titre:'Appartement S+3 Lac 2 vue lac', type:'Appartement', nature:'S+3', transaction:'Vente', prix:385000, periodicite:'vente', surface:140, surfaceCouverte:155, gouvernorat:'Tunis', quartier:'Lac 2', statut:'published', agent:'Sonia Mejri', promoteur:'', tf:'TF 124578 Tunis', tva:true, foprolos:false, primo:true, vues:324, clics:512, whatsapp:48, brochure:21, demandes:12, date:'14/06/2026' },
+  { id:'AN-1040', titre:'Villa R+1 Marsa piscine privée', type:'Villa', nature:'S+4', transaction:'Vente', prix:920000, periodicite:'vente', surface:380, surfaceCouverte:310, gouvernorat:'Tunis', quartier:'La Marsa', statut:'published', agent:'Mehdi Trabelsi', promoteur:'', tf:'TF 098321 Tunis', tva:false, foprolos:false, primo:false, vues:218, clics:301, whatsapp:33, brochure:14, demandes:8, date:'02/05/2026' },
+  { id:'AN-1039', titre:'Bureau 80m² Ennasr II', type:'Bureau', nature:'—', transaction:'Location', prix:2200, periodicite:'mois', surface:80, surfaceCouverte:80, gouvernorat:'Ariana', quartier:'Ennasr II', statut:'pending', agent:'Sonia Mejri', promoteur:'', tf:'Réquisition 4521 Ariana', tva:true, foprolos:false, primo:false, vues:97, clics:120, whatsapp:9, brochure:3, demandes:3, date:'09/06/2026' },
+  { id:'AN-1038', titre:'S+2 Manar I ensoleillé', type:'Appartement', nature:'S+2', transaction:'Vente', prix:175000, periodicite:'vente', surface:85, surfaceCouverte:95, gouvernorat:'Tunis', quartier:'Manar I', statut:'draft', agent:'Yassine Khelil', promoteur:'', tf:'TF 201145 Tunis', tva:true, foprolos:true, primo:true, vues:0, clics:0, whatsapp:0, brochure:0, demandes:0, date:'18/06/2026' },
+  { id:'AN-1037', titre:'Terrain 500m² Hammamet Nord', type:'Terrain', nature:'—', transaction:'Vente', prix:210000, periodicite:'vente', surface:500, surfaceCouverte:0, gouvernorat:'Nabeul', quartier:'Hammamet Nord', statut:'published', agent:'Mehdi Trabelsi', promoteur:'', tf:'TF 556012 Nabeul', tva:false, foprolos:false, primo:false, vues:441, clics:680, whatsapp:71, brochure:38, demandes:19, date:'27/03/2026' },
+  { id:'AN-1036', titre:'Appartement S+1 Charguia I', type:'Appartement', nature:'S+1', transaction:'Location', prix:700, periodicite:'mois', surface:55, surfaceCouverte:62, gouvernorat:'Ariana', quartier:'Charguia', statut:'sold', agent:'Yassine Khelil', promoteur:'', tf:'TF 330987 Ariana', tva:false, foprolos:false, primo:false, vues:563, clics:902, whatsapp:96, brochure:42, demandes:27, date:'11/04/2026' },
+  { id:'AN-1035', titre:'Local commercial Bab El Bhar', type:'Local commercial', nature:'—', transaction:'Cession', prix:450000, periodicite:'cession', surface:200, surfaceCouverte:200, gouvernorat:'Tunis', quartier:'Centre ville', statut:'suspended', agent:'Sonia Mejri', promoteur:'', tf:'TF 014702 Tunis', tva:true, foprolos:false, primo:false, vues:88, clics:110, whatsapp:6, brochure:2, demandes:2, date:'07/02/2026' },
+  { id:'AN-1034', titre:'Duplex S+4 Résidence Les Jasmins', type:'Appartement', nature:'S+4', transaction:'Vente', prix:678000, periodicite:'vente', surface:217, surfaceCouverte:240, gouvernorat:'Tunis', quartier:'Lac 2', statut:'published', agent:'', promoteur:'Immobilis Group', tf:'TF 124578 Tunis', tva:true, foprolos:false, primo:true, vues:189, clics:255, whatsapp:27, brochure:33, demandes:11, date:'23/05/2026' },
 ];
 
 /* verif: socle de confiance — pièces contrôlées (otp tél, identité CIN, registre de commerce, agrément/carte pro) */
@@ -3306,7 +3309,7 @@ function saveProjet(action) {
   const isProm   = currentRole === 'promoteur';
 
   if (!nom && action === 'submit') {
-    alert('Le nom du projet est obligatoire.');
+    showToast('Le nom du projet est obligatoire.', 'error'); return;
     return;
   }
 
@@ -3567,7 +3570,7 @@ function saveEditAnnonce() {
   if (!a) return;
   const val = id => { const el = document.getElementById(id); return el ? el.value.trim() : undefined; };
   const titre = val('ea-titre');
-  if (!titre) { alert('Le titre est obligatoire.'); return; }
+  if (!titre) { showToast('Le titre est obligatoire.', 'error'); return; }
   const checked = id => { const el = document.getElementById(id); return el ? el.checked : undefined; };
   a.titre          = titre;
   a.type           = val('ea-type') ?? a.type;
@@ -4071,11 +4074,11 @@ function saveUser(mode, id) {
   const role   = document.getElementById('u-role').value;
   const agence = document.getElementById('u-agence').value.trim();
   const statut = document.getElementById('u-statut').value;
-  if (!nom || !email) { alert('Nom et email sont obligatoires.'); return; }
+  if (!nom || !email) { showToast('Nom et email sont obligatoires.', 'error'); return; }
   if (mode === 'add') {
     const pwd  = document.getElementById('u-pwd').value;
     const pwd2 = document.getElementById('u-pwd2').value;
-    if (pwd !== pwd2) { alert('Les mots de passe ne correspondent pas.'); return; }
+    if (pwd !== pwd2) { showToast('Les mots de passe ne correspondent pas.', 'error'); return; }
     const newId = 'U-' + String(USERS.length + 1).padStart(3,'0');
     USERS.push({ id:newId, nom, email, role, agence, annonces:0, statut, date: new Date().toLocaleDateString('fr-TN') });
   } else {
@@ -4218,7 +4221,7 @@ function saveRole(mode, id) {
   const slug = document.getElementById('r-slug').value.trim();
   const desc = document.getElementById('r-desc').value.trim();
   const perms = [...document.querySelectorAll('#modal-role-form input[type=checkbox]:checked')].map(cb=>cb.value);
-  if (!nom || !slug) { alert('Nom et identifiant sont obligatoires.'); return; }
+  if (!nom || !slug) { showToast('Nom et identifiant sont obligatoires.', 'error'); return; }
   if (mode === 'add') {
     ROLES.push({ id:'R-'+String(ROLES.length+1).padStart(3,'0'), nom, slug, couleur:'#5A6475', users:0, description:desc, permissions:perms });
   } else {
@@ -5498,18 +5501,25 @@ function saveProfilData() {
   showToast('✅ Modifications enregistrées avec succès !');
 }
 
-function showToast(msg) {
+function showToast(msg, type) {
+  const isError = type === 'error';
   let t = document.getElementById('bo-toast');
   if (!t) {
     t = document.createElement('div');
     t.id = 'bo-toast';
-    t.style.cssText = 'position:fixed;bottom:24px;right:24px;background:var(--navy);color:#fff;padding:13px 20px;border-radius:10px;font-size:13px;font-weight:600;box-shadow:var(--shadow-lg);z-index:9999;transition:opacity .3s;display:flex;align-items:center;gap:10px;max-width:320px';
+    t.style.cssText = 'position:fixed;bottom:24px;right:24px;padding:13px 20px;border-radius:10px;font-size:13px;font-weight:600;box-shadow:0 4px 24px rgba(27,58,107,.22);z-index:9999;transition:opacity .3s,transform .3s;display:flex;align-items:center;gap:10px;max-width:340px;border:1.5px solid transparent';
     document.body.appendChild(t);
   }
-  t.innerHTML = `<i class="fas fa-check-circle" style="color:var(--gold);font-size:16px"></i> ${msg}`;
-  t.style.opacity = '1';
+  if (isError) {
+    t.style.background = '#FEE2E2'; t.style.color = '#991B1B'; t.style.borderColor = '#FCA5A5';
+    t.innerHTML = `<i class="fas fa-exclamation-circle" style="font-size:15px;flex-shrink:0"></i> ${msg}`;
+  } else {
+    t.style.background = 'var(--navy)'; t.style.color = '#fff'; t.style.borderColor = 'transparent';
+    t.innerHTML = `<i class="fas fa-check-circle" style="color:var(--gold);font-size:15px;flex-shrink:0"></i> ${msg}`;
+  }
+  t.style.opacity = '1'; t.style.transform = 'translateY(0)';
   clearTimeout(t._to);
-  t._to = setTimeout(() => { t.style.opacity = '0'; }, 3000);
+  t._to = setTimeout(() => { t.style.opacity = '0'; t.style.transform = 'translateY(8px)'; }, 3200);
 }
 
 /* ---- PLACEHOLDER ---- */
@@ -6102,10 +6112,10 @@ function openEditHeroSlide(id) {
 }
 function saveHeroSlide() {
   const titre = document.getElementById('hero-titre').value.trim();
-  if (!titre) { alert('Le titre est requis.'); return; }
+  if (!titre) { showToast('Le titre est requis.', 'error'); return; }
   const srcUrl = document.getElementById('hero-src-url').value.trim();
   const src = _heroImgData || srcUrl;
-  if (!src) { alert('Veuillez fournir une image ou une URL.'); return; }
+  if (!src) { showToast('Veuillez fournir une image ou une URL.', 'error'); return; }
   const id = parseInt(document.getElementById('hero-edit-id').value);
   const type = document.getElementById('hero-type-video').checked ? 'video' : 'image';
   const data = {
@@ -6246,7 +6256,7 @@ function previewMenuIcon() {
 function saveMenuItem() {
   const id = parseInt(document.getElementById('menu-edit-id').value);
   const label = document.getElementById('menu-label').value.trim();
-  if (!label) { alert('Le libellé est requis.'); return; }
+  if (!label) { showToast('Le libellé est requis.', 'error'); return; }
   const icon    = document.getElementById('menu-icon').value.trim() || 'fas fa-link';
   const url     = document.getElementById('menu-url').value.trim() || '#';
   const visible = document.getElementById('menu-vis-yes').checked;
@@ -6399,10 +6409,10 @@ function openEditBanniere(id) {
 function saveBanniere() {
   const cta = document.getElementById('ban-cta').value.trim();
   const url  = document.getElementById('ban-url').value.trim();
-  if (!cta) { alert('Le texte du bouton CTA est requis.'); return; }
-  if (!url) { alert('L\'URL de redirection est requise.'); return; }
+  if (!cta) { showToast('Le texte du bouton CTA est requis.', 'error'); return; }
+  if (!url) { showToast("L'URL de redirection est requise.", 'error'); return; }
   const emplacements = [...document.querySelectorAll('input[name="ban-place"]:checked')].map(c=>c.value);
-  if (!emplacements.length) { alert('Sélectionnez au moins un emplacement.'); return; }
+  if (!emplacements.length) { showToast('Sélectionnez au moins un emplacement.', 'error'); return; }
   const id = parseInt(document.getElementById('ban-edit-id').value);
   const data = { cta, url, emplacements, actif: document.getElementById('ban-actif-yes').checked, img: _banImgData||null, fond:'gold' };
   if (id) {
@@ -6751,7 +6761,7 @@ function updatePartPreview() {
 }
 function savePartenaire() {
   const nom=document.getElementById('part-nom').value.trim();
-  if(!nom){alert('Le nom est requis.');return;}
+  if(!nom){showToast('Le nom est requis.', 'error');return;}
   const id=parseInt(document.getElementById('part-edit-id').value);
   const data={
     nom, initiales:document.getElementById('part-initiales').value.trim()||nom.slice(0,2).toUpperCase(),
@@ -6891,7 +6901,7 @@ function openEditActu(id){
 }
 function saveActu(){
   const titre=document.getElementById('actu-titre').value.trim();
-  if(!titre){alert('Le titre est requis.');return;}
+  if(!titre){ showToast('Le titre est requis.', 'error'); return; }
   const dateVal=document.getElementById('actu-date').value;
   const parts=dateVal.split('-');
   const dateStr=parts.length===3?`${parts[2]}/${parts[1]}/${parts[0]}`:dateVal;
@@ -7983,23 +7993,7 @@ function confirmSendRecapEmail() {
   showToast('✓ Email récapitulatif envoyé avec succès', 'green');
 }
 
-/* ===================== TOAST ===================== */
-function showToast(msg, type) {
-  let t = document.getElementById('global-toast');
-  if (!t) {
-    t = document.createElement('div');
-    t.id = 'global-toast';
-    t.style.cssText = 'position:fixed;bottom:28px;right:28px;z-index:9999;padding:12px 20px;border-radius:10px;font-size:13px;font-weight:600;box-shadow:0 4px 16px rgba(0,0,0,.18);transition:opacity .3s;display:flex;align-items:center;gap:8px';
-    document.body.appendChild(t);
-  }
-  t.style.background = type === 'green' ? '#E8F5F3' : '#FDECEA';
-  t.style.color = type === 'green' ? 'var(--green)' : 'var(--red)';
-  t.style.border = type === 'green' ? '1.5px solid #6EE7B7' : '1.5px solid #FCA5A5';
-  t.textContent = msg;
-  t.style.opacity = '1';
-  clearTimeout(t._to);
-  t._to = setTimeout(() => t.style.opacity = '0', 3200);
-}
+/* showToast is defined earlier — single implementation */
 
 /* ===================== BOOT ===================== */
 renderNav();

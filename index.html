@@ -43,6 +43,13 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
     body { font-family: 'Inter', sans-serif; color: var(--gray-800); background: var(--white); }
+    .skip-link {
+      position: absolute; top: -100px; left: 16px; z-index: 9999;
+      background: var(--navy); color: #fff; padding: 10px 18px;
+      border-radius: 0 0 8px 8px; font-size: 13px; font-weight: 700;
+      text-decoration: none; transition: top .2s;
+    }
+    .skip-link:focus { top: 0; }
     a { text-decoration: none; color: inherit; }
     button { cursor: pointer; font-family: inherit; border: none; background: none; }
     img { display: block; max-width: 100%; }
@@ -1680,6 +1687,7 @@
 <link rel="stylesheet" href="responsive.css" />
 </head>
 <body>
+<a href="#main-content" class="skip-link">Aller au contenu principal</a>
 
 <!-- ===== NAVBAR ===== -->
 <nav class="navbar" id="navbar">
@@ -1710,6 +1718,7 @@
 </div>
 
 <!-- ===== HERO ===== -->
+<main id="main-content">
 <section class="hero">
 
   <div class="hero-img">
@@ -2918,6 +2927,7 @@
 </section>
 
 <!-- ===== FOOTER ===== -->
+</main>
 <footer>
   <div class="container">
     <div class="footer-grid">
