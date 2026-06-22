@@ -151,8 +151,8 @@
     /* ===== MAIN LAYOUT ===== */
     .main {
       display: flex;
-      height: 100vh;
-      padding-top: calc(var(--nav-h) + var(--filter-h));
+      height: calc(100vh - var(--nav-h) - var(--filter-h));
+      margin-top: calc(var(--nav-h) + var(--filter-h));
     }
 
     /* ===== LIST PANEL ===== */
