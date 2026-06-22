@@ -3061,7 +3061,7 @@ function renderAnnonces() {
         <button class="btn btn-sm" style="background:#EFF6FF;color:var(--blue);border:none;font-weight:700" onclick="massUpdateStatut('sold')"><i class="fas fa-check-circle"></i> Marquer vendues</button>
         <button class="btn btn-sm" style="background:var(--gold-light);color:var(--gold-dark);border:none;font-weight:700" onclick="massUpdateStatut('reserved')"><i class="fas fa-clock"></i> Marquer réservées</button>
         <button class="btn btn-sm btn-outline" onclick="massDeselect()"><i class="fas fa-times"></i> Désélectionner</button>
-        <button class="btn btn-sm" style="background:#E8F5F3;color:var(--green);border:none;font-weight:700;margin-left:auto" onclick="sendRecapEmail()"><i class="fas fa-envelope"></i> Envoyer récap email</button>
+        ${currentRole === 'admin' ? `<button class="btn btn-sm" style="background:#E8F5F3;color:var(--green);border:none;font-weight:700;margin-left:auto" onclick="sendRecapEmail()"><i class="fas fa-envelope"></i> Envoyer récap email</button>` : ''}
       </div>
 
       <div class="table-wrap">
@@ -3498,7 +3498,7 @@ function renderSuiviVentes() {
         <button class="btn btn-sm" style="background:var(--gold-light);color:var(--gold-dark);border:none;font-weight:700" onclick="massUpdateLot('reserve')"><i class="fas fa-clock"></i> Marquer réservés</button>
         <button class="btn btn-sm" style="background:#E8F5F3;color:var(--green);border:none;font-weight:700" onclick="massUpdateLot('disponible')"><i class="fas fa-redo"></i> Remettre disponible</button>
         <button class="btn btn-sm btn-outline" onclick="massDeselectLot()"><i class="fas fa-times"></i> Désélectionner</button>
-        <button class="btn btn-sm" style="background:#E8F5F3;color:var(--green);border:none;font-weight:700;margin-left:auto" onclick="sendSuiviRecapEmail()"><i class="fas fa-envelope"></i> Envoyer récap email</button>
+        ${currentRole === 'admin' ? `<button class="btn btn-sm" style="background:#E8F5F3;color:var(--green);border:none;font-weight:700;margin-left:auto" onclick="sendSuiviRecapEmail()"><i class="fas fa-envelope"></i> Envoyer récap email</button>` : ''}
       </div>
       <div class="table-wrap">
         <table>
