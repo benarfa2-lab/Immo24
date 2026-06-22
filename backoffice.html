@@ -2107,6 +2107,72 @@
   </div>
 </div>
 
+<!-- ============ MODAL MARK LOT ============ -->
+<div class="modal-overlay" id="modal-mark-lot">
+  <div class="modal" style="max-width:420px">
+    <div class="modal-header">
+      <i class="fas fa-tag" style="color:var(--blue);font-size:18px"></i>
+      <div class="modal-title" id="mark-lot-title">Mettre à jour le bien</div>
+      <button class="modal-close" onclick="closeModal('modal-mark-lot')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body" style="padding:20px">
+      <input type="hidden" id="mark-lot-proj" />
+      <input type="hidden" id="mark-lot-ref" />
+      <p style="font-size:13px;color:var(--gray-600);margin-bottom:16px">Choisissez le nouveau statut commercial :</p>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <button class="btn" style="background:#EFF6FF;color:var(--blue);border:1.5px solid #BFDBFE;font-weight:700;justify-content:flex-start;gap:10px;padding:12px 16px" onclick="confirmMarkLot('vendu')">
+          <i class="fas fa-check-circle" style="font-size:16px"></i>
+          <div style="text-align:left"><div>Vendu</div><div style="font-size:11px;font-weight:400;opacity:.7">Transaction finalisée</div></div>
+        </button>
+        <button class="btn" style="background:var(--gold-light);color:var(--gold-dark);border:1.5px solid #FDE68A;font-weight:700;justify-content:flex-start;gap:10px;padding:12px 16px" onclick="confirmMarkLot('reserve')">
+          <i class="fas fa-clock" style="font-size:16px"></i>
+          <div style="text-align:left"><div>Réservé</div><div style="font-size:11px;font-weight:400;opacity:.7">Compromis signé, en attente de finalisation</div></div>
+        </button>
+        <button class="btn" style="background:#E8F5F3;color:var(--green);border:1.5px solid #6EE7B7;font-weight:700;justify-content:flex-start;gap:10px;padding:12px 16px" onclick="confirmMarkLot('disponible')">
+          <i class="fas fa-redo" style="font-size:16px"></i>
+          <div style="text-align:left"><div>Disponible</div><div style="font-size:11px;font-weight:400;opacity:.7">Annuler / libérer le bien</div></div>
+        </button>
+      </div>
+      <div style="margin-top:16px;padding:12px 14px;background:var(--gold-light);border-radius:8px;font-size:12px;color:#92400E">
+        <i class="fab fa-whatsapp" style="color:#25D366;margin-right:6px;font-size:13px"></i>
+        <strong>Astuce :</strong> Répondez simplement <strong>"VENDU"</strong>, <strong>"RÉSERVÉ"</strong> ou <strong>"DISPO"</strong> au message de relance WhatsApp pour mettre à jour automatiquement.
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-mark-lot')">Annuler</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MODAL RECAP EMAIL SUIVI ============ -->
+<div class="modal-overlay" id="modal-suivi-recap-email">
+  <div class="modal" style="max-width:600px">
+    <div class="modal-header">
+      <i class="fas fa-envelope" style="color:var(--green);font-size:18px"></i>
+      <div class="modal-title">Récapitulatif email — Suivi des ventes</div>
+      <button class="modal-close" onclick="closeModal('modal-suivi-recap-email')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body" style="padding:20px">
+      <p style="font-size:13px;color:var(--gray-600);margin-bottom:16px">Un email sera envoyé avec la liste des biens disponibles / réservés. Chaque bien dispose d'un bouton <strong>"Marquer comme vendu"</strong> — le clic met à jour automatiquement la base de données.</p>
+      <div style="border:1.5px solid var(--gray-200);border-radius:10px;overflow:hidden;font-size:13px">
+        <div style="background:var(--navy);padding:16px 20px;display:flex;align-items:center;gap:12px">
+          <img src="immo24-light.svg" style="height:28px" onerror="this.style.display='none'" />
+          <span style="color:#fff;font-weight:700;font-size:15px">Immo24 · Récap suivi des ventes</span>
+        </div>
+        <div style="padding:20px">
+          <p style="color:var(--gray-600);margin-bottom:14px;font-size:12px">Bonjour,<br>Voici la liste de vos biens à mettre à jour. Cliquez sur <strong>"Marquer vendu"</strong> pour chaque bien finalisé.</p>
+          <div id="suivi-recap-rows" style="display:flex;flex-direction:column;gap:8px"></div>
+          <p style="font-size:11px;color:var(--gray-400);margin-top:16px">Ce lien est valable 7 jours. Immo24 · Tunis, Tunisie</p>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-suivi-recap-email')">Annuler</button>
+      <button class="btn btn-primary" onclick="confirmSendSuiviRecap()"><i class="fas fa-paper-plane"></i> Envoyer l'email</button>
+    </div>
+  </div>
+</div>
+
 <!-- ============ MODAL MARK SOLD ============ -->
 <div class="modal-overlay" id="modal-mark-sold">
   <div class="modal" style="max-width:420px">
@@ -3387,14 +3453,21 @@ function renderSuiviVentes() {
   const tab = (k,l,n) => `<button onclick="setSuiviFilter('${k}')" style="display:inline-flex;align-items:center;gap:7px;white-space:nowrap;height:34px;padding:0 14px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:1.5px solid ${suiviFilter===k?'var(--navy)':'var(--gray-200)'};background:${suiviFilter===k?'var(--navy)':'#fff'};color:${suiviFilter===k?'#fff':'var(--gray-600)'}">${l} <span style="opacity:.7">(${n})</span></button>`;
 
   const rows = list.map(b => {
+    const canMark = (currentRole === 'admin' || currentRole === 'promoteur' || currentRole === 'agent');
     return `<tr>
+      <td style="width:36px;padding:0 8px"><input type="checkbox" class="row-check lot-check" data-proj="${b.projetId}" data-ref="${b.ref}" onchange="onLotCheck()" /></td>
       <td style="font-weight:700;font-size:12px;color:var(--navy)">${b.ref}</td>
       <td style="font-size:12.5px">${b.projetNom}</td>
       <td><span style="background:var(--navy-light);color:var(--navy);padding:3px 9px;border-radius:50px;font-size:11.5px;font-weight:700">${b.type}</span></td>
       <td style="font-size:12.5px">${b.surface||'—'} m²</td>
       <td><span class="vente-badge ${b.statut}">${venteLabel[b.statut]||b.statut}</span></td>
       <td style="font-size:12.5px">${b.acquereur || '<span style="color:var(--gray-300)">—</span>'}</td>
-      <td><button class="icon-btn edit" title="Mettre à jour le statut" onclick="openLotSuivi('${b.projetId}','${b.ref}')"><i class="fas fa-pen"></i></button></td>
+      <td>
+        <div class="action-group">
+          ${canMark && b.statut !== 'vendu' ? `<button class="icon-btn sold" title="Marquer vendu / réservé" onclick="openMarkLotModal('${b.projetId}','${b.ref}')"><i class="fas fa-tag"></i></button>` : ''}
+          <button class="icon-btn edit" title="Détail complet" onclick="openLotSuivi('${b.projetId}','${b.ref}')"><i class="fas fa-pen"></i></button>
+        </div>
+      </td>
     </tr>`;
   }).join('');
 
@@ -3418,10 +3491,22 @@ function renderSuiviVentes() {
           ${tab('all','Tous',scoped.length)}${tab('disponible','Disponibles',cnt('disponible'))}${tab('reserve','Réservés',cnt('reserve'))}${tab('vendu','Vendus',cnt('vendu'))}
         </div>
       </div>
+      <!-- Mass toolbar suivi -->
+      <div class="mass-toolbar" id="suivi-mass-toolbar">
+        <span id="suivi-mass-count">0 sélectionné(s)</span>
+        <button class="btn btn-sm" style="background:#EFF6FF;color:var(--blue);border:none;font-weight:700" onclick="massUpdateLot('vendu')"><i class="fas fa-check-circle"></i> Marquer vendus</button>
+        <button class="btn btn-sm" style="background:var(--gold-light);color:var(--gold-dark);border:none;font-weight:700" onclick="massUpdateLot('reserve')"><i class="fas fa-clock"></i> Marquer réservés</button>
+        <button class="btn btn-sm" style="background:#E8F5F3;color:var(--green);border:none;font-weight:700" onclick="massUpdateLot('disponible')"><i class="fas fa-redo"></i> Remettre disponible</button>
+        <button class="btn btn-sm btn-outline" onclick="massDeselectLot()"><i class="fas fa-times"></i> Désélectionner</button>
+        <button class="btn btn-sm" style="background:#E8F5F3;color:var(--green);border:none;font-weight:700;margin-left:auto" onclick="sendSuiviRecapEmail()"><i class="fas fa-envelope"></i> Envoyer récap email</button>
+      </div>
       <div class="table-wrap">
         <table>
-          <thead><tr><th>Réf.</th><th>Projet</th><th>Type</th><th>Surface</th><th>Statut</th><th>Acquéreur</th><th></th></tr></thead>
-          <tbody>${rows || '<tr><td colspan="7" style="text-align:center;color:var(--gray-400);padding:30px">Aucun bien dans cette catégorie</td></tr>'}</tbody>
+          <thead><tr>
+            <th style="width:36px"><input type="checkbox" class="row-check" id="lot-check-all" onchange="toggleAllLots(this)" title="Tout sélectionner" /></th>
+            <th>Réf.</th><th>Projet</th><th>Type</th><th>Surface</th><th>Statut</th><th>Acquéreur</th><th>Actions</th>
+          </tr></thead>
+          <tbody>${rows || '<tr><td colspan="8" style="text-align:center;color:var(--gray-400);padding:30px">Aucun bien dans cette catégorie</td></tr>'}</tbody>
         </table>
       </div>
     </div>`;
@@ -7351,6 +7436,99 @@ document.addEventListener('click', function(e){
   const dd = document.getElementById('notif-dropdown');
   if (dd && dd.classList.contains('open') && !e.target.closest('.topbar-actions')) dd.classList.remove('open');
 });
+
+/* ===================== MARK LOT (SUIVI VENTES) ===================== */
+function openMarkLotModal(projetId, ref) {
+  const b = (ANNONCES_PROJET[projetId] || []).find(x => x.ref === ref);
+  if (!b) return;
+  document.getElementById('mark-lot-proj').value = projetId;
+  document.getElementById('mark-lot-ref').value = ref;
+  document.getElementById('mark-lot-title').textContent = `Bien ${b.ref} · ${b.type}`;
+  openModal('modal-mark-lot');
+}
+
+function confirmMarkLot(newStatut) {
+  const projetId = document.getElementById('mark-lot-proj').value;
+  const ref = document.getElementById('mark-lot-ref').value;
+  const biens = ANNONCES_PROJET[projetId] || [];
+  const b = biens.find(x => x.ref === ref);
+  if (!b) return;
+  b.statut = newStatut;
+  closeModal('modal-mark-lot');
+  const labelMap = { vendu:'Vendu', reserve:'Réservé', disponible:'Disponible' };
+  showToast(`✓ Bien ${ref} marqué « ${labelMap[newStatut] || newStatut} »`, 'green');
+  renderView();
+}
+
+/* ===================== MASS ACTIONS LOTS ===================== */
+function onLotCheck() {
+  const checks = document.querySelectorAll('.lot-check');
+  const checked = [...checks].filter(c => c.checked);
+  const toolbar = document.getElementById('suivi-mass-toolbar');
+  const countEl = document.getElementById('suivi-mass-count');
+  if (checked.length > 0) {
+    toolbar.classList.add('visible');
+    countEl.textContent = checked.length + ' sélectionné' + (checked.length > 1 ? 's' : '');
+  } else {
+    toolbar.classList.remove('visible');
+  }
+  const allCb = document.getElementById('lot-check-all');
+  if (allCb) allCb.checked = checked.length === checks.length && checks.length > 0;
+}
+
+function toggleAllLots(masterCb) {
+  document.querySelectorAll('.lot-check').forEach(c => c.checked = masterCb.checked);
+  onLotCheck();
+}
+
+function massDeselectLot() {
+  document.querySelectorAll('.lot-check, #lot-check-all').forEach(c => c.checked = false);
+  const toolbar = document.getElementById('suivi-mass-toolbar');
+  if (toolbar) toolbar.classList.remove('visible');
+}
+
+function massUpdateLot(newStatut) {
+  const checks = [...document.querySelectorAll('.lot-check:checked')];
+  if (!checks.length) return;
+  checks.forEach(c => {
+    const biens = ANNONCES_PROJET[c.dataset.proj] || [];
+    const b = biens.find(x => x.ref === c.dataset.ref);
+    if (b) b.statut = newStatut;
+  });
+  massDeselectLot();
+  const labelMap = { vendu:'Vendus', reserve:'Réservés', disponible:'Disponibles' };
+  showToast(`✓ ${checks.length} bien(s) marqué(s) « ${labelMap[newStatut] || newStatut} »`, 'green');
+  renderView();
+}
+
+/* ===================== RECAP EMAIL SUIVI ===================== */
+function sendSuiviRecapEmail() {
+  const checked = [...document.querySelectorAll('.lot-check:checked')];
+  const allBiens = suiviBiens();
+  const scope = checked.length > 0
+    ? checked.map(c => allBiens.find(b => b.projetId === c.dataset.proj && b.ref === c.dataset.ref)).filter(Boolean)
+    : allBiens.filter(b => b.statut !== 'vendu');
+
+  const rowsHtml = scope.map(b => `
+    <div style="display:flex;align-items:center;gap:12px;padding:10px 12px;border:1px solid var(--gray-200);border-radius:8px;background:#fff">
+      <div style="flex:1;min-width:0">
+        <div style="font-weight:700;font-size:12.5px;color:var(--navy)">${b.ref} · ${b.type}</div>
+        <div style="font-size:11px;color:var(--gray-400)">${b.projetNom} · ${b.surface} m² · ${Number(b.prix).toLocaleString('fr-TN')} TND</div>
+        <div style="margin-top:3px"><span class="vente-badge ${b.statut}" style="font-size:10px">${b.statut === 'disponible' ? 'Disponible' : b.statut === 'reserve' ? 'Réservé' : 'Vendu'}</span></div>
+      </div>
+      <a href="#" onclick="return false;" style="padding:6px 12px;background:var(--blue,#3B82F6);color:#fff;border-radius:6px;font-size:11px;font-weight:700;text-decoration:none;white-space:nowrap">
+        <i class="fas fa-check-circle" style="margin-right:4px"></i> Marquer vendu
+      </a>
+    </div>`).join('');
+
+  document.getElementById('suivi-recap-rows').innerHTML = rowsHtml || '<p style="color:var(--gray-400);font-size:12px">Aucun bien à relancer.</p>';
+  openModal('modal-suivi-recap-email');
+}
+
+function confirmSendSuiviRecap() {
+  closeModal('modal-suivi-recap-email');
+  showToast('✓ Email récapitulatif suivi des ventes envoyé', 'green');
+}
 
 /* ===================== MARK SOLD / RESERVED ===================== */
 function openMarkSoldModal(id) {
