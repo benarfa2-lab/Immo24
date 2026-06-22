@@ -128,14 +128,45 @@
     }
     .gallery-thumbs::-webkit-scrollbar { display:none; }
     .gthumb {
-      flex-shrink:0; width:90px; height:62px; border-radius:6px;
-      overflow:hidden; cursor:pointer; opacity:.55; transition:opacity .2s;
-      border:2px solid transparent;
+      flex-shrink:0; width:100px; height:68px; border-radius:8px;
+      overflow:hidden; cursor:pointer; opacity:.55; transition:all .2s;
+      border:2px solid transparent; position:relative;
     }
     .gthumb.active { opacity:1; border-color:var(--gold); }
-    .gthumb:hover { opacity:.85; }
+    .gthumb:hover { opacity:1; }
     .gthumb img { width:100%; height:100%; object-fit:cover; }
-    .gallery-thumbs-inner { display:flex; gap:6px; padding:0 12px; }
+    .gallery-thumbs-inner { display:flex; gap:8px; padding:0 14px; }
+
+    /* Media type thumbs */
+    .gthumb-media {
+      flex-shrink:0; width:100px; height:68px; border-radius:8px;
+      overflow:hidden; cursor:pointer; opacity:.72; transition:all .2s;
+      border:2px solid transparent; position:relative;
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      gap:4px;
+    }
+    .gthumb-media.active { opacity:1; border-color:var(--gold); }
+    .gthumb-media:hover { opacity:1; transform:scale(1.03); }
+    .gthumb-media img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+    .gthumb-media-overlay {
+      position:absolute; inset:0;
+      display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px;
+    }
+    .gthumb-media--360 { background:linear-gradient(135deg,#0f1f45,#1B3A6B); }
+    .gthumb-media--video { background:linear-gradient(135deg,#1a0a00,#7c2d00); }
+    .gthumb-media--map { background:linear-gradient(135deg,#0a1f0a,#1a4a1a); }
+    .gthumb-media-icon {
+      width:32px; height:32px; border-radius:50%;
+      display:flex; align-items:center; justify-content:center;
+      font-size:13px;
+    }
+    .gthumb-media--360 .gthumb-media-icon { background:rgba(230,168,23,.25); color:var(--gold); border:1.5px solid rgba(230,168,23,.5); }
+    .gthumb-media--video .gthumb-media-icon { background:rgba(255,80,0,.25); color:#ff8040; border:1.5px solid rgba(255,80,0,.5); }
+    .gthumb-media--map .gthumb-media-icon { background:rgba(37,211,102,.20); color:#25D366; border:1.5px solid rgba(37,211,102,.45); }
+    .gthumb-media-label {
+      font-size:9.5px; font-weight:700; text-transform:uppercase; letter-spacing:.5px;
+      color:rgba(255,255,255,.85);
+    }
 
     /* ===== MAIN CONTENT ===== */
     .listing-layout {
@@ -183,6 +214,9 @@
     }
     .tab-btn.active { color:var(--navy); border-bottom-color:var(--navy); }
     .tab-btn:hover:not(.active) { color:var(--gray-600); }
+    .tab-btn--media { color:var(--gray-400); }
+    .tab-btn--media.active { color:var(--gold); border-bottom-color:var(--gold); }
+    .tab-btn--media i { color:inherit; }
     .tab-pane { display:none; padding:24px; }
     .tab-pane.active { display:block; animation:gFade .25s ease; }
 
@@ -581,11 +615,35 @@
     <!-- Thumbnails -->
     <div class="gallery-thumbs">
       <div class="gallery-thumbs-inner" id="gthumbs">
-        <div class="gthumb active" onclick="galleryGo(0)"><img src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=200&q=70" /></div>
-        <div class="gthumb" onclick="galleryGo(1)"><img src="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=200&q=70" /></div>
-        <div class="gthumb" onclick="galleryGo(2)"><img src="https://images.unsplash.com/photo-1616594039964-ae9021a400a0?w=200&q=70" /></div>
-        <div class="gthumb" onclick="galleryGo(3)"><img src="https://images.unsplash.com/photo-1552321554-5fefe8c9ef14?w=200&q=70" /></div>
-        <div class="gthumb" onclick="galleryGo(4)"><img src="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=200&q=70" /></div>
+        <!-- Photos -->
+        <div class="gthumb active" onclick="galleryGo(0)"><img src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=200&q=70" alt="" /></div>
+        <div class="gthumb" onclick="galleryGo(1)"><img src="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=200&q=70" alt="" /></div>
+        <div class="gthumb" onclick="galleryGo(2)"><img src="https://images.unsplash.com/photo-1616594039964-ae9021a400a0?w=200&q=70" alt="" /></div>
+        <div class="gthumb" onclick="galleryGo(3)"><img src="https://images.unsplash.com/photo-1552321554-5fefe8c9ef14?w=200&q=70" alt="" /></div>
+        <div class="gthumb" onclick="galleryGo(4)"><img src="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=200&q=70" alt="" /></div>
+        <!-- Séparateur -->
+        <div style="width:1px;background:rgba(255,255,255,.15);flex-shrink:0;margin:6px 4px;border-radius:1px;"></div>
+        <!-- Visite 360° -->
+        <div class="gthumb-media gthumb-media--360" onclick="openTab('visite')" title="Visite virtuelle 360°">
+          <div class="gthumb-media-overlay">
+            <div class="gthumb-media-icon"><i class="fas fa-cube"></i></div>
+            <span class="gthumb-media-label">360°</span>
+          </div>
+        </div>
+        <!-- Vidéo -->
+        <div class="gthumb-media gthumb-media--video" onclick="openTab('video')" title="Voir la vidéo">
+          <div class="gthumb-media-overlay">
+            <div class="gthumb-media-icon"><i class="fas fa-play"></i></div>
+            <span class="gthumb-media-label">Vidéo</span>
+          </div>
+        </div>
+        <!-- Carte -->
+        <div class="gthumb-media gthumb-media--map" onclick="openTab('localisation')" title="Voir sur la carte">
+          <div class="gthumb-media-overlay">
+            <div class="gthumb-media-icon"><i class="fas fa-map-marker-alt"></i></div>
+            <span class="gthumb-media-label">Carte</span>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -658,6 +716,8 @@
           <button class="tab-btn" onclick="switchTab(1,this)"><i class="fas fa-list-check"></i> Équipements</button>
           <button class="tab-btn" onclick="switchTab(2,this)"><i class="fas fa-map-marked-alt"></i> Localisation</button>
           <button class="tab-btn" onclick="switchTab(3,this)"><i class="fas fa-building"></i> Agence</button>
+          <button class="tab-btn tab-btn--media" onclick="switchTab(4,this)"><i class="fas fa-cube"></i> Visite 360°</button>
+          <button class="tab-btn tab-btn--media" onclick="switchTab(5,this)"><i class="fas fa-play-circle"></i> Vidéo</button>
         </div>
 
         <!-- Description -->
@@ -778,6 +838,52 @@ Finitions haut de gamme : marbre Thala, menuiserie aluminium double vitrage, cli
           <a href="agence.html" class="btn-voir-agence">
             <i class="fas fa-building"></i> Voir tous les biens de cette agence
           </a>
+        </div>
+
+        <!-- Visite 360° -->
+        <div class="tab-pane" id="tab-4">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+            <div style="width:36px;height:36px;border-radius:8px;background:var(--navy-light);display:flex;align-items:center;justify-content:center;color:var(--navy);font-size:16px;"><i class="fas fa-cube"></i></div>
+            <div>
+              <div style="font-size:15px;font-weight:800;color:var(--navy);">Visite virtuelle 360°</div>
+              <div style="font-size:12px;color:var(--gray-400);">Explorez chaque pièce à votre rythme</div>
+            </div>
+          </div>
+          <div style="position:relative;width:100%;padding-bottom:56.25%;border-radius:10px;overflow:hidden;background:#1a1a2e;border:1px solid var(--gray-200);">
+            <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;color:rgba(255,255,255,.7);">
+              <div style="width:64px;height:64px;border-radius:50%;background:rgba(230,168,23,.2);border:2px solid rgba(230,168,23,.5);display:flex;align-items:center;justify-content:center;font-size:26px;color:var(--gold);"><i class="fas fa-cube"></i></div>
+              <div style="text-align:center;">
+                <div style="font-size:14px;font-weight:700;margin-bottom:4px;">Visite 360° disponible</div>
+                <div style="font-size:12px;opacity:.6;">Intégration Matterport / Kuula</div>
+              </div>
+              <button style="padding:10px 24px;border-radius:50px;background:var(--gold);color:var(--navy-dark);font-size:13px;font-weight:700;border:none;cursor:pointer;" onclick="alert('Lien visite virtuelle à intégrer')">
+                <i class="fas fa-play" style="margin-right:6px;"></i>Lancer la visite
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Vidéo -->
+        <div class="tab-pane" id="tab-5">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+            <div style="width:36px;height:36px;border-radius:8px;background:#fff0ea;display:flex;align-items:center;justify-content:center;color:#c94000;font-size:16px;"><i class="fas fa-play-circle"></i></div>
+            <div>
+              <div style="font-size:15px;font-weight:800;color:var(--navy);">Vidéo du bien</div>
+              <div style="font-size:12px;color:var(--gray-400);">Présentation filmée par l'agence</div>
+            </div>
+          </div>
+          <div style="position:relative;width:100%;padding-bottom:56.25%;border-radius:10px;overflow:hidden;background:#1a0a00;border:1px solid var(--gray-200);">
+            <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;color:rgba(255,255,255,.7);">
+              <div style="width:64px;height:64px;border-radius:50%;background:rgba(255,80,0,.2);border:2px solid rgba(255,80,0,.5);display:flex;align-items:center;justify-content:center;font-size:26px;color:#ff8040;"><i class="fas fa-play"></i></div>
+              <div style="text-align:center;">
+                <div style="font-size:14px;font-weight:700;margin-bottom:4px;">Vidéo de présentation</div>
+                <div style="font-size:12px;opacity:.6;">YouTube / Vimeo embed</div>
+              </div>
+              <button style="padding:10px 24px;border-radius:50px;background:#ff6020;color:#fff;font-size:13px;font-weight:700;border:none;cursor:pointer;" onclick="alert('Lien vidéo à intégrer')">
+                <i class="fas fa-play" style="margin-right:6px;"></i>Voir la vidéo
+              </button>
+            </div>
+          </div>
         </div>
 
       </div>
@@ -951,6 +1057,13 @@ document.addEventListener('keydown', e => {
 function switchTab(idx, btn) {
   document.querySelectorAll('.tab-pane').forEach((p, i) => p.classList.toggle('active', i === idx));
   document.querySelectorAll('.tab-btn').forEach((b, i) => b.classList.toggle('active', i === idx));
+}
+
+function openTab(name) {
+  const map = { 'localisation': 2, 'agence': 3, 'visite': 4, 'video': 5 };
+  const idx = map[name] ?? 0;
+  switchTab(idx, null);
+  document.querySelector('.tabs-wrap')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 </script>
 <script src="responsive.js"></script>
