@@ -3366,6 +3366,77 @@ function openEditAnnonce(id) {
         </div>` : ''}
       </div>
     </div>
+
+    <div class="form-section">
+      <div class="form-section-title">Caractéristiques</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Étage</label>
+          <input type="text" id="ea-etage" value="${(a.etage||'').replace(/"/g,'&quot;')}" placeholder="ex : 2, RDC, Dernier étage" />
+        </div>
+        <div class="form-group">
+          <label>Chambres</label>
+          <input type="number" min="0" id="ea-chambres" value="${Number(a.chambres)||''}" placeholder="ex : 3" />
+        </div>
+        <div class="form-group">
+          <label>Salles de bain</label>
+          <input type="number" min="0" id="ea-sdb" value="${Number(a.sdb)||''}" placeholder="ex : 2" />
+        </div>
+        <div class="form-group">
+          <label>Année de construction</label>
+          <input type="number" min="1900" max="2030" id="ea-annee" value="${Number(a.annee)||''}" placeholder="ex : 2018" />
+        </div>
+        <div class="form-group">
+          <label>État du bien</label>
+          <select id="ea-etat">
+            ${[['','— Sélectionner —'],['bon_etat','Bon état'],['a_renover','À rénover'],['neuf','Neuf / Livraison récente'],['en_construction','En construction']].map(([v,l])=>`<option value="${v}" ${(a.etat||'')=== v?'selected':''}>${l}</option>`).join('')}
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Adresse complète</label>
+          <input type="text" id="ea-adresse" value="${(a.adresse||'').replace(/"/g,'&quot;')}" placeholder="ex : Rue du Lac Huron, Lac 2" />
+        </div>
+        <div class="form-group full">
+          <label>Équipements & options</label>
+          <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:8px" id="ea-equipements-wrap">
+            ${['Ascenseur','Piscine','Terrasse','Jardin','Gardiennage','Climatisation','Parking','Vue mer','Cave / Sous-sol','Meublé','Connexion internet'].map(eq => `
+              <label style="display:flex;align-items:center;gap:6px;font-size:12.5px;cursor:pointer;background:var(--gray-50);border:1.5px solid var(--gray-200);padding:5px 10px;border-radius:20px">
+                <input type="checkbox" class="ea-equip" value="${eq}" ${(a.equipements||[]).includes(eq)?'checked':''} /> ${eq}
+              </label>`).join('')}
+          </div>
+        </div>
+        <div class="form-group full">
+          <label style="display:flex;align-items:center;gap:16px">
+            <span>Options commerciales</span>
+          </label>
+          <div style="display:flex;gap:20px;flex-wrap:wrap;margin-top:8px">
+            <label style="display:flex;align-items:center;gap:7px;font-size:13px;cursor:pointer"><input type="checkbox" id="ea-nego" ${a.nego?'checked':''} /> Prix négociable</label>
+            <label style="display:flex;align-items:center;gap:7px;font-size:13px;cursor:pointer"><input type="checkbox" id="ea-exclu" ${a.exclu?'checked':''} /> Bien en exclusivité</label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <div class="form-section-title">Description</div>
+      <div class="form-grid">
+        <div class="form-group full">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+            <label style="margin:0">Description de l'annonce</label>
+          </div>
+          <textarea id="ea-description" rows="5" placeholder="Décrivez le bien : emplacement, atouts, finitions…" style="resize:vertical">${(a.description||'').replace(/</g,'&lt;')}</textarea>
+        </div>
+        <div class="form-group">
+          <label>Lien visite virtuelle 360°</label>
+          <input type="text" id="ea-visite360" value="${(a.visite360||'').replace(/"/g,'&quot;')}" placeholder="https://my.matterport.com/..." />
+        </div>
+        <div class="form-group">
+          <label>Proximités</label>
+          <input type="text" id="ea-proximites" value="${(a.proximites||'').replace(/"/g,'&quot;')}" placeholder="Métro 400m · École 800m · Centre commercial 1.2km" />
+        </div>
+      </div>
+    </div>
+
     <div class="form-section">
       <div class="form-section-title">Informations légales & fiscales</div>
       <div class="form-grid">
@@ -3407,6 +3478,21 @@ function saveEditAnnonce() {
   a.tva            = checked('ea-tva') ?? a.tva;
   a.foprolos       = checked('ea-foprolos') ?? a.foprolos;
   a.primo          = checked('ea-primo') ?? a.primo;
+  // Caractéristiques
+  if (val('ea-etage')   !== undefined) a.etage   = val('ea-etage');
+  if (val('ea-chambres')!== undefined) a.chambres= parseInt(val('ea-chambres'))||0;
+  if (val('ea-sdb')     !== undefined) a.sdb     = parseInt(val('ea-sdb'))||0;
+  if (val('ea-annee')   !== undefined) a.annee   = parseInt(val('ea-annee'))||0;
+  if (val('ea-etat')    !== undefined) a.etat    = val('ea-etat');
+  if (val('ea-adresse') !== undefined) a.adresse = val('ea-adresse');
+  const equipEls = document.querySelectorAll('.ea-equip');
+  if (equipEls.length) a.equipements = [...equipEls].filter(c=>c.checked).map(c=>c.value);
+  if (checked('ea-nego')  !== undefined) a.nego  = checked('ea-nego');
+  if (checked('ea-exclu') !== undefined) a.exclu = checked('ea-exclu');
+  // Description
+  if (val('ea-description') !== undefined) a.description = val('ea-description');
+  if (val('ea-visite360')   !== undefined) a.visite360   = val('ea-visite360');
+  if (val('ea-proximites')  !== undefined) a.proximites  = val('ea-proximites');
   if (currentRole === 'admin') {
     a.statut    = val('ea-statut') ?? a.statut;
     if (val('ea-agent') !== undefined)     a.agent = val('ea-agent');
