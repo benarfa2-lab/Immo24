@@ -4,8 +4,14 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Immo24.tn – L'immobilier professionnel en Tunisie</title>
+  <meta name="description" content="Immo24.tn — La plateforme immobilière professionnelle en Tunisie. Achat, vente, location et projets neufs." />
+  <meta property="og:title" content="Immo24.tn – L'immobilier professionnel en Tunisie" />
+  <meta property="og:description" content="Trouvez votre bien immobilier parmi des milliers d'annonces vérifiées en Tunisie." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="https://peaceful-duckanoo-de60fc.netlify.app/og-image.jpg" />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%231B3A6B'/><text x='16' y='22' text-anchor='middle' font-size='16' font-weight='900' font-family='sans-serif' fill='%23E6A817'>I</text></svg>" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 
   <style>
@@ -29,9 +35,10 @@
       --radius-sm:  6px;
       --radius:     12px;
       --radius-lg:  20px;
-      --shadow-sm:  0 1px 4px rgba(0,0,0,.08);
-      --shadow:     0 4px 20px rgba(0,0,0,.10);
-      --shadow-lg:  0 12px 40px rgba(0,0,0,.16);
+      --shadow-sm:  0 1px 6px rgba(27,58,107,.07);
+      --shadow:     0 4px 20px rgba(27,58,107,.10);
+      --shadow-lg:  0 12px 40px rgba(27,58,107,.16);
+      --font-display: 'Outfit', 'Inter', sans-serif;
     }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
@@ -65,7 +72,7 @@
     /* ===== HERO ===== */
     .hero {
       position: relative;
-      height: 100vh; min-height: 640px; max-height: 820px;
+      min-height: min(100dvh, 820px); min-height: 640px;
       display: flex; flex-direction: column;
       align-items: center; justify-content: center;
       overflow: hidden;
@@ -214,11 +221,13 @@
     .hero-title {
       font-size: clamp(28px, 4vw, 52px);
       font-weight: 900;
+      font-family: var(--font-display);
       color: var(--white);
       line-height: 1.08;
       letter-spacing: -1.5px;
       margin-bottom: 14px;
       text-shadow: 0 2px 12px rgba(0,0,0,.4);
+      text-wrap: balance;
     }
     .hero-title em { color: var(--gold); font-style: normal; }
     .hero-subtitle {
@@ -519,8 +528,10 @@
     .section-title {
       font-size: 32px; font-weight: 800;
       color: var(--navy);
+      font-family: var(--font-display);
       letter-spacing: -1px;
       margin-bottom: 10px;
+      text-wrap: balance;
     }
     .section-sub {
       font-size: 15px; color: var(--gray-600); max-width: 520px; margin: 0 auto;
