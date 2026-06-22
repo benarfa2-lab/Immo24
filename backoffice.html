@@ -333,6 +333,14 @@
     .icon-btn.view:hover { background: var(--gray-200); }
     .icon-btn.approve { background: #E8F5F3; color: var(--green); }
     .icon-btn.approve:hover { background: var(--green); color: var(--white); }
+    .icon-btn.sold { background: #EFF6FF; color: var(--blue); }
+    .icon-btn.sold:hover { background: var(--blue); color: var(--white); }
+    /* Mass action toolbar */
+    .mass-toolbar { display:none; align-items:center; gap:10px; padding:10px 20px; background:var(--navy-light); border-bottom:1px solid var(--gray-200); }
+    .mass-toolbar.visible { display:flex; }
+    .mass-toolbar span { font-size:13px; font-weight:700; color:var(--navy); }
+    /* Row checkbox */
+    .row-check { width:16px; height:16px; accent-color: var(--navy); cursor:pointer; }
 
     /* ====== VIEWS ====== */
     .view { display: none; }
@@ -446,8 +454,16 @@
     input:focus, select:focus, textarea:focus { border-color: var(--navy); }
     textarea { resize: vertical; min-height: 90px; }
     .input-prefix { position: relative; }
-    .input-prefix input { padding-left: 36px; width: 100%; }
-    .input-prefix .prefix { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); color: var(--gray-400); font-size: 13px; }
+    .input-prefix input { padding-left: 44px; width: 100%; }
+    .input-prefix .prefix { position: absolute; left: 0; top: 0; bottom: 0; display: flex; align-items: center; padding: 0 10px; background: var(--gray-100); border-right: 1.5px solid var(--gray-300); border-radius: 8px 0 0 8px; color: var(--gray-600); font-size: 12px; font-weight: 600; white-space: nowrap; pointer-events: none; }
+    /* Neutralise l'autofill jaune du navigateur */
+    input:-webkit-autofill,
+    input:-webkit-autofill:hover,
+    input:-webkit-autofill:focus {
+      -webkit-box-shadow: 0 0 0 1000px #fff inset !important;
+      -webkit-text-fill-color: var(--gray-800) !important;
+      transition: background-color 9999s ease-in-out 0s;
+    }
     .photo-drop {
       border: 2px dashed var(--gray-300); border-radius: 10px;
       padding: 28px; text-align: center; cursor: pointer;
@@ -2091,6 +2107,71 @@
   </div>
 </div>
 
+<!-- ============ MODAL MARK SOLD ============ -->
+<div class="modal-overlay" id="modal-mark-sold">
+  <div class="modal" style="max-width:420px">
+    <div class="modal-header">
+      <i class="fas fa-tag" style="color:var(--blue);font-size:18px"></i>
+      <div class="modal-title">Mettre à jour le statut</div>
+      <button class="modal-close" onclick="closeModal('modal-mark-sold')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body" style="padding:20px">
+      <input type="hidden" id="mark-sold-id" />
+      <p style="font-size:13px;color:var(--gray-600);margin-bottom:16px">Choisissez le nouveau statut pour cette annonce :</p>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <button class="btn" style="background:#EFF6FF;color:var(--blue);border:1.5px solid #BFDBFE;font-weight:700;justify-content:flex-start;gap:10px;padding:12px 16px" onclick="confirmMarkSold('sold')">
+          <i class="fas fa-check-circle" style="font-size:16px"></i>
+          <div style="text-align:left"><div>Vendu</div><div style="font-size:11px;font-weight:400;opacity:.7">La transaction est finalisée</div></div>
+        </button>
+        <button class="btn" style="background:var(--gold-light);color:var(--gold-dark);border:1.5px solid #FDE68A;font-weight:700;justify-content:flex-start;gap:10px;padding:12px 16px" onclick="confirmMarkSold('reserved')">
+          <i class="fas fa-clock" style="font-size:16px"></i>
+          <div style="text-align:left"><div>Réservé</div><div style="font-size:11px;font-weight:400;opacity:.7">Compromis signé, en attente de finalisation</div></div>
+        </button>
+        <button class="btn btn-outline" style="justify-content:flex-start;gap:10px;padding:12px 16px" onclick="confirmMarkSold('published')">
+          <i class="fas fa-redo" style="font-size:16px"></i>
+          <div style="text-align:left"><div>Remettre en ligne</div><div style="font-size:11px;font-weight:400;opacity:.7">Annuler la vente / libérer la réservation</div></div>
+        </button>
+      </div>
+      <div style="margin-top:16px;padding:12px 14px;background:var(--gold-light);border-radius:8px;font-size:12px;color:#92400E">
+        <i class="fas fa-whatsapp" style="color:#25D366;margin-right:6px;font-size:13px"></i>
+        <strong>Astuce :</strong> Répondez simplement <strong>"VENDU"</strong> ou <strong>"RESERVÉ"</strong> au message de relance WhatsApp pour mettre à jour automatiquement le statut.
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-mark-sold')">Annuler</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MODAL RECAP EMAIL ============ -->
+<div class="modal-overlay" id="modal-recap-email">
+  <div class="modal" style="max-width:600px">
+    <div class="modal-header">
+      <i class="fas fa-envelope" style="color:var(--green);font-size:18px"></i>
+      <div class="modal-title">Récapitulatif email — Mise à jour des statuts</div>
+      <button class="modal-close" onclick="closeModal('modal-recap-email')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body" style="padding:20px">
+      <p style="font-size:13px;color:var(--gray-600);margin-bottom:16px">Un email sera envoyé à l'agent/promoteur avec la liste des annonces actives. Chaque annonce dispose d'un bouton <strong>"Marquer comme vendu"</strong> — le clic met à jour automatiquement la base de données.</p>
+      <div id="recap-email-preview" style="border:1.5px solid var(--gray-200);border-radius:10px;overflow:hidden;font-size:13px">
+        <div style="background:var(--navy);padding:16px 20px;display:flex;align-items:center;gap:12px">
+          <img src="immo24-light.svg" style="height:28px" onerror="this.style.display='none'" />
+          <span style="color:#fff;font-weight:700;font-size:15px">Immo24 · Récap de vos annonces</span>
+        </div>
+        <div style="padding:20px">
+          <p style="color:var(--gray-600);margin-bottom:14px;font-size:12px">Bonjour,<br>Voici la liste de vos annonces en cours. Cliquez sur <strong>"Marquer comme vendu"</strong> pour mettre à jour le statut directement.</p>
+          <div id="recap-rows" style="display:flex;flex-direction:column;gap:8px"></div>
+          <p style="font-size:11px;color:var(--gray-400);margin-top:16px">Ce lien est valable 7 jours. Immo24 · Tunis, Tunisie</p>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-recap-email')">Annuler</button>
+      <button class="btn btn-primary" onclick="confirmSendRecapEmail()"><i class="fas fa-paper-plane"></i> Envoyer l'email</button>
+    </div>
+  </div>
+</div>
+
 <script>
 /* ===================== DATA ===================== */
 /* prix = montant numérique (TND) ; periodicite = vente | mois | nuit | cession
@@ -2792,6 +2873,7 @@ function renderAnnonces() {
 
   const rows = filtered.map(a => `
     <tr>
+      <td style="width:36px;padding:0 8px"><input type="checkbox" class="row-check ann-check" data-id="${a.id}" onchange="onRowCheck()" /></td>
       <td>
         <div style="display:flex;align-items:center;gap:10px">
           <div class="listing-thumb"><i class="fas ${icons[a.type]||'fa-home'}"></i></div>
@@ -2821,6 +2903,7 @@ function renderAnnonces() {
             : `<button class="icon-btn edit" title="Vous ne pouvez pas modifier cette annonce" disabled style="opacity:.35;cursor:not-allowed"><i class="fas fa-pen"></i></button>`}
           ${(()=>{ const j=joursAvantExpiration(a); return (j!==null && j<=10 && (currentRole==='admin'||canEditAnnonce(a))) ? `<button class="icon-btn" title="Renouveler (${ANNONCE_VALIDITE_JOURS}j)" onclick="renouvelerAnnonce('${a.id}')" style="background:var(--gold-light);color:var(--gold-dark)"><i class="fas fa-rotate"></i></button>` : ''; })()}
           ${a.statut==='pending' && currentRole==='admin' ? `<button class="icon-btn approve" title="Valider"><i class="fas fa-check"></i></button>` : ''}
+          ${(canEditAnnonce(a) && (a.statut==='published'||a.statut==='pending')) ? `<button class="icon-btn sold" title="Marquer vendu / réservé" onclick="openMarkSoldModal('${a.id}')"><i class="fas fa-tag"></i></button>` : ''}
           ${(currentRole==='admin'||canEditAnnonce(a)) ? `<button class="icon-btn delete" title="Supprimer" onclick="deleteAnnonce('${a.id}')"><i class="fas fa-trash"></i></button>` : ''}
         </div>
       </td>
@@ -2906,15 +2989,25 @@ function renderAnnonces() {
         ${activeFilterCount>0 ? `<button class="btn btn-outline btn-sm" style="height:36px" onclick="resetAnnFilters()"><i class="fas fa-times"></i> Réinitialiser (${activeFilterCount})</button>` : ''}
       </div>
 
+      <!-- Mass action toolbar -->
+      <div class="mass-toolbar" id="mass-toolbar">
+        <span id="mass-count">0 sélectionnée(s)</span>
+        <button class="btn btn-sm" style="background:#EFF6FF;color:var(--blue);border:none;font-weight:700" onclick="massUpdateStatut('sold')"><i class="fas fa-check-circle"></i> Marquer vendues</button>
+        <button class="btn btn-sm" style="background:var(--gold-light);color:var(--gold-dark);border:none;font-weight:700" onclick="massUpdateStatut('reserved')"><i class="fas fa-clock"></i> Marquer réservées</button>
+        <button class="btn btn-sm btn-outline" onclick="massDeselect()"><i class="fas fa-times"></i> Désélectionner</button>
+        <button class="btn btn-sm" style="background:#E8F5F3;color:var(--green);border:none;font-weight:700;margin-left:auto" onclick="sendRecapEmail()"><i class="fas fa-envelope"></i> Envoyer récap email</button>
+      </div>
+
       <div class="table-wrap">
         <table>
           <thead>
             <tr>
+              <th style="width:36px"><input type="checkbox" class="row-check" id="check-all" onchange="toggleAllRows(this)" title="Tout sélectionner" /></th>
               <th>Bien</th><th>Transaction</th><th>Prix</th><th>Surface</th>
               <th>Statut</th><th>Agent / Promoteur</th><th>Performance</th><th>Date</th><th>Actions</th>
             </tr>
           </thead>
-          <tbody>${rows || '<tr><td colspan="9" style="text-align:center;color:var(--gray-400);padding:32px">Aucune annonce ne correspond aux filtres</td></tr>'}</tbody>
+          <tbody>${rows || '<tr><td colspan="10" style="text-align:center;color:var(--gray-400);padding:32px">Aucune annonce ne correspond aux filtres</td></tr>'}</tbody>
         </table>
       </div>
     </div>`;
@@ -6869,12 +6962,12 @@ function wizBuildStep4() {
     <div class="form-group" style="margin:0">
       <label>Prix de vente (TND) <span class="req">*</span></label>
       <div class="input-prefix" style="margin-top:6px"><span class="prefix">TND</span>
-        <input type="number" id="wiz-prix" placeholder="350 000" oninput="wizCalcM2()" /></div>
+        <input type="number" id="wiz-prix" placeholder="350 000" autocomplete="off" oninput="wizCalcM2()" /></div>
     </div>
     <div class="form-group" style="margin:0">
       <label>Charges copropriété (TND/mois)</label>
       <div class="input-prefix" style="margin-top:6px"><span class="prefix">TND</span>
-        <input type="number" placeholder="120" /></div>
+        <input type="number" placeholder="120" autocomplete="off" /></div>
     </div>`;
   } else if (isLoc) {
     html += `
@@ -7258,6 +7351,107 @@ document.addEventListener('click', function(e){
   const dd = document.getElementById('notif-dropdown');
   if (dd && dd.classList.contains('open') && !e.target.closest('.topbar-actions')) dd.classList.remove('open');
 });
+
+/* ===================== MARK SOLD / RESERVED ===================== */
+function openMarkSoldModal(id) {
+  document.getElementById('mark-sold-id').value = id;
+  openModal('modal-mark-sold');
+}
+
+function confirmMarkSold(newStatut) {
+  const id = document.getElementById('mark-sold-id').value;
+  const a = ANNONCES.find(x => x.id === id);
+  if (!a) return;
+  const labelMap = { sold: 'Vendu', reserved: 'Réservé', published: 'En ligne' };
+  a.statut = newStatut;
+  closeModal('modal-mark-sold');
+  showToast(`✓ Annonce ${id} marquée « ${labelMap[newStatut] || newStatut} »`, 'green');
+  renderView();
+}
+
+/* ===================== MASS ACTIONS ===================== */
+function onRowCheck() {
+  const checks = document.querySelectorAll('.ann-check');
+  const checked = [...checks].filter(c => c.checked);
+  const toolbar = document.getElementById('mass-toolbar');
+  const countEl = document.getElementById('mass-count');
+  if (checked.length > 0) {
+    toolbar.classList.add('visible');
+    countEl.textContent = checked.length + ' sélectionnée' + (checked.length > 1 ? 's' : '');
+  } else {
+    toolbar.classList.remove('visible');
+  }
+  const allCheck = document.getElementById('check-all');
+  if (allCheck) allCheck.checked = checked.length === checks.length && checks.length > 0;
+}
+
+function toggleAllRows(masterCb) {
+  document.querySelectorAll('.ann-check').forEach(c => c.checked = masterCb.checked);
+  onRowCheck();
+}
+
+function massDeselect() {
+  document.querySelectorAll('.ann-check, #check-all').forEach(c => c.checked = false);
+  document.getElementById('mass-toolbar').classList.remove('visible');
+}
+
+function massUpdateStatut(newStatut) {
+  const ids = [...document.querySelectorAll('.ann-check:checked')].map(c => c.dataset.id);
+  if (!ids.length) return;
+  const labelMap = { sold: 'Vendues', reserved: 'Réservées', published: 'En ligne' };
+  ids.forEach(id => {
+    const a = ANNONCES.find(x => x.id === id);
+    if (a) a.statut = newStatut;
+  });
+  massDeselect();
+  showToast(`✓ ${ids.length} annonce(s) marquée(s) « ${labelMap[newStatut] || newStatut} »`, 'green');
+  renderView();
+}
+
+/* ===================== RECAP EMAIL ===================== */
+function sendRecapEmail() {
+  const ids = [...document.querySelectorAll('.ann-check:checked')].map(c => c.dataset.id);
+  const scope = ids.length > 0
+    ? ANNONCES.filter(a => ids.includes(a.id))
+    : ANNONCES.filter(a => a.statut === 'published' && (currentRole === 'admin' || canEditAnnonce(a)));
+
+  const rowsHtml = scope.map(a => `
+    <div style="display:flex;align-items:center;gap:12px;padding:10px 12px;border:1px solid var(--gray-200);border-radius:8px;background:#fff">
+      <div style="flex:1;min-width:0">
+        <div style="font-weight:700;font-size:12.5px;color:var(--navy);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${a.titre}</div>
+        <div style="font-size:11px;color:var(--gray-400)">${a.id} · ${a.gouvernorat} · ${fmtPrix(a.prix, a.periodicite)}</div>
+      </div>
+      <a href="#" onclick="return false;" style="padding:6px 12px;background:var(--blue,#3B82F6);color:#fff;border-radius:6px;font-size:11px;font-weight:700;text-decoration:none;white-space:nowrap;cursor:pointer" onclick="confirmMarkSold_email('${a.id}')">
+        <i class="fas fa-check-circle" style="margin-right:4px"></i> Marquer vendu
+      </a>
+    </div>`).join('');
+
+  document.getElementById('recap-rows').innerHTML = rowsHtml || '<p style="color:var(--gray-400);font-size:12px">Aucune annonce active trouvée.</p>';
+  openModal('modal-recap-email');
+}
+
+function confirmSendRecapEmail() {
+  closeModal('modal-recap-email');
+  showToast('✓ Email récapitulatif envoyé avec succès', 'green');
+}
+
+/* ===================== TOAST ===================== */
+function showToast(msg, type) {
+  let t = document.getElementById('global-toast');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = 'global-toast';
+    t.style.cssText = 'position:fixed;bottom:28px;right:28px;z-index:9999;padding:12px 20px;border-radius:10px;font-size:13px;font-weight:600;box-shadow:0 4px 16px rgba(0,0,0,.18);transition:opacity .3s;display:flex;align-items:center;gap:8px';
+    document.body.appendChild(t);
+  }
+  t.style.background = type === 'green' ? '#E8F5F3' : '#FDECEA';
+  t.style.color = type === 'green' ? 'var(--green)' : 'var(--red)';
+  t.style.border = type === 'green' ? '1.5px solid #6EE7B7' : '1.5px solid #FCA5A5';
+  t.textContent = msg;
+  t.style.opacity = '1';
+  clearTimeout(t._to);
+  t._to = setTimeout(() => t.style.opacity = '0', 3200);
+}
 
 /* ===================== BOOT ===================== */
 renderNav();
