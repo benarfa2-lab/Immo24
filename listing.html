@@ -137,35 +137,40 @@
     .gthumb img { width:100%; height:100%; object-fit:cover; }
     .gallery-thumbs-inner { display:flex; gap:8px; padding:0 14px; }
 
-    /* Media type thumbs */
+    /* Media type thumbs — style SeLoger : image de fond + overlay foncé */
     .gthumb-media {
       flex-shrink:0; width:100px; height:68px; border-radius:8px;
-      overflow:hidden; cursor:pointer; opacity:.72; transition:all .2s;
+      overflow:hidden; cursor:pointer; transition:all .2s;
       border:2px solid transparent; position:relative;
-      display:flex; flex-direction:column; align-items:center; justify-content:center;
-      gap:4px;
     }
-    .gthumb-media.active { opacity:1; border-color:var(--gold); }
-    .gthumb-media:hover { opacity:1; transform:scale(1.03); }
+    .gthumb-media.active { border-color:var(--gold); }
+    .gthumb-media:hover .gthumb-media-overlay { background:rgba(0,0,0,.45); }
+    .gthumb-media:hover .gthumb-media-icon { transform:scale(1.12); }
+    /* Image de fond réelle du bien */
     .gthumb-media img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+    /* Overlay teinté par type */
     .gthumb-media-overlay {
       position:absolute; inset:0;
-      display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px;
+      display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px;
+      transition:background .2s;
     }
-    .gthumb-media--360 { background:linear-gradient(135deg,#0f1f45,#1B3A6B); }
-    .gthumb-media--video { background:linear-gradient(135deg,#1a0a00,#7c2d00); }
-    .gthumb-media--map { background:linear-gradient(135deg,#0a1f0a,#1a4a1a); }
+    .gthumb-media--360 .gthumb-media-overlay  { background:rgba(10,20,50,.62); }
+    .gthumb-media--video .gthumb-media-overlay { background:rgba(20,5,0,.62); }
+    .gthumb-media--map .gthumb-media-overlay   { background:rgba(5,15,5,.58); }
+    /* Icône centrale */
     .gthumb-media-icon {
-      width:32px; height:32px; border-radius:50%;
+      width:28px; height:28px; border-radius:50%;
       display:flex; align-items:center; justify-content:center;
-      font-size:13px;
+      font-size:12px; transition:transform .2s;
+      backdrop-filter:blur(4px);
     }
-    .gthumb-media--360 .gthumb-media-icon { background:rgba(230,168,23,.25); color:var(--gold); border:1.5px solid rgba(230,168,23,.5); }
-    .gthumb-media--video .gthumb-media-icon { background:rgba(255,80,0,.25); color:#ff8040; border:1.5px solid rgba(255,80,0,.5); }
-    .gthumb-media--map .gthumb-media-icon { background:rgba(37,211,102,.20); color:#25D366; border:1.5px solid rgba(37,211,102,.45); }
+    .gthumb-media--360  .gthumb-media-icon { background:rgba(230,168,23,.30); color:var(--gold);  border:1.5px solid rgba(230,168,23,.70); }
+    .gthumb-media--video .gthumb-media-icon { background:rgba(255,255,255,.18); color:#fff;        border:1.5px solid rgba(255,255,255,.55); }
+    .gthumb-media--map   .gthumb-media-icon { background:rgba(255,255,255,.18); color:#fff;        border:1.5px solid rgba(255,255,255,.55); }
+    /* Label */
     .gthumb-media-label {
-      font-size:9.5px; font-weight:700; text-transform:uppercase; letter-spacing:.5px;
-      color:rgba(255,255,255,.85);
+      font-size:9px; font-weight:800; text-transform:uppercase; letter-spacing:.6px;
+      color:#fff; text-shadow:0 1px 3px rgba(0,0,0,.6);
     }
 
     /* ===== MAIN CONTENT ===== */
@@ -621,10 +626,9 @@
         <div class="gthumb" onclick="galleryGo(2)"><img src="https://images.unsplash.com/photo-1616594039964-ae9021a400a0?w=200&q=70" alt="" /></div>
         <div class="gthumb" onclick="galleryGo(3)"><img src="https://images.unsplash.com/photo-1552321554-5fefe8c9ef14?w=200&q=70" alt="" /></div>
         <div class="gthumb" onclick="galleryGo(4)"><img src="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=200&q=70" alt="" /></div>
-        <!-- Séparateur -->
-        <div style="width:1px;background:rgba(255,255,255,.15);flex-shrink:0;margin:6px 4px;border-radius:1px;"></div>
         <!-- Visite 360° -->
         <div class="gthumb-media gthumb-media--360" onclick="openTab('visite')" title="Visite virtuelle 360°">
+          <img src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=200&q=60" alt="" />
           <div class="gthumb-media-overlay">
             <div class="gthumb-media-icon"><i class="fas fa-cube"></i></div>
             <span class="gthumb-media-label">360°</span>
@@ -632,6 +636,7 @@
         </div>
         <!-- Vidéo -->
         <div class="gthumb-media gthumb-media--video" onclick="openTab('video')" title="Voir la vidéo">
+          <img src="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=200&q=60" alt="" />
           <div class="gthumb-media-overlay">
             <div class="gthumb-media-icon"><i class="fas fa-play"></i></div>
             <span class="gthumb-media-label">Vidéo</span>
@@ -639,6 +644,7 @@
         </div>
         <!-- Carte -->
         <div class="gthumb-media gthumb-media--map" onclick="openTab('localisation')" title="Voir sur la carte">
+          <img src="https://images.unsplash.com/photo-1524661135-423995f22d0b?w=200&q=60" alt="" />
           <div class="gthumb-media-overlay">
             <div class="gthumb-media-icon"><i class="fas fa-map-marker-alt"></i></div>
             <span class="gthumb-media-label">Carte</span>
