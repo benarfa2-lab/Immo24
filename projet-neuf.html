@@ -393,11 +393,7 @@
 
     /* ===== SIMILAR PROJECTS ===== */
     .section-title { font-size: 20px; font-weight: 800; color: var(--navy-dark); margin-bottom: 16px; }
-    .similar-grid { display: grid; grid-template-columns: 5fr 3fr; grid-template-rows: auto auto; gap: 16px; }
-    .similar-grid .similar-card:first-child { grid-row: span 2; }
-    .similar-grid .similar-card:first-child .similar-img { height: 230px; }
-    .similar-grid .similar-card:first-child .similar-price { font-size: 17px; }
-    .similar-grid .similar-card:first-child .similar-name { font-size: 14px; }
+    .similar-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
     .similar-card {
       background: var(--white); border-radius: var(--radius-lg);
       box-shadow: var(--shadow-sm); overflow: hidden; transition: box-shadow .2s, transform .2s;
