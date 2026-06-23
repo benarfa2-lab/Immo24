@@ -579,53 +579,57 @@
     }
 
     /* ===== PROPERTY TYPES ===== */
-    .types-section { padding: 32px 0; background: var(--white); }
+    .types-section { padding: 56px 0; background: var(--white); }
     .types-grid {
       display: grid;
       grid-template-columns: repeat(5, 1fr);
-      gap: 14px;
+      gap: 16px;
     }
     .type-card {
-      display: flex; flex-direction: column; align-items: center;
-      gap: 12px;
-      padding: 24px 12px;
+      display: flex; flex-direction: column; align-items: flex-start;
+      justify-content: flex-end;
+      gap: 6px;
+      padding: 20px 18px;
       border-radius: var(--radius);
-      border: 1.5px solid var(--gray-200);
-      background: var(--white);
+      height: 180px;
+      background: var(--navy-light);
       cursor: pointer;
-      transition: all .22s;
+      transition: all .25s;
       position: relative;
       overflow: hidden;
       text-decoration: none;
     }
-    .type-card::before {
-      content: ''; position: absolute; inset: 0;
-      background: var(--navy);
-      transform: scaleY(0); transform-origin: bottom;
-      transition: transform .22s ease;
+    .type-card-bg {
+      position: absolute; inset: 0;
+      background-size: cover; background-position: center;
+      transition: transform .4s ease;
+      filter: brightness(.55);
     }
-    .type-card:hover::before { transform: scaleY(1); }
-    .type-card:hover .type-icon-wrap { background: rgba(255,255,255,.15); }
-    .type-card:hover .type-name { color: var(--white); }
-    .type-card:hover .type-count { color: rgba(255,255,255,.6); }
+    .type-card:hover .type-card-bg { transform: scale(1.07); filter: brightness(.42); }
+    .type-card::after {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(8,20,55,.85) 0%, rgba(8,20,55,.1) 100%);
+    }
     .type-icon-wrap {
-      width: 54px; height: 54px;
-      background: var(--navy-light);
-      border-radius: 14px;
+      width: 40px; height: 40px;
+      background: rgba(255,255,255,.15);
+      border-radius: 10px;
       display: flex; align-items: center; justify-content: center;
       position: relative; z-index: 1;
       transition: background .22s;
+      margin-bottom: 4px;
     }
-    .type-icon-wrap svg { color: var(--navy); width: 26px; height: 26px; transition: color .22s; }
+    .type-card:hover .type-icon-wrap { background: rgba(230,168,23,.25); }
+    .type-icon-wrap svg { color: #fff; width: 22px; height: 22px; transition: color .22s; }
     .type-card:hover .type-icon-wrap svg { color: var(--gold); }
     .type-name {
-      font-size: 13px; font-weight: 600; color: var(--gray-800);
-      position: relative; z-index: 1; transition: color .22s;
-      text-align: center;
+      font-size: 14px; font-weight: 700; color: #fff;
+      position: relative; z-index: 1;
+      font-family: var(--font-display);
     }
     .type-count {
-      font-size: 11px; color: var(--gray-400);
-      position: relative; z-index: 1; transition: color .22s;
+      font-size: 11px; color: rgba(255,255,255,.65);
+      position: relative; z-index: 1;
     }
 
     /* ===== FEATURED LISTINGS ===== */
@@ -1722,6 +1726,7 @@
     .hero-arrow { display: none; }
     .actions-grid { grid-template-columns: 1fr 1fr; }
     .types-grid { grid-template-columns: repeat(3, 1fr); }
+    .type-card { height: 160px; }
     .listings-grid { grid-template-columns: 1fr 1fr; grid-template-rows: auto; }
     .listings-grid .lcard:first-child { grid-row: span 1; }
     .listings-grid .lcard:first-child .lcard-img { height: 200px; }
@@ -1749,6 +1754,7 @@
     .hero-pills { display: none; }
     .actions-grid { grid-template-columns: 1fr 1fr; }
     .types-grid { grid-template-columns: repeat(2, 1fr); }
+    .type-card { height: 140px; }
     .listings-grid { grid-template-columns: 1fr; }
     .regions-grid { grid-template-columns: 1fr; }
     .promoteurs-grid { grid-template-columns: repeat(2, 1fr); }
@@ -2165,7 +2171,8 @@
     </div>
     <div class="types-grid stagger-group">
 
-      <a class="reveal" href="map-listings.html?propertyType=Appartement" class="type-card">
+      <a class="type-card reveal" href="map-listings.html?propertyType=Appartement">
+        <div class="type-card-bg" style="background-image:url('https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=400&q=75')"></div>
         <div class="type-icon-wrap">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg>
         </div>
@@ -2173,7 +2180,8 @@
         <div class="type-count">1 240 annonces</div>
       </a>
 
-      <a class="reveal" href="map-listings.html?propertyType=Villa" class="type-card">
+      <a class="type-card reveal" href="map-listings.html?propertyType=Villa">
+        <div class="type-card-bg" style="background-image:url('https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=400&q=75')"></div>
         <div class="type-icon-wrap">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 20h20M4 20V10l8-7 8 7v10"/><path d="M10 20v-5h4v5"/><path d="M4 10h16"/></svg>
         </div>
@@ -2181,7 +2189,8 @@
         <div class="type-count">380 annonces</div>
       </a>
 
-      <a class="reveal" href="map-listings.html?propertyType=Duplex" class="type-card">
+      <a class="type-card reveal" href="map-listings.html?propertyType=Duplex">
+        <div class="type-card-bg" style="background-image:url('https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=400&q=75')"></div>
         <div class="type-icon-wrap">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="12" y1="3" x2="12" y2="21"/></svg>
         </div>
@@ -2189,7 +2198,8 @@
         <div class="type-count">215 annonces</div>
       </a>
 
-      <a class="reveal" href="map-listings.html?propertyType=Bureau" class="type-card">
+      <a class="type-card reveal" href="map-listings.html?propertyType=Bureau">
+        <div class="type-card-bg" style="background-image:url('https://images.unsplash.com/photo-1497366216548-37526070297c?w=400&q=75')"></div>
         <div class="type-icon-wrap">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="3" width="20" height="14" rx="1"/><path d="M8 21h8M12 17v4"/><path d="M2 10h20"/></svg>
         </div>
@@ -2197,7 +2207,8 @@
         <div class="type-count">98 annonces</div>
       </a>
 
-      <a class="reveal" href="map-listings.html?propertyType=Terrain" class="type-card">
+      <a class="type-card reveal" href="map-listings.html?propertyType=Terrain">
+        <div class="type-card-bg" style="background-image:url('https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=400&q=75')"></div>
         <div class="type-icon-wrap">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="1"/><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/></svg>
         </div>
