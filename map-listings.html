@@ -450,6 +450,62 @@
       padding: 2px 6px; border-radius: 50px; display: flex; align-items: center; gap: 4px;
     }
 
+    /* Media pictos row — top-left of card image */
+    .card-media-pictos {
+      position: absolute; top: 6px; left: 7px;
+      display: flex; align-items: center; gap: 3px; flex-wrap: nowrap;
+    }
+    .media-picto {
+      display: flex; align-items: center; gap: 3px;
+      background: rgba(0,0,0,.6); color: #fff;
+      font-size: 9.5px; font-weight: 600;
+      padding: 2px 5px; border-radius: 4px;
+      line-height: 1.2; white-space: nowrap;
+    }
+    .media-picto.mp-360  { background: rgba(27,58,107,.85); }
+    .media-picto.mp-drone { background: rgba(0,0,0,.72); }
+    .media-picto.mp-vv   { background: rgba(42,157,143,.88); }
+    .media-picto.mp-video { background: rgba(180,30,30,.82); }
+    .media-picto.mp-3d   { background: rgba(120,60,200,.85); }
+
+    /* Verified badge */
+    .verified-badge {
+      display: inline-flex; align-items: center; gap: 3px;
+      background: #FFF8E7; color: var(--gold-dark);
+      border: 1px solid #F0C96A; border-radius: 4px;
+      font-size: 8.5px; font-weight: 700;
+      padding: 1px 5px; line-height: 1.3;
+      cursor: pointer; flex-shrink: 0;
+      position: relative;
+    }
+    .verified-badge:hover { background: var(--gold-light); }
+    /* Verified popover */
+    .verified-popover {
+      display: none; position: fixed; z-index: 9999;
+      background: #fff; border: 1px solid var(--gray-200);
+      border-radius: 10px; box-shadow: var(--shadow-lg);
+      padding: 12px 14px; width: 220px;
+      font-size: 12px; color: var(--gray-800);
+    }
+    .verified-popover.open { display: block; }
+    .vp-title { font-size: 13px; font-weight: 700; color: var(--navy); margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+    .vp-item { display: flex; align-items: center; gap: 6px; padding: 4px 0; border-bottom: 1px solid var(--gray-100); }
+    .vp-item:last-child { border-bottom: none; }
+    .vp-item i { color: var(--green); width: 14px; text-align: center; }
+    .vp-link { display: block; margin-top: 8px; font-size: 11px; font-weight: 600; color: var(--navy); text-decoration: underline; cursor: pointer; }
+
+    /* Media filter pills */
+    .media-filter-pills { display: flex; align-items: center; gap: 4px; }
+    .media-filter-pill {
+      display: flex; align-items: center; gap: 4px;
+      border: 1.5px solid var(--gray-200); border-radius: 50px;
+      padding: 0 10px; height: 32px; font-size: 12px; font-weight: 500;
+      color: var(--gray-700); background: var(--white); cursor: pointer;
+      white-space: nowrap; transition: all .15s;
+    }
+    .media-filter-pill:hover { border-color: var(--navy); color: var(--navy); }
+    .media-filter-pill.active { background: var(--navy); color: #fff; border-color: var(--navy); }
+
     /* Watermark */
     .card-logo-watermark {
       position: absolute; bottom: 6px; left: 7px;
@@ -1218,6 +1274,35 @@
     <i class="fas fa-sliders-h"></i>
     Plus de filtres
   </button>
+
+  <div class="filter-divider"></div>
+
+  <div class="media-filter-pills">
+    <button class="media-filter-pill" data-media="360" onclick="toggleMediaFilter('360',this)">
+      <i class="fas fa-sync-alt" style="font-size:10px"></i> 360°
+    </button>
+    <button class="media-filter-pill" data-media="drone" onclick="toggleMediaFilter('drone',this)">
+      <i class="fas fa-helicopter" style="font-size:10px"></i> Drone
+    </button>
+    <button class="media-filter-pill" data-media="vv" onclick="toggleMediaFilter('vv',this)">
+      <i class="fas fa-vr-cardboard" style="font-size:10px"></i> Visite virtuelle
+    </button>
+    <button class="media-filter-pill" data-media="video" onclick="toggleMediaFilter('video',this)">
+      <i class="fas fa-video" style="font-size:10px"></i> Vidéo
+    </button>
+  </div>
+</div>
+
+<!-- Verified popover (singleton) -->
+<div class="verified-popover" id="verified-popover">
+  <div class="vp-title"><i class="fas fa-shield-alt" style="color:var(--gold)"></i> Agence vérifiée Immo24</div>
+  <div class="vp-item"><i class="fas fa-check-circle"></i> Identité légale contrôlée</div>
+  <div class="vp-item"><i class="fas fa-check-circle"></i> Licence professionnelle valide</div>
+  <div class="vp-item"><i class="fas fa-check-circle"></i> Annonces conformes à la charte</div>
+  <div class="vp-item"><i class="fas fa-check-circle"></i> Réactivité client vérifiée</div>
+  <div class="vp-link" onclick="document.getElementById('verified-popover').classList.remove('open')">
+    <i class="fas fa-external-link-alt"></i> Voir la charte de vérification
+  </div>
 </div>
 
 <!-- DROPDOWNS -->
@@ -1957,13 +2042,51 @@ function getDesc(p) {
   return tpl.replace('${type}', p.type.toLowerCase());
 }
 
+/* ===== MEDIA HELPER ===== */
+function getPropertyMedia(p) {
+  const m = [];
+  if (p.photos >= 10) m.push('hd');
+  if (p.id % 5 === 0) m.push('360');
+  if (p.id % 4 === 0) m.push('video');
+  if (p.id % 7 === 0) m.push('drone');
+  if ((p.id % 9 === 0 || p.kind === 'neuf') && p.id % 3 === 0) m.push('vv');
+  if (p.kind === 'neuf' && p.id % 6 === 0) m.push('3d');
+  return m;
+}
+
+const MEDIA_PICTO = {
+  '360':   { cls: 'mp-360',   icon: 'fa-sync-alt',    label: '360°' },
+  'video': { cls: 'mp-video', icon: 'fa-video',        label: 'Vidéo' },
+  'drone': { cls: 'mp-drone', icon: 'fa-helicopter',   label: 'Drone' },
+  'vv':    { cls: 'mp-vv',    icon: 'fa-vr-cardboard', label: 'Visite 3D' },
+  '3d':    { cls: 'mp-3d',    icon: 'fa-cube',         label: '3D' },
+  'hd':    { cls: '',         icon: 'fa-camera',        label: 'HD' },
+};
+
+/* ===== VERIFIED AGENCIES ===== */
+const VERIFIED_AGENCIES = new Set(['Immob. du Golfe','Bullaregia Immobilière','Prestige Immobilier']);
+
+function showVerifiedPopover(event, agencyName) {
+  event.stopPropagation();
+  const pop = document.getElementById('verified-popover');
+  const rect = event.currentTarget.getBoundingClientRect();
+  pop.style.top  = (rect.bottom + 8) + 'px';
+  pop.style.left = Math.min(rect.left, window.innerWidth - 240) + 'px';
+  pop.classList.toggle('open');
+}
+document.addEventListener('click', () => {
+  document.getElementById('verified-popover')?.classList.remove('open');
+});
+
 function buildCardHtml(p) {
   const isLivré = p.delivery === 'Livré';
   const isSoon  = p.delivery === 'Livraison imminente';
   const deliveryClass = isLivré ? '' : isSoon ? 'soon' : '';
   const deliveryIcon  = isLivré ? 'fa-check-circle' : isSoon ? 'fa-clock' : 'fa-calendar-alt';
   const initials = p.promoteur.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
-  const hasVV = p.id % 3 === 0;
+  const media = getPropertyMedia(p);
+  const isVerified = VERIFIED_AGENCIES.has(p.promoteur);
+  const mediaPictos = media.filter(k => k !== 'hd').slice(0, 3);
   return `
   <div class="card kind-${p.kind}" id="card-${p.id}" onclick="window.location='${p.kind === 'neuf' ? 'projet-neuf.html' : p.type === 'Terrain' ? 'terrain.html' : 'listing.html'}'">
     <div class="card-img">
@@ -1973,8 +2096,8 @@ function buildCardHtml(p) {
         ${p.badge.filter(b => badgeLabels[b] && b !== 'livraison').map(b => `<span class="badge ${badgeLabels[b].cls}">${badgeLabels[b].text}</span>`).join('')}
       </div>
       <button class="card-fav" onclick="toggleFav(event,this)" aria-label="Favoris"><i class="fas fa-heart"></i></button>
+      ${mediaPictos.length ? `<div class="card-media-pictos">${mediaPictos.map(k => `<span class="media-picto ${MEDIA_PICTO[k].cls}"><i class="fas ${MEDIA_PICTO[k].icon}"></i> ${MEDIA_PICTO[k].label}</span>`).join('')}</div>` : ''}
       <div class="card-media-row">
-        ${hasVV ? `<div class="card-vv"><i class="fas fa-vr-cardboard"></i></div>` : ''}
         <div class="card-photo-count"><i class="fas fa-camera"></i> 1/${p.photos}</div>
       </div>
     </div>
@@ -2018,6 +2141,7 @@ function buildCardHtml(p) {
             <div class="card-promoteur-name" style="text-decoration:underline;text-underline-offset:2px;">${p.promoteur}</div>
           </div>
         </div>
+        ${isVerified ? `<span class="verified-badge" onclick="showVerifiedPopover(event,'${p.promoteur.replace(/'/g,"\\'")}')"><i class="fas fa-shield-alt"></i> Vérifié</span>` : ''}
         ${p.kind === 'neuf' ? `<div class="card-delivery ${deliveryClass}"><i class="fas ${deliveryIcon}"></i> ${p.delivery}</div>` : ''}
         ${freshnessChip(p.date)}
       </div>
@@ -2341,9 +2465,26 @@ function getFiltered() {
             (p.zone && p.zone.toLowerCase().includes(v)))) return false;
     }
     if (window.__filterAgences && window.__filterAgences.length > 0 && !window.__filterAgences.includes(p.promoteur)) return false;
+    if (window.__filterMedia && window.__filterMedia.size > 0) {
+      const pm = getPropertyMedia(p);
+      for (const m of window.__filterMedia) { if (!pm.includes(m)) return false; }
+    }
     if (window.__mapBounds && !window.__mapBounds.contains([p.lat, p.lng])) return false;
     return true;
   });
+}
+
+/* ===== MEDIA FILTER TOGGLE ===== */
+window.__filterMedia = new Set();
+function toggleMediaFilter(key, btn) {
+  if (window.__filterMedia.has(key)) {
+    window.__filterMedia.delete(key);
+    btn.classList.remove('active');
+  } else {
+    window.__filterMedia.add(key);
+    btn.classList.add('active');
+  }
+  renderCards(); renderMarkers();
 }
 
 function renderMarkers() {
@@ -2425,10 +2566,12 @@ function resetAllFilters() {
   window.__filterRooms = null;
   window.__filterAgence = null;
   window.__filterAgences = [];
+  window.__filterMedia = new Set();
   document.querySelectorAll('.filter-kind-pill').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.kind === '');
     btn.classList.remove('neuf','location');
   });
+  document.querySelectorAll('.media-filter-pill').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.filter-tag').forEach(t => t.remove());
   renderCards(); renderMarkers();
 }
