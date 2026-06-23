@@ -261,13 +261,25 @@
       font-size: 12px; font-weight: 600; color: rgba(255,255,255,.92);
     }
     .hero-feat i { color: var(--gold); font-size: 11px; }
-    .hero-tag, .hero-title, .hero-subtitle, .hero-feats {
+    .hero-cta {
+      display: inline-flex; align-items: center; gap: 9px;
+      margin-top: 18px; padding: 12px 22px; border-radius: 50px;
+      background: var(--gold); color: var(--navy-dark);
+      font-size: 13.5px; font-weight: 700;
+      box-shadow: 0 8px 24px rgba(230,168,23,.28);
+      transition: transform .2s, box-shadow .2s;
+    }
+    .hero-cta:hover { transform: translateY(-2px); box-shadow: 0 12px 30px rgba(230,168,23,.4); }
+    .hero-cta i { transition: transform .2s; }
+    .hero-cta:hover i { transform: translateX(4px); }
+    .hero-tag, .hero-title, .hero-subtitle, .hero-feats, .hero-cta {
       transition: opacity .5s ease, transform .5s ease;
     }
     .hero-text.swapping .hero-tag,
     .hero-text.swapping .hero-title,
     .hero-text.swapping .hero-subtitle,
-    .hero-text.swapping .hero-feats {
+    .hero-text.swapping .hero-feats,
+    .hero-text.swapping .hero-cta {
       opacity: 0; transform: translateY(10px);
     }
     .hero-pills {
@@ -1864,6 +1876,7 @@
         Des appartements, villas et résidences neufs directement auprès des promoteurs agréés. Recherche intelligente, prix transparents.
       </p>
       <div class="hero-feats" id="hero-feats"></div>
+      <a class="hero-cta" id="hero-cta" href="#" style="display:none"></a>
     </div>
 
     <!-- CARTE RECHERCHE -->
@@ -3082,22 +3095,25 @@
       feats: []
     },
     {
-      tag: `<i class="fas fa-vr-cardboard"></i> Service exclusif · Vue 360°`,
+      tag: `<i class="fas fa-vr-cardboard"></i> Les points forts d'Immo24 · Vue 360°`,
       title: `Visitez en <em>360°</em><br>sans vous déplacer`,
       sub: `Explorez chaque pièce comme si vous y étiez grâce à nos panoramas immersifs à 360°, directement depuis votre écran.`,
-      feats: [['fa-sync-alt','Rotation libre'],['fa-mobile-screen','Compatible mobile'],['fa-expand','Haute résolution']]
+      feats: [['fa-sync-alt','Rotation libre'],['fa-expand','Haute résolution']],
+      cta: ['Découvrir les annonces en 360°', 'map-listings.html']
     },
     {
-      tag: `<i class="fas fa-helicopter"></i> Service exclusif · Vue drone`,
+      tag: `<i class="fas fa-helicopter"></i> Les points forts d'Immo24 · Vue drone`,
       title: `Prenez de la hauteur<br>en vue <em>drone</em>`,
       sub: `Nos captures aériennes par drone révèlent l'environnement, l'exposition et les accès du bien — décisif pour villas, terrains et projets neufs.`,
-      feats: [['fa-video','Vidéo 4K aérienne'],['fa-map','Vue du quartier'],['fa-circle-check','Pilotes certifiés']]
+      feats: [['fa-video','Vidéo 4K aérienne'],['fa-map','Vue du quartier']],
+      cta: ['Découvrir les annonces avec vue drone', 'map-listings.html?type=neuf']
     },
     {
-      tag: `<i class="fas fa-cube"></i> Service exclusif · Visite virtuelle`,
+      tag: `<i class="fas fa-cube"></i> Les points forts d'Immo24 · Visite virtuelle`,
       title: `Déambulez en<br><em>visite virtuelle</em>`,
       sub: `Parcourez librement le bien grâce à nos visites virtuelles interactives : plans 3D, cotes et points d'intérêt pour décider en confiance.`,
-      feats: [['fa-walking','Parcours interactif'],['fa-ruler-combined','Plan 3D & cotes'],['fa-clock','Disponible 24/7']]
+      feats: [['fa-walking','Parcours interactif'],['fa-ruler-combined','Plan 3D & cotes'],['fa-clock','Disponible 24/7']],
+      cta: ['Découvrir les annonces avec visite virtuelle', 'map-listings.html']
     }
   ];
 
@@ -3106,6 +3122,7 @@
   const elTit = document.getElementById('hero-title');
   const elSub = document.getElementById('hero-subtitle');
   const elFea = document.getElementById('hero-feats');
+  const elCta = document.getElementById('hero-cta');
 
   function paint(i) {
     const c = HERO_CONTENT[i % HERO_CONTENT.length];
@@ -3114,6 +3131,13 @@
     elTit.innerHTML = c.title;
     elSub.innerHTML = c.sub;
     elFea.innerHTML = (c.feats || []).map(f => `<span class="hero-feat"><i class="fas ${f[0]}"></i> ${f[1]}</span>`).join('');
+    if (c.cta) {
+      elCta.innerHTML = `${c.cta[0]} <i class="fas fa-arrow-right"></i>`;
+      elCta.href = c.cta[1];
+      elCta.style.display = 'inline-flex';
+    } else {
+      elCta.style.display = 'none';
+    }
   }
 
   function goTo(n) {
