@@ -2330,6 +2330,15 @@ function getFiltered() {
     if (window.__filterZone && p.zone !== window.__filterZone) return false;
     if (window.__priceMin != null && p.price < window.__priceMin) return false;
     if (window.__priceMax != null && p.price > window.__priceMax) return false;
+    if (window.__filterRooms != null) {
+      if (window.__filterRooms >= 5) { if (p.rooms < 5) return false; }
+      else if (p.rooms !== window.__filterRooms) return false;
+    }
+    if (window.__filterVille) {
+      const v = window.__filterVille.toLowerCase();
+      if (!((p.location && p.location.toLowerCase().includes(v)) ||
+            (p.zone && p.zone.toLowerCase().includes(v)))) return false;
+    }
     if (window.__filterAgences && window.__filterAgences.length > 0 && !window.__filterAgences.includes(p.promoteur)) return false;
     if (window.__mapBounds && !window.__mapBounds.contains([p.lat, p.lng])) return false;
     return true;
@@ -2405,11 +2414,16 @@ function renderMarkers() {
 function resetAllFilters() {
   window.__filterKind = '';
   window.__filterType = '';
+  window.__propertyType = '';
+  window.__filterVille = '';
+  window.__priceMin = null;
+  window.__priceMax = null;
   window.__filterPriceMin = null;
   window.__filterPriceMax = null;
   window.__filterSurfaceMin = null;
   window.__filterRooms = null;
   window.__filterAgence = null;
+  window.__filterAgences = [];
   document.querySelectorAll('.filter-kind-pill').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.kind === '');
     btn.classList.remove('neuf','location');
@@ -2534,18 +2548,45 @@ function setSort(value) {
   const transaction = params.get('transaction');
   if (transaction) window.__filterKind = transaction;
 
+  const bar = document.querySelector('.filter-bar');
+  const addTag = (id, icon, text, clearFn) => {
+    if (!bar) return;
+    const tag = document.createElement('div');
+    tag.className = 'filter-tag';
+    tag.id = id;
+    tag.innerHTML = `<i class="fas ${icon}" style="font-size:10px"></i> ${text} <button onclick="${clearFn}" style="background:none;border:none;cursor:pointer;padding:0;line-height:1;font-size:11px;color:inherit;margin-left:2px">&times;</button>`;
+    bar.appendChild(tag);
+  };
+
   const propType = params.get('propertyType');
   if (propType) {
     window.__propertyType = propType;
-    /* inject a removable tag in the filter bar */
-    const bar = document.querySelector('.filter-bar');
-    if (bar) {
-      const tag = document.createElement('div');
-      tag.className = 'filter-tag';
-      tag.id = 'prop-type-tag';
-      tag.innerHTML = `<i class="fas fa-tag" style="font-size:10px"></i> ${propType} <button onclick="clearPropertyType()" style="background:none;border:none;cursor:pointer;padding:0;line-height:1;font-size:11px;color:inherit;margin-left:2px">&times;</button>`;
-      bar.appendChild(tag);
-    }
+    addTag('prop-type-tag', 'fa-tag', propType, 'clearPropertyType()');
+  }
+
+  const ville = params.get('ville');
+  if (ville) {
+    window.__filterVille = ville;
+    addTag('ville-tag', 'fa-map-marker-alt', ville, 'clearVille()');
+  }
+
+  const rooms = parseInt(params.get('rooms'));
+  if (rooms) {
+    window.__filterRooms = rooms;
+    addTag('rooms-tag', 'fa-door-open', rooms >= 5 ? '5+ pièces' : rooms + ' pièce' + (rooms > 1 ? 's' : ''), 'clearRooms()');
+  }
+
+  const priceMin = parseInt(params.get('priceMin'));
+  const priceMax = parseInt(params.get('priceMax'));
+  if (!isNaN(priceMin) || !isNaN(priceMax)) {
+    if (!isNaN(priceMin)) window.__priceMin = priceMin;
+    if (!isNaN(priceMax)) window.__priceMax = priceMax;
+    const fmt = n => n.toLocaleString('fr-TN');
+    let label;
+    if (!isNaN(priceMin) && !isNaN(priceMax)) label = `${fmt(priceMin)} – ${fmt(priceMax)} TND`;
+    else if (!isNaN(priceMin))                label = `≥ ${fmt(priceMin)} TND`;
+    else                                      label = `≤ ${fmt(priceMax)} TND`;
+    addTag('price-tag', 'fa-coins', label, 'clearPrice()');
   }
 })();
 
@@ -2553,8 +2594,25 @@ function clearPropertyType() {
   window.__propertyType = '';
   const tag = document.getElementById('prop-type-tag');
   if (tag) tag.remove();
-  renderCards();
-  renderMarkers();
+  renderCards(); renderMarkers();
+}
+function clearVille() {
+  window.__filterVille = '';
+  const tag = document.getElementById('ville-tag');
+  if (tag) tag.remove();
+  renderCards(); renderMarkers();
+}
+function clearRooms() {
+  window.__filterRooms = null;
+  const tag = document.getElementById('rooms-tag');
+  if (tag) tag.remove();
+  renderCards(); renderMarkers();
+}
+function clearPrice() {
+  window.__priceMin = null; window.__priceMax = null;
+  const tag = document.getElementById('price-tag');
+  if (tag) tag.remove();
+  renderCards(); renderMarkers();
 }
 
 /* ========================

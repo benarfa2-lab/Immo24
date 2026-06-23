@@ -1905,12 +1905,12 @@
 
         <div class="sc-input">
           <i class="fas fa-map-marker-alt" style="color:#E63946"></i>
-          <input type="text" placeholder="Ville, adresse, quartier..." />
+          <input type="text" id="sc-ville" placeholder="Ville, adresse, quartier..." />
         </div>
 
         <div class="sc-input">
           <i class="fas fa-home" style="color:var(--navy)"></i>
-          <select style="flex:1;border:none;outline:none;font-size:13px;color:#6C757D;background:none;font-family:inherit;cursor:pointer">
+          <select id="sc-type" style="flex:1;border:none;outline:none;font-size:13px;color:#6C757D;background:none;font-family:inherit;cursor:pointer">
             <option value="">Type de bien</option>
             <option>Appartement</option>
             <option>Villa</option>
@@ -1922,8 +1922,8 @@
         </div>
 
         <div class="sc-budget-row">
-          <div class="sc-input"><input type="number" placeholder="Budget min (TND)" /></div>
-          <div class="sc-input"><input type="number" placeholder="Budget max (TND)" /></div>
+          <div class="sc-input"><input type="number" id="sc-budget-min" placeholder="Budget min (TND)" /></div>
+          <div class="sc-input"><input type="number" id="sc-budget-max" placeholder="Budget max (TND)" /></div>
         </div>
 
         <div class="sc-pieces-row">
@@ -3233,13 +3233,34 @@ function scState(el) {
 function goToMap() {
   const tab   = document.querySelector('.sc-tab.active')?.textContent.trim();
   const pill  = document.querySelector('.sc-state-pill.active')?.textContent.trim();
-  let type;
-  if (tab === 'Projets neufs')       type = 'neuf';
-  else if (tab === 'Louer')          type = 'location';
-  else if (pill === 'Neuf')          type = 'neuf';
-  else if (pill === 'Occasion')      type = 'annonces';
-  else                               type = 'vente';
-  window.location = 'map-listings.html?type=' + type;
+  const params = new URLSearchParams();
+
+  // Tab Acheter / Louer / Projets neufs  +  État Neuf / Occasion
+  if (tab === 'Projets neufs')       params.set('type', 'neuf');
+  else if (tab === 'Louer')          params.set('type', 'location');
+  else if (pill === 'Neuf')          params.set('type', 'neuf');
+  else if (pill === 'Occasion')      params.set('type', 'annonces');
+  else                               params.set('type', 'vente');
+
+  // Type de bien
+  const ptype = document.getElementById('sc-type')?.value.trim();
+  if (ptype) params.set('propertyType', ptype);
+
+  // Ville / quartier
+  const ville = document.getElementById('sc-ville')?.value.trim();
+  if (ville) params.set('ville', ville);
+
+  // Budget
+  const bmin = document.getElementById('sc-budget-min')?.value.trim();
+  const bmax = document.getElementById('sc-budget-max')?.value.trim();
+  if (bmin) params.set('priceMin', bmin);
+  if (bmax) params.set('priceMax', bmax);
+
+  // Pièces (5+ → 5)
+  const piece = document.querySelector('.sc-piece-btn.active')?.textContent.trim();
+  if (piece) params.set('rooms', piece.replace('+', ''));
+
+  window.location = 'map-listings.html?' + params.toString();
 }
 
 /* ===== CAROUSELS ===== */
