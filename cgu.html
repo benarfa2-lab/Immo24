@@ -24,20 +24,39 @@
     body { font-family: 'Inter', sans-serif; color: var(--gray-800); background: var(--gray-50); line-height: 1.7; }
     a { color: var(--navy); text-decoration: underline; text-underline-offset: 3px; }
     a:hover { color: var(--gold); }
-
-    nav {
-      background: var(--navy); padding: 14px 24px;
-      display: flex; align-items: center; justify-content: space-between;
+    /* ===== NAVBAR ===== */
+    .navbar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+      height: 64px;
+      display: flex; align-items: center;
+      padding: 0 32px; gap: 24px;
+      background: var(--navy);
+      box-shadow: 0 2px 16px rgba(8,20,55,.25);
     }
     .nav-logo { display: flex; align-items: center; flex-shrink: 0; text-decoration: none; transition: opacity .2s; }
     .nav-logo:hover { opacity: .85; }
-    .nav-logo img { height: 44px; width: auto; display: block; }
-    .nav-back { font-size: 13px; color: rgba(255,255,255,.7); text-decoration: none; display: flex; align-items: center; gap: 6px; transition: color .2s; }
+    .nav-logo img { height: 52px; width: auto; display: block; }
+    .nav-ctas { display: flex; gap: 6px; margin-left: 8px; }
+    .nav-cta-btn { display: flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; color: rgba(255,255,255,.88); background: rgba(255,255,255,.10); border: 1px solid rgba(255,255,255,.18); transition: all .2s; white-space: nowrap; cursor: pointer; text-decoration: none; }
+    .nav-cta-btn:hover, .nav-cta-btn.active { background: var(--gold); color: var(--navy); border-color: var(--gold); }
+    .nav-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+    .nav-btn-outline { border: 1.5px solid rgba(255,255,255,.45); border-radius: 50px; padding: 7px 18px; font-size: 13px; font-weight: 500; color: var(--white); transition: all .2s; background: none; cursor: pointer; text-decoration: none; display: flex; align-items: center; gap: 6px; }
+    .nav-btn-outline:hover { background: rgba(255,255,255,.12); border-color: var(--white); }
+    .nav-btn-gold { background: var(--gold); border-radius: 50px; padding: 7px 20px; font-size: 13px; font-weight: 700; color: var(--navy); transition: all .2s; cursor: pointer; border: none; font-family: inherit; }
+    .nav-btn-gold:hover { background: var(--gold-dark); }
+    .nav-hamburger { display: none; background: none; border: none; color: #fff; font-size: 22px; cursor: pointer; margin-left: auto; }
+    @media(max-width:900px){ .nav-ctas{display:none} .nav-right{display:none} .nav-hamburger{display:flex} }
+    .nav-mobile { display:none; flex-direction:column; background:var(--navy); padding:12px 0; border-bottom:1px solid rgba(255,255,255,.1); }
+    .nav-mobile.open { display:flex; }
+    .nav-mob-link { padding:10px 24px; font-size:14px; font-weight:500; color:rgba(255,255,255,.85); text-decoration:none; display:flex; align-items:center; gap:10px; transition:background .15s; }
+    .nav-mob-link:hover, .nav-mob-link.active { background:rgba(255,255,255,.08); color:var(--gold); }
+    .nav-mob-divider { height:1px; background:rgba(255,255,255,.1); margin:6px 0; }
+    .nav-mob-actions { display:flex; flex-direction:column; gap:8px; padding:10px 24px; }
     .nav-back:hover { color: var(--gold); }
 
     .page-hero {
       background: linear-gradient(135deg, var(--navy) 0%, var(--navy-dark) 100%);
-      padding: 48px 24px 44px; text-align: center; color: #fff;
+      padding: 100px 24px 44px; text-align: center; color: #fff;
     }
     .page-hero h1 { font-family: var(--font-display); font-size: clamp(22px, 4vw, 32px); font-weight: 900; letter-spacing: -.5px; margin-bottom: 10px; }
     .page-hero p { font-size: 13px; color: rgba(255,255,255,.55); }
@@ -86,10 +105,31 @@
 </head>
 <body>
 
-<nav>
-  <a href="index.html" class="nav-logo"><img src="immo24-light-navbar.svg" alt="Immo24.tn" /></a>
-  <a href="index.html" class="nav-back">&#8592; Retour à l'accueil</a>
+<nav class="navbar" id="navbar">
+  <a class="nav-logo" href="index.html">
+    <img src="immo24-light-navbar.svg" alt="Immo24.tn" />
+  </a>
+  <div class="nav-ctas">
+    <a href="map-listings.html?type=neuf" class="nav-cta-btn"><i class="fas fa-building"></i> Projets neufs</a>
+    <a href="map-listings.html?type=annonces" class="nav-cta-btn"><i class="fas fa-user-tie"></i> Agences</a>
+    <a href="decoration.html" class="nav-cta-btn"><i class="fas fa-couch"></i> Décorer &amp; meubler</a>
+    <a href="#" class="nav-cta-btn"><i class="fas fa-hand-holding-usd"></i> Financer</a>
+  </div>
+  <div class="nav-right">
+    <a href="login.html" class="nav-btn-outline"><i class="fas fa-user-tie" style="font-size:11px"></i> Mon espace pro</a>
+  </div>
+  <button class="nav-hamburger" aria-label="Menu"><i class="fas fa-bars"></i></button>
 </nav>
+<div class="nav-mobile" id="nav-mobile">
+  <a href="map-listings.html?type=neuf" class="nav-mob-link"><i class="fas fa-building"></i> Projets neufs</a>
+  <a href="map-listings.html?type=annonces" class="nav-mob-link"><i class="fas fa-user-tie"></i> Agences</a>
+  <a href="decoration.html" class="nav-mob-link"><i class="fas fa-couch"></i> Décorer &amp; meubler</a>
+  <a href="#" class="nav-mob-link"><i class="fas fa-hand-holding-usd"></i> Financer</a>
+  <div class="nav-mob-divider"></div>
+  <div class="nav-mob-actions">
+    <a href="login.html" class="nav-btn-outline" style="justify-content:center"><i class="fas fa-user-tie" style="font-size:11px"></i> Mon espace pro</a>
+  </div>
+</div>
 
 <div class="page-hero">
   <h1>Conditions générales d'utilisation</h1>
