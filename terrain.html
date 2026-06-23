@@ -69,6 +69,10 @@
     .gallery-prev { left:20px; }
     .gallery-next { right:20px; }
     .gallery-counter { position:absolute; bottom:16px; right:20px; z-index:5; background:rgba(0,0,0,.55); backdrop-filter:blur(6px); color:var(--white); font-size:12px; font-weight:600; padding:5px 12px; border-radius:50px; display:flex; align-items:center; gap:6px; }
+    .gallery-pills { position:absolute; bottom:16px; left:16px; display:flex; gap:8px; z-index:10; }
+    .gpill { display:flex; align-items:center; gap:7px; padding:8px 14px; border-radius:50px; background:rgba(255,255,255,.92); backdrop-filter:blur(8px); border:1px solid rgba(255,255,255,.6); font-size:13px; font-weight:600; color:var(--gray-800); cursor:pointer; transition:all .18s; box-shadow:0 2px 8px rgba(0,0,0,.18); white-space:nowrap; }
+    .gpill:hover { background:#fff; transform:translateY(-1px); box-shadow:0 4px 16px rgba(0,0,0,.22); }
+    .gpill i { font-size:14px; color:var(--navy); }
     .gallery-badges { position:absolute; top:16px; left:20px; z-index:5; display:flex; gap:8px; flex-wrap:wrap; }
     .badge { padding:5px 12px; border-radius:50px; font-size:11px; font-weight:700; backdrop-filter:blur(6px); }
     .badge-vente { background:var(--navy); color:var(--white); }
@@ -314,6 +318,11 @@
         <img src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=1400&q=70" alt="Proximité" />
       </div>
 
+      <div class="gallery-pills">
+        <button class="gpill" onclick="openTab('visite')"><i class="fas fa-cube"></i> Visite 3D</button>
+        <button class="gpill" onclick="openTab('video')"><i class="fas fa-play-circle"></i> Vidéo</button>
+        <button class="gpill" onclick="openTab('localisation')"><i class="fas fa-map-marker-alt"></i> Localisation</button>
+      </div>
       <button class="gallery-nav gallery-prev" onclick="galleryNav(-1)"><i class="fas fa-chevron-left"></i></button>
       <button class="gallery-nav gallery-next" onclick="galleryNav(1)"><i class="fas fa-chevron-right"></i></button>
       <div class="gallery-counter"><i class="fas fa-camera"></i> <span id="g-count">1 / 5</span></div>
@@ -399,6 +408,8 @@
           <button class="tab-btn" onclick="switchTab(1,this)"><i class="fas fa-list-check"></i> Caractéristiques</button>
           <button class="tab-btn" onclick="switchTab(2,this)"><i class="fas fa-plug"></i> Viabilisation</button>
           <button class="tab-btn" onclick="switchTab(3,this)"><i class="fas fa-map-marked-alt"></i> Localisation</button>
+          <button class="tab-btn" onclick="switchTab(4,this)"><i class="fas fa-cube"></i> Visite 3D</button>
+          <button class="tab-btn" onclick="switchTab(5,this)"><i class="fas fa-play-circle"></i> Vidéo</button>
         </div>
 
         <!-- Description -->
@@ -487,6 +498,25 @@ Le zonage PAU autorise une construction <strong>résidentielle jusqu'à R+3</str
             <div class="map-info-chip"><i class="fas fa-shopping-cart"></i> 800 m du centre</div>
             <div class="map-info-chip"><i class="fas fa-graduation-cap"></i> École à 500 m</div>
             <div class="map-info-chip"><i class="fas fa-bus"></i> TGM La Marsa (600 m)</div>
+          </div>
+        </div>
+
+        <div class="tab-pane" id="tab-4">
+          <div style="background:var(--navy-light);border-radius:12px;padding:48px 24px;text-align:center;">
+            <i class="fas fa-cube" style="font-size:48px;color:var(--navy);opacity:.35;margin-bottom:16px;display:block"></i>
+            <p style="font-weight:700;color:var(--navy);margin-bottom:6px;">Visite virtuelle 3D</p>
+            <p style="font-size:13px;color:var(--gray-400);margin-bottom:20px;">La visite 3D sera disponible prochainement.</p>
+            <button style="padding:10px 24px;border-radius:50px;background:var(--gold);color:var(--navy-dark);font-size:13px;font-weight:700;border:none;cursor:pointer;" onclick="alert('Lien visite virtuelle à intégrer')">
+              <i class="fas fa-play" style="margin-right:6px;"></i>Lancer la visite
+            </button>
+          </div>
+        </div>
+
+        <div class="tab-pane" id="tab-5">
+          <div style="background:var(--navy-light);border-radius:12px;padding:48px 24px;text-align:center;">
+            <i class="fas fa-play-circle" style="font-size:48px;color:var(--navy);opacity:.35;margin-bottom:16px;display:block"></i>
+            <p style="font-weight:700;color:var(--navy);margin-bottom:6px;">Vidéo du terrain</p>
+            <p style="font-size:13px;color:var(--gray-400);">La vidéo sera disponible prochainement.</p>
           </div>
         </div>
 
@@ -645,6 +675,14 @@ document.addEventListener('keydown', e => {
 });
 
 /* ── TABS ── */
+function openTab(name) {
+  const map = { 'localisation': 3, 'visite': 4, 'video': 5 };
+  const idx = map[name];
+  if (idx === undefined) return;
+  const btns = document.querySelectorAll('.tab-btn');
+  switchTab(idx, btns[idx]);
+  document.querySelector('.tabs-wrap').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
 function switchTab(idx, btn) {
   document.querySelectorAll('.tab-pane').forEach((p, i) => p.classList.toggle('active', i === idx));
   document.querySelectorAll('.tab-btn').forEach((b, i) => b.classList.toggle('active', i === idx));
