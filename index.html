@@ -247,9 +247,28 @@
       font-size: 15px; font-weight: 400;
       color: rgba(255,255,255,.85);
       line-height: 1.65;
-      margin-bottom: 28px;
+      margin-bottom: 22px;
       max-width: 460px;
       text-shadow: 0 1px 6px rgba(0,0,0,.5);
+    }
+    /* services intégrés au hero : features + transition */
+    .hero-feats { display: flex; flex-wrap: wrap; gap: 8px; min-height: 0; }
+    .hero-feat {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 6px 13px; border-radius: 50px;
+      background: rgba(255,255,255,.12); backdrop-filter: blur(6px);
+      border: 1px solid rgba(255,255,255,.2);
+      font-size: 12px; font-weight: 600; color: rgba(255,255,255,.92);
+    }
+    .hero-feat i { color: var(--gold); font-size: 11px; }
+    .hero-tag, .hero-title, .hero-subtitle, .hero-feats {
+      transition: opacity .5s ease, transform .5s ease;
+    }
+    .hero-text.swapping .hero-tag,
+    .hero-text.swapping .hero-title,
+    .hero-text.swapping .hero-subtitle,
+    .hero-text.swapping .hero-feats {
+      opacity: 0; transform: translateY(10px);
     }
     .hero-pills {
       display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
@@ -482,132 +501,6 @@
       animation: scrollFade 2s ease-in-out infinite;
     }
     @keyframes scrollFade { 0%,100%{opacity:.4} 50%{opacity:1} }
-
-    /* ===== SERVICES IMMERSIFS — bannière défilante ===== */
-    .imm-banner {
-      position: relative; width: 100%;
-      background: var(--navy-dark);
-      overflow: hidden;
-    }
-    .imm-viewport { position: relative; overflow: hidden; }
-    .imm-track {
-      display: flex; width: 100%;
-      transition: transform .8s cubic-bezier(.65,.05,.2,1);
-      will-change: transform;
-    }
-    .imm-slide {
-      position: relative; flex: 0 0 100%;
-      min-height: 420px;
-      display: grid; grid-template-columns: 1.05fr 1fr;
-      align-items: center;
-    }
-    .imm-slide-bg {
-      position: absolute; inset: 0;
-      background-size: cover; background-position: center;
-    }
-    .imm-slide-bg::after {
-      content: ''; position: absolute; inset: 0;
-      background: linear-gradient(105deg,
-        var(--navy-dark) 0%, rgba(18,41,82,.92) 38%,
-        rgba(18,41,82,.55) 62%, rgba(18,41,82,.25) 100%);
-    }
-    .imm-content {
-      position: relative; z-index: 2;
-      padding: 56px clamp(24px, 5vw, 72px);
-      max-width: 640px;
-    }
-    .imm-eyebrow {
-      display: inline-flex; align-items: center; gap: 8px;
-      font-size: 12px; font-weight: 700; letter-spacing: .12em;
-      text-transform: uppercase; color: var(--gold);
-      margin-bottom: 18px;
-    }
-    .imm-eyebrow::before {
-      content: ''; width: 26px; height: 2px; background: var(--gold);
-    }
-    .imm-icon {
-      width: 64px; height: 64px; border-radius: 18px;
-      background: rgba(230,168,23,.14); border: 1px solid rgba(230,168,23,.35);
-      display: flex; align-items: center; justify-content: center;
-      margin-bottom: 22px;
-    }
-    .imm-icon i { font-size: 27px; color: var(--gold); }
-    .imm-title {
-      font-family: var(--font-display);
-      font-size: clamp(28px, 4vw, 42px); font-weight: 800;
-      color: #fff; line-height: 1.08; letter-spacing: -.5px;
-      margin-bottom: 16px;
-    }
-    .imm-title em { color: var(--gold); font-style: normal; }
-    .imm-desc {
-      font-size: 15.5px; line-height: 1.7; color: rgba(255,255,255,.72);
-      margin-bottom: 26px; max-width: 480px;
-    }
-    .imm-features { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 30px; }
-    .imm-feat {
-      display: inline-flex; align-items: center; gap: 7px;
-      padding: 7px 14px; border-radius: 50px;
-      background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.14);
-      font-size: 12.5px; font-weight: 600; color: rgba(255,255,255,.9);
-    }
-    .imm-feat i { color: var(--gold); font-size: 11px; }
-    .imm-cta {
-      display: inline-flex; align-items: center; gap: 10px;
-      padding: 13px 26px; border-radius: 50px;
-      background: var(--gold); color: var(--navy-dark);
-      font-size: 14px; font-weight: 700;
-      transition: transform .2s, box-shadow .2s;
-      box-shadow: 0 8px 24px rgba(230,168,23,.28);
-    }
-    .imm-cta:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(230,168,23,.4); }
-    .imm-cta i { transition: transform .2s; }
-    .imm-cta:hover i { transform: translateX(4px); }
-
-    /* floating badge côté visuel */
-    .imm-float {
-      position: absolute; z-index: 3; right: clamp(24px, 5vw, 64px);
-      background: rgba(255,255,255,.12); backdrop-filter: blur(10px);
-      border: 1px solid rgba(255,255,255,.22); border-radius: 14px;
-      padding: 14px 18px; display: flex; align-items: center; gap: 12px;
-      box-shadow: 0 12px 40px rgba(0,0,0,.3);
-    }
-    .imm-float-top { top: 40px; animation: immFloat 5s ease-in-out infinite; }
-    .imm-float-bot { bottom: 40px; animation: immFloat 6s ease-in-out infinite reverse; }
-    @keyframes immFloat { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
-    .imm-float-ic { width: 38px; height: 38px; border-radius: 10px; background: var(--gold); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-    .imm-float-ic i { color: var(--navy-dark); font-size: 16px; }
-    .imm-float-txt b { display: block; color: #fff; font-size: 13px; font-weight: 700; }
-    .imm-float-txt span { font-size: 11px; color: rgba(255,255,255,.7); }
-
-    /* contrôles */
-    .imm-nav {
-      position: absolute; z-index: 5; bottom: 28px; left: clamp(24px, 5vw, 72px);
-      display: flex; align-items: center; gap: 18px;
-    }
-    .imm-dots { display: flex; gap: 8px; }
-    .imm-dot {
-      width: 8px; height: 8px; border-radius: 50%;
-      background: rgba(255,255,255,.3); cursor: pointer; transition: all .35s;
-    }
-    .imm-dot.active { background: var(--gold); width: 26px; border-radius: 5px; }
-    .imm-arrows { display: flex; gap: 8px; }
-    .imm-arrow {
-      width: 40px; height: 40px; border-radius: 50%;
-      background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.22);
-      color: #fff; display: flex; align-items: center; justify-content: center;
-      font-size: 13px; transition: background .2s;
-    }
-    .imm-arrow:hover { background: var(--gold); color: var(--navy-dark); border-color: var(--gold); }
-    .imm-progress {
-      position: absolute; top: 0; left: 0; height: 3px; z-index: 5;
-      background: var(--gold); width: 0; transition: width .1s linear;
-    }
-    @media (max-width: 860px) {
-      .imm-slide { grid-template-columns: 1fr; min-height: 460px; }
-      .imm-content { padding: 48px 24px 90px; max-width: 100%; }
-      .imm-float { display: none; }
-      .imm-nav { left: 24px; }
-    }
 
     /* ===== ACTIONS BAR ===== */
     .actions-bar {
@@ -1959,17 +1852,18 @@
   <div class="hero-inner">
 
     <!-- TEXTE -->
-    <div class="hero-text">
-      <div class="hero-tag">
+    <div class="hero-text" id="hero-text">
+      <div class="hero-tag" id="hero-tag">
         <i class="fas fa-map-marker-alt"></i>
         #1 de l'immobilier professionnel en Tunisie
       </div>
-      <h1 class="hero-title">
+      <h1 class="hero-title" id="hero-title">
         Trouvez votre bien<br>idéal en <em>Tunisie</em>
       </h1>
-      <p class="hero-subtitle">
+      <p class="hero-subtitle" id="hero-subtitle">
         Des appartements, villas et résidences neufs directement auprès des promoteurs agréés. Recherche intelligente, prix transparents.
       </p>
+      <div class="hero-feats" id="hero-feats"></div>
     </div>
 
     <!-- CARTE RECHERCHE -->
@@ -2084,91 +1978,6 @@
   <div class="scroll-hint">
     <span>Découvrir</span>
     <i class="fas fa-chevron-down" style="font-size:14px"></i>
-  </div>
-</section>
-
-<!-- ===== SERVICES IMMERSIFS — bannière défilante ===== -->
-<section class="imm-banner" aria-label="Nos services immersifs">
-  <div class="imm-progress" id="imm-progress"></div>
-  <div class="imm-viewport">
-    <div class="imm-track" id="imm-track">
-
-      <!-- Slide 1 : Vue 360° -->
-      <article class="imm-slide">
-        <div class="imm-slide-bg" style="background-image:url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1400&q=85')"></div>
-        <div class="imm-content">
-          <span class="imm-eyebrow">Services exclusifs Immo24</span>
-          <div class="imm-icon"><i class="fas fa-vr-cardboard"></i></div>
-          <h2 class="imm-title">Vue <em>360°</em> panoramique</h2>
-          <p class="imm-desc">Explorez chaque pièce comme si vous y étiez. Nos prises de vue immersives à 360° vous font découvrir l'intégralité du bien depuis votre écran, sans déplacement.</p>
-          <div class="imm-features">
-            <span class="imm-feat"><i class="fas fa-check"></i> Panoramas haute résolution</span>
-            <span class="imm-feat"><i class="fas fa-check"></i> Rotation libre</span>
-            <span class="imm-feat"><i class="fas fa-check"></i> Compatible mobile</span>
-          </div>
-          <a href="map-listings.html" class="imm-cta">Voir les biens en 360° <i class="fas fa-arrow-right"></i></a>
-        </div>
-        <div class="imm-float imm-float-top">
-          <div class="imm-float-ic"><i class="fas fa-sync-alt"></i></div>
-          <div class="imm-float-txt"><b>Immersion totale</b><span>Navigation à 360°</span></div>
-        </div>
-      </article>
-
-      <!-- Slide 2 : Vue avec drone -->
-      <article class="imm-slide">
-        <div class="imm-slide-bg" style="background-image:url('https://images.unsplash.com/photo-1473968512647-3e447244af8f?w=1400&q=85')"></div>
-        <div class="imm-content">
-          <span class="imm-eyebrow">Services exclusifs Immo24</span>
-          <div class="imm-icon"><i class="fas fa-helicopter"></i></div>
-          <h2 class="imm-title">Vue aérienne par <em>drone</em></h2>
-          <p class="imm-desc">Prenez de la hauteur. Nos captures par drone révèlent l'environnement, l'exposition et les accès du bien — un atout décisif pour les villas, terrains et projets neufs.</p>
-          <div class="imm-features">
-            <span class="imm-feat"><i class="fas fa-check"></i> Vidéo 4K aérienne</span>
-            <span class="imm-feat"><i class="fas fa-check"></i> Vue du quartier</span>
-            <span class="imm-feat"><i class="fas fa-check"></i> Pilotes certifiés</span>
-          </div>
-          <a href="map-listings.html?type=neuf" class="imm-cta">Découvrir les vues drone <i class="fas fa-arrow-right"></i></a>
-        </div>
-        <div class="imm-float imm-float-bot">
-          <div class="imm-float-ic"><i class="fas fa-video"></i></div>
-          <div class="imm-float-txt"><b>Captation 4K</b><span>Vue aérienne pro</span></div>
-        </div>
-      </article>
-
-      <!-- Slide 3 : Visite virtuelle -->
-      <article class="imm-slide">
-        <div class="imm-slide-bg" style="background-image:url('https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?w=1400&q=85')"></div>
-        <div class="imm-content">
-          <span class="imm-eyebrow">Services exclusifs Immo24</span>
-          <div class="imm-icon"><i class="fas fa-cube"></i></div>
-          <h2 class="imm-title">Visite <em>virtuelle</em> guidée</h2>
-          <p class="imm-desc">Déambulez librement dans le bien grâce à nos visites virtuelles interactives. Mesures, plans 3D et points d'intérêt : tout pour décider en confiance, à distance.</p>
-          <div class="imm-features">
-            <span class="imm-feat"><i class="fas fa-check"></i> Parcours interactif</span>
-            <span class="imm-feat"><i class="fas fa-check"></i> Plan 3D & cotes</span>
-            <span class="imm-feat"><i class="fas fa-check"></i> Disponible 24/7</span>
-          </div>
-          <a href="map-listings.html" class="imm-cta">Lancer une visite virtuelle <i class="fas fa-arrow-right"></i></a>
-        </div>
-        <div class="imm-float imm-float-top">
-          <div class="imm-float-ic"><i class="fas fa-walking"></i></div>
-          <div class="imm-float-txt"><b>Visite libre</b><span>Comme sur place</span></div>
-        </div>
-      </article>
-
-    </div>
-  </div>
-
-  <div class="imm-nav">
-    <div class="imm-dots" id="imm-dots">
-      <span class="imm-dot active" onclick="immGoTo(0)"></span>
-      <span class="imm-dot" onclick="immGoTo(1)"></span>
-      <span class="imm-dot" onclick="immGoTo(2)"></span>
-    </div>
-    <div class="imm-arrows">
-      <button class="imm-arrow" onclick="immNav(-1)" aria-label="Précédent"><i class="fas fa-chevron-left"></i></button>
-      <button class="imm-arrow" onclick="immNav(1)" aria-label="Suivant"><i class="fas fa-chevron-right"></i></button>
-    </div>
   </div>
 </section>
 
@@ -3257,12 +3066,55 @@
 </footer>
 
 <script>
-/* ===== HERO SLIDER ===== */
+/* ===== HERO SLIDER (avec services intégrés) ===== */
 (function() {
   const slides = document.querySelectorAll('.hero-slide');
   const dots   = document.querySelectorAll('.hero-dot');
   let current  = 0;
   let timer;
+
+  /* contenu texte synchronisé avec chaque slide */
+  const HERO_CONTENT = [
+    {
+      tag: `<i class="fas fa-map-marker-alt"></i> #1 de l'immobilier professionnel en Tunisie`,
+      title: `Trouvez votre bien<br>idéal en <em>Tunisie</em>`,
+      sub: `Des appartements, villas et résidences neufs directement auprès des promoteurs agréés. Recherche intelligente, prix transparents.`,
+      feats: []
+    },
+    {
+      tag: `<i class="fas fa-vr-cardboard"></i> Service exclusif · Vue 360°`,
+      title: `Visitez en <em>360°</em><br>sans vous déplacer`,
+      sub: `Explorez chaque pièce comme si vous y étiez grâce à nos panoramas immersifs à 360°, directement depuis votre écran.`,
+      feats: [['fa-sync-alt','Rotation libre'],['fa-mobile-screen','Compatible mobile'],['fa-expand','Haute résolution']]
+    },
+    {
+      tag: `<i class="fas fa-helicopter"></i> Service exclusif · Vue drone`,
+      title: `Prenez de la hauteur<br>en vue <em>drone</em>`,
+      sub: `Nos captures aériennes par drone révèlent l'environnement, l'exposition et les accès du bien — décisif pour villas, terrains et projets neufs.`,
+      feats: [['fa-video','Vidéo 4K aérienne'],['fa-map','Vue du quartier'],['fa-circle-check','Pilotes certifiés']]
+    },
+    {
+      tag: `<i class="fas fa-cube"></i> Service exclusif · Visite virtuelle`,
+      title: `Déambulez en<br><em>visite virtuelle</em>`,
+      sub: `Parcourez librement le bien grâce à nos visites virtuelles interactives : plans 3D, cotes et points d'intérêt pour décider en confiance.`,
+      feats: [['fa-walking','Parcours interactif'],['fa-ruler-combined','Plan 3D & cotes'],['fa-clock','Disponible 24/7']]
+    }
+  ];
+
+  const txt   = document.getElementById('hero-text');
+  const elTag = document.getElementById('hero-tag');
+  const elTit = document.getElementById('hero-title');
+  const elSub = document.getElementById('hero-subtitle');
+  const elFea = document.getElementById('hero-feats');
+
+  function paint(i) {
+    const c = HERO_CONTENT[i % HERO_CONTENT.length];
+    if (!c || !txt) return;
+    elTag.innerHTML = c.tag;
+    elTit.innerHTML = c.title;
+    elSub.innerHTML = c.sub;
+    elFea.innerHTML = (c.feats || []).map(f => `<span class="hero-feat"><i class="fas ${f[0]}"></i> ${f[1]}</span>`).join('');
+  }
 
   function goTo(n) {
     slides[current].classList.remove('active');
@@ -3270,61 +3122,25 @@
     current = (n + slides.length) % slides.length;
     slides[current].classList.add('active');
     dots[current].classList.add('active');
+    /* swap texte avec fondu */
+    if (txt) {
+      txt.classList.add('swapping');
+      setTimeout(() => { paint(current); txt.classList.remove('swapping'); }, 320);
+    }
   }
 
   function next() { goTo(current + 1); }
 
   function startTimer() {
     clearInterval(timer);
-    timer = setInterval(next, 5000);
+    timer = setInterval(next, 5500);
   }
 
   window.heroGoTo = function(n) { goTo(n); startTimer(); };
   window.heroNav  = function(d) { goTo(current + d); startTimer(); };
 
+  paint(0);
   startTimer();
-})();
-
-/* ===== SERVICES IMMERSIFS — carousel ===== */
-(function() {
-  const track = document.getElementById('imm-track');
-  if (!track) return;
-  const dots  = document.querySelectorAll('.imm-dot');
-  const bar   = document.getElementById('imm-progress');
-  const total = track.children.length;
-  const DURATION = 5500;
-  let current = 0, timer, raf, t0;
-
-  function render() {
-    track.style.transform = `translateX(-${current * 100}%)`;
-    dots.forEach((d, i) => d.classList.toggle('active', i === current));
-  }
-  function goTo(n) { current = (n + total) % total; render(); }
-
-  function tick(now) {
-    if (!t0) t0 = now;
-    const p = Math.min((now - t0) / DURATION, 1);
-    if (bar) bar.style.width = (p * 100) + '%';
-    if (p >= 1) { goTo(current + 1); t0 = null; }
-    raf = requestAnimationFrame(tick);
-  }
-  function start() { cancelAnimationFrame(raf); t0 = null; raf = requestAnimationFrame(tick); }
-
-  window.immGoTo = function(n) { goTo(n); start(); };
-  window.immNav  = function(d) { goTo(current + d); start(); };
-
-  /* pause au survol */
-  const banner = document.querySelector('.imm-banner');
-  banner.addEventListener('mouseenter', () => cancelAnimationFrame(raf));
-  banner.addEventListener('mouseleave', start);
-
-  /* ne démarrer que lorsque visible (perf) */
-  const io = new IntersectionObserver((entries) => {
-    entries.forEach(e => { if (e.isIntersecting) start(); else cancelAnimationFrame(raf); });
-  }, { threshold: 0.25 });
-  io.observe(banner);
-
-  render();
 })();
 
 /* ===== NAVBAR SCROLL ===== */
