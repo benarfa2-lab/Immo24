@@ -293,6 +293,30 @@
 
     /* ===== APPELER ===== */
     .contact-btns { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:10px; }
+    .btn-plan-visite { width:100%; margin:10px 0 4px; padding:13px; border-radius:10px; border:2px solid var(--gold); background:transparent; color:var(--gold); font-size:14px; font-weight:700; cursor:pointer; transition:all .2s; display:flex; align-items:center; justify-content:center; gap:8px; font-family:inherit; }
+    .btn-plan-visite:hover { background:var(--gold); color:var(--navy-dark); }
+
+    /* ===== PLAN VISITE MODAL ===== */
+    .plan-modal-backdrop { display:none; position:fixed; inset:0; background:rgba(8,20,55,.55); z-index:9000; align-items:center; justify-content:center; padding:16px; }
+    .plan-modal-backdrop.open { display:flex; }
+    .plan-modal { background:#fff; border-radius:16px; padding:32px; width:100%; max-width:480px; box-shadow:0 24px 64px rgba(8,20,55,.3); position:relative; }
+    .plan-modal h3 { font-family:var(--font-display); font-size:20px; font-weight:900; color:var(--navy); margin-bottom:4px; }
+    .plan-modal .plan-sub { font-size:13px; color:var(--gray-400); margin-bottom:24px; }
+    .plan-field { margin-bottom:14px; }
+    .plan-field label { display:block; font-size:12px; font-weight:700; color:var(--gray-600); margin-bottom:5px; text-transform:uppercase; letter-spacing:.04em; }
+    .plan-field input, .plan-field select, .plan-field textarea { width:100%; padding:10px 14px; border:1.5px solid var(--gray-200); border-radius:8px; font-size:14px; font-family:inherit; color:var(--gray-800); outline:none; transition:border .18s; background:#fff; box-sizing:border-box; }
+    .plan-field input:focus, .plan-field select:focus, .plan-field textarea:focus { border-color:var(--navy); }
+    .plan-field textarea { resize:vertical; min-height:80px; }
+    .plan-row2 { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    .plan-actions { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:20px; }
+    .plan-btn-cancel { padding:12px; border-radius:8px; border:1.5px solid var(--gray-200); background:#fff; color:var(--gray-600); font-size:14px; font-weight:600; cursor:pointer; font-family:inherit; transition:all .18s; }
+    .plan-btn-cancel:hover { border-color:var(--gray-400); }
+    .plan-btn-submit { padding:12px; border-radius:8px; border:none; background:var(--navy); color:#fff; font-size:14px; font-weight:700; cursor:pointer; font-family:inherit; transition:background .18s; }
+    .plan-btn-submit:hover { background:var(--navy-dark); }
+    .plan-success { display:none; text-align:center; padding:20px 0 8px; }
+    .plan-success i { font-size:48px; color:#22c55e; margin-bottom:12px; display:block; }
+    .plan-success p { font-size:15px; font-weight:700; color:var(--navy); margin-bottom:4px; }
+    .plan-success small { font-size:13px; color:var(--gray-400); }
     .btn-call {
       padding:13px; border-radius:var(--radius-sm);
       background:var(--white); color:var(--navy);
@@ -917,6 +941,11 @@ Finitions haut de gamme : marbre Thala, menuiserie aluminium double vitrage, cli
         <div class="agent-response"><i class="fas fa-bolt" style="color:var(--gold)"></i> Répond généralement en moins de 1h</div>
       </div>
 
+      <!-- Planifier une visite -->
+      <button class="btn-plan-visite" onclick="openPlanModal()">
+        <i class="fas fa-calendar-check"></i> Planifier une visite
+      </button>
+
       <!-- Visite virtuelle -->
       <div class="vr-card">
         <div class="vr-icon"><i class="fas fa-vr-cardboard"></i></div>
@@ -1037,6 +1066,100 @@ function openTab(name) {
 }
 </script>
 <script src="responsive.js"></script>
+
+<!-- ===== MODAL PLANIFIER UNE VISITE ===== -->
+<div class="plan-modal-backdrop" id="planModal" onclick="closePlanModalOutside(event)">
+  <div class="plan-modal">
+    <div id="planForm">
+      <h3><i class="fas fa-calendar-check" style="color:var(--gold);margin-right:8px"></i>Planifier une visite</h3>
+      <p class="plan-sub">Appartement S+3 Lac 2 — Remplissez ce formulaire et l'agent vous recontacte sous 1h.</p>
+      <div class="plan-row2">
+        <div class="plan-field">
+          <label>Prénom & Nom *</label>
+          <input type="text" id="pv-nom" placeholder="Votre nom complet" required />
+        </div>
+        <div class="plan-field">
+          <label>Téléphone *</label>
+          <input type="tel" id="pv-tel" placeholder="+216 XX XXX XXX" required />
+        </div>
+      </div>
+      <div class="plan-field">
+        <label>Email</label>
+        <input type="email" id="pv-email" placeholder="votre@email.com" />
+      </div>
+      <div class="plan-row2">
+        <div class="plan-field">
+          <label>Date souhaitée</label>
+          <input type="date" id="pv-date" />
+        </div>
+        <div class="plan-field">
+          <label>Créneau préféré</label>
+          <select id="pv-creneau">
+            <option value="">Indifférent</option>
+            <option>Matin (8h–12h)</option>
+            <option>Après-midi (12h–17h)</option>
+            <option>Soir (17h–20h)</option>
+          </select>
+        </div>
+      </div>
+      <div class="plan-field">
+        <label>Message (optionnel)</label>
+        <textarea id="pv-msg" placeholder="Précisez vos disponibilités ou questions..."></textarea>
+      </div>
+      <div class="plan-actions">
+        <button class="plan-btn-cancel" onclick="closePlanModal()">Annuler</button>
+        <button class="plan-btn-submit" onclick="submitPlanVisite()"><i class="fas fa-paper-plane" style="margin-right:6px"></i>Envoyer la demande</button>
+      </div>
+    </div>
+    <div class="plan-success" id="planSuccess">
+      <i class="fas fa-check-circle"></i>
+      <p>Demande envoyée !</p>
+      <small>L'agent vous recontactera très prochainement pour confirmer votre visite.</small>
+      <button class="plan-btn-submit" style="margin-top:20px;width:100%" onclick="closePlanModal()">Fermer</button>
+    </div>
+  </div>
+</div>
+
+<script>
+function openPlanModal() {
+  document.getElementById('planModal').classList.add('open');
+  document.getElementById('planForm').style.display = 'block';
+  document.getElementById('planSuccess').style.display = 'none';
+  document.body.style.overflow = 'hidden';
+}
+function closePlanModal() {
+  document.getElementById('planModal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+function closePlanModalOutside(e) {
+  if (e.target === document.getElementById('planModal')) closePlanModal();
+}
+function submitPlanVisite() {
+  const nom = document.getElementById('pv-nom').value.trim();
+  const tel = document.getElementById('pv-tel').value.trim();
+  if (!nom || !tel) { alert('Veuillez renseigner votre nom et téléphone.'); return; }
+  // Simulate save to backoffice (in production: POST to API)
+  const demand = {
+    id: 'DC-' + Math.floor(Math.random()*900+100),
+    dtype: 'rdv',
+    annonce: 'Appartement S+3 Lac 2',
+    contact: nom,
+    tel: tel,
+    email: document.getElementById('pv-email').value,
+    msg: `Visite souhaitée le ${document.getElementById('pv-date').value||'date à confirmer'} — ${document.getElementById('pv-creneau').value||'tout créneau'}\n${document.getElementById('pv-msg').value}`,
+    date: new Date().toLocaleDateString('fr-TN'),
+    statut: 'new'
+  };
+  try {
+    const saved = JSON.parse(localStorage.getItem('bo_demandes')||'[]');
+    saved.unshift(demand);
+    localStorage.setItem('bo_demandes', JSON.stringify(saved));
+  } catch(e) {}
+  document.getElementById('planForm').style.display = 'none';
+  document.getElementById('planSuccess').style.display = 'block';
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closePlanModal(); });
+</script>
 
 </body>
 </html>

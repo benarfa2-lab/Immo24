@@ -2490,13 +2490,14 @@ const ANNONCES_PROJET = {
 };
 
 /* Demandes de contact (ex-leads) — types: rdv | brochure | contact */
-const DEMANDES = [
+const DEMANDES_BASE = [
   { id:'DC-201', dtype:'rdv',      annonce:'Appartement S+3 Lac 2', contact:'Karim Saidi',     tel:'+216 52 111 222', email:'k.saidi@gmail.com',     msg:'Je souhaite visiter samedi matin si possible.',     date:'Aujourd\'hui 09:14', statut:'new' },
-  { id:'DC-200', dtype:'brochure', annonce:'Villa R+1 Marsa',        contact:'Leila Hamdi',     tel:'+216 97 333 444', email:'l.hamdi@outlook.com',   msg:'Merci de m\'envoyer la brochure complète du bien.', date:'Hier 15:32',        statut:'contacted' },
   { id:'DC-199', dtype:'contact',  annonce:'Terrain Hammamet',       contact:'Samir Bouazizi',  tel:'+216 22 555 666', email:'s.bouazizi@yahoo.fr',   msg:'Dimensions exactes et titre foncier du terrain ?',  date:'30/05/2026',        statut:'visited' },
   { id:'DC-198', dtype:'rdv',      annonce:'Duplex S+4 Les Jasmins', contact:'Nadia Belhaj',    tel:'+216 20 888 999', email:'n.belhaj@gmail.com',    msg:'Demande de rendez-vous pour une visite cette semaine.', date:'29/05/2026',    statut:'new' },
-  { id:'DC-197', dtype:'brochure', annonce:'Terrain 500m² Hammamet', contact:'Foued Khelifi',   tel:'+216 55 222 111', email:'f.khelifi@yahoo.fr',    msg:'Brochure + plan de lotissement svp.',               date:'27/05/2026',        statut:'closed' },
 ];
+// Merge with any demandes submitted from listing/terrain pages (stored in localStorage)
+const _saved = (() => { try { return JSON.parse(localStorage.getItem('bo_demandes')||'[]'); } catch(e){ return []; } })();
+const DEMANDES = [..._saved, ...DEMANDES_BASE];
 
 /* ===================== CMS DATA ===================== */
 const MENU_ITEMS = [
@@ -4515,14 +4516,13 @@ function resetPassword(userId) {
 }
 
 /* ---- DEMANDES DE CONTACT (ex-leads) ---- */
-let demFilter = 'all'; // all | rdv | brochure | contact
+let demFilter = 'all'; // all | rdv | contact
 function setDemFilter(f) { demFilter = f; document.getElementById('main-content').innerHTML = renderLeads(); }
 
 function renderLeads() {
   const statusLabel = { new:'Nouveau', contacted:'Contacté', visited:'Visité', closed:'Clôturé' };
   const typeCfg = {
     rdv:      { label:'Rendez-vous', icon:'fas fa-calendar-check', color:'var(--navy)',      bg:'var(--navy-light)' },
-    brochure: { label:'Brochure',    icon:'fas fa-file-pdf',       color:'var(--gold-dark)', bg:'var(--gold-light)' },
     contact:  { label:'Contact',     icon:'fas fa-envelope',       color:'var(--green)',     bg:'#E8F5F3' },
   };
   const list = demFilter==='all' ? DEMANDES : DEMANDES.filter(d=>d.dtype===demFilter);
@@ -4545,7 +4545,7 @@ function renderLeads() {
       <td>
         <div class="action-group">
           <button class="btn btn-outline btn-sm"><i class="fas fa-phone"></i> Appeler</button>
-          ${l.dtype==='brochure' ? `<button class="btn btn-primary btn-sm"><i class="fas fa-paper-plane"></i> Envoyer brochure</button>` : `<button class="btn btn-primary btn-sm"><i class="fas fa-reply"></i> Répondre</button>`}
+          `<button class="btn btn-primary btn-sm"><i class="fas fa-reply"></i> Répondre</button>`
         </div>
       </td>
     </tr>`;
@@ -4562,7 +4562,7 @@ function renderLeads() {
         <div class="filter-tabs">
           ${tab('all','Toutes')}
           ${tab('rdv',`Rendez-vous (${cnt('rdv')})`)}
-          ${tab('brochure',`Brochure (${cnt('brochure')})`)}
+          
           ${tab('contact',`Contact (${cnt('contact')})`)}
         </div>
       </div>
@@ -4619,7 +4619,7 @@ function renderStats() {
       ${kpi('fab fa-whatsapp','green',fmtNum(totWhatsapp),'Clics bouton WhatsApp','+24%')}
     </div>
     <div class="kpi-grid" style="margin-bottom:24px">
-      ${kpi('fas fa-file-pdf','gold',fmtNum(totBrochure),'Demandes de brochure','+15%')}
+      ${kpi('fas fa-file-download','gold',fmtNum(totBrochure),'Téléchargements brochure','+15%')}
       ${kpi('fas fa-rectangle-ad','navy',fmtNum(totBanClics),'Clics bannières pub','+7%')}
       ${kpi('fas fa-bullseye','blue',ctrBan+'%','Taux de clic bannières (CTR)','+0.4pt')}
       ${kpi('fas fa-comments','green',fmtNum(sum(ANNONCES,'demandes')),'Demandes de contact','+22%')}
@@ -4649,7 +4649,7 @@ function renderStats() {
     <!-- KPI par type de bien -->
     <div class="charts-row">
       <div class="chart-card">
-        <div class="chart-title"><i class="fas fa-layer-group" style="color:var(--navy);margin-right:6px"></i>Performance par type de bien <span class="chart-sub">clics · WhatsApp · brochures</span></div>
+        <div class="chart-title"><i class="fas fa-layer-group" style="color:var(--navy);margin-right:6px"></i>Performance par type de bien <span class="chart-sub">clics · WhatsApp · contacts</span></div>
         <div style="display:flex;flex-direction:column;gap:14px;margin-top:12px">
           ${typeRows.map(([type,v])=>`
             <div>
@@ -4658,7 +4658,7 @@ function renderStats() {
                 <span style="display:flex;gap:12px;font-size:11.5px">
                   <strong style="color:var(--navy)"><i class="fas fa-mouse-pointer" style="font-size:9px"></i> ${fmtNum(v.clics)}</strong>
                   <strong style="color:#25D366"><i class="fab fa-whatsapp"></i> ${v.whatsapp}</strong>
-                  <strong style="color:var(--gold-dark)"><i class="fas fa-file-pdf" style="font-size:9px"></i> ${v.brochure}</strong>
+                  <strong style="color:var(--teal,#0d9488)"><i class="fas fa-comments" style="font-size:9px"></i> ${v.demandes||0}</strong>
                 </span>
               </div>
               <div style="height:7px;background:var(--gray-100);border-radius:4px;overflow:hidden">
