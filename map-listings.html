@@ -20,7 +20,8 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
   <!-- Font -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <!-- Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 
@@ -68,7 +69,7 @@
 
     /* ===== RESET ===== */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Inter', sans-serif; color: var(--gray-800); background: var(--gray-50); }
+    body { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; color: var(--gray-800); background: var(--gray-50); }
     a { text-decoration: none; color: inherit; }
     button { cursor: pointer; font-family: inherit; border: none; background: none; }
     img { display: block; max-width: 100%; }
@@ -329,30 +330,64 @@
       overflow-x: hidden !important;
       flex: 1 !important;
     }
+    /* ===== LIST-VIEW card redesign ===== */
     .main.list-view .card {
       display: flex !important;
       flex-direction: row !important;
       width: 100% !important;
-      min-height: 120px !important;
-      max-height: 140px !important;
+      min-height: 148px !important;
+      max-height: 172px !important;
       flex-shrink: 0 !important;
-      border-radius: 10px !important;
+      border-radius: 12px !important;
       overflow: hidden !important;
     }
     .main.list-view .card-img {
-      width: 200px !important;
-      min-width: 200px !important;
+      width: 220px !important;
+      min-width: 220px !important;
       height: auto !important;
       flex-shrink: 0 !important;
     }
     .main.list-view .card-body {
       flex: 1 !important;
       min-width: 0 !important;
-      padding: 10px 14px !important;
+      padding: 12px 14px !important;
+      display: grid !important;
+      grid-template-columns: 1fr auto !important;
+      grid-template-rows: 1fr auto !important;
+      gap: 0 16px !important;
+    }
+    /* left info column */
+    .main.list-view .card-info-left {
+      min-width: 0;
+      display: flex; flex-direction: column; justify-content: space-between;
+    }
+    /* right actions column */
+    .main.list-view .card-info-right {
+      display: flex; flex-direction: column; align-items: flex-end; justify-content: space-between;
+      gap: 8px; min-width: 160px;
     }
     .main.list-view .card-logo-watermark { display: none !important; }
     .main.list-view .inline-ad-card { width: 100% !important; max-height: none !important; min-height: 110px !important; }
     .main.list-view .card-view-btn { display: none !important; }
+    /* CTA buttons in list view */
+    .lv-ctas { display: flex; flex-direction: column; gap: 6px; width: 100%; }
+    .lv-btn {
+      display: flex; align-items: center; justify-content: center; gap: 5px;
+      padding: 7px 12px; border-radius: 8px;
+      font-size: 11.5px; font-weight: 700; font-family: inherit;
+      cursor: pointer; border: none; transition: all .2s; width: 100%;
+      white-space: nowrap;
+    }
+    .lv-btn-primary { background: var(--navy); color: #fff; }
+    .lv-btn-primary:hover { background: var(--navy-dark); }
+    .lv-btn-wa { background: #1D9E75; color: #fff; }
+    .lv-btn-wa:hover { background: #0F6E56; }
+    .card-kind-badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 5px;
+    }
+    .card-kind-badge.neuf  { background: var(--gold-light); color: var(--gold-dark); border: 1px solid #f0c96a; }
+    .card-kind-badge.agence { background: var(--navy-light); color: var(--navy); border: 1px solid #C5D5EE; }
 
     /* Bouton Voir l'annonce */
     .card-view-btn {
@@ -551,8 +586,8 @@
     }
 
     /* Prix */
-    .card-price-row { display: flex; align-items: baseline; gap: 4px; margin-bottom: 2px; }
-    .card-price { font-size: var(--ts-base); font-weight: 800; color: #1a1a1a; letter-spacing: -.2px; }
+    .card-price-row { display: flex; align-items: baseline; gap: 6px; margin-bottom: 2px; }
+    .card-price { font-size: var(--ts-md); font-weight: 700; color: var(--navy-dark); letter-spacing: -.3px; font-family: 'Fraunces', Georgia, serif; }
     .card-price-m2 { font-size: var(--ts-xs); color: var(--gray-500); }
 
     /* Specs : 118 m² · 4 pièces · 2 SDB */
@@ -2133,41 +2168,57 @@ function buildCardHtml(p) {
       ${p.photos > 3 ? `<div class="card-thumb-more">+${p.photos - 2}</div>` : `<div class="card-thumb-mini"><img src="${p.img}" alt="" loading="lazy" style="filter:brightness(.85)" /></div>`}
     </div>` : ''}
     <div class="card-body">
-      <div>
-        <div class="card-kind-row">
-          <span class="card-type-label">${p.type}</span>
-          <span class="card-kind-tag ${p.kind}">${p.kind === 'neuf' ? '★ Projet neuf' : '🏢 Agence'}</span>
-        </div>
-        <div class="card-price-row">
-          <span class="card-price">${p.transaction === 'location' ? p.price.toLocaleString('fr-TN') + ' TND<span style="font-size:12px;font-weight:500"> /mois</span>' : (p.kind === 'neuf' ? '<span style="font-size:11px;font-weight:600;color:var(--gray-600)">À partir de </span>' : '') + formatPrice(p.price)}</span>
-          ${p.transaction !== 'location' ? `<span class="card-price-m2">${Math.round(p.price/p.surface).toLocaleString()} TND/m²</span>` : ''}
-        </div>
-        ${p.type === 'Terrain' ? `
-        <div class="card-terrain-specs">
-          <span class="terrain-chip ${p.tf ? 'tf' : 'no-tf'}"><i class="fas fa-file-alt"></i> ${p.tf ? 'Titre foncier' : 'Sans TF'}</span>
-          <span class="terrain-chip ${p.constructible ? 'construct' : 'agricole'}"><i class="fas fa-${p.constructible ? 'hard-hat' : 'seedling'}"></i> ${p.constructible ? 'Constructible' : p.nature || 'Agricole'}</span>
-          <span class="terrain-chip no-tf"><i class="fas fa-ruler-combined"></i> ${p.surface} m²</span>
-        </div>` : `
-        <div class="card-specs">
-          ${p.surface} m²${p.rooms > 0 ? `<span class="card-specs-sep">·</span>${p.rooms <= 1 ? 'Studio' : 'S+' + (p.rooms - 1)}` : ''}${p.bathrooms > 0 ? `<span class="card-specs-sep">·</span>${p.bathrooms} SDB` : ''}
-        </div>`}
-        <div class="card-location">
-          <svg class="pin-svg" width="11" height="14" viewBox="0 0 24 28" fill="currentColor">
-            <path d="M12 0C7.032 0 3 4.032 3 9c0 6.75 9 17 9 17s9-10.25 9-17c0-4.968-4.032-9-9-9zm0 12a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/>
-          </svg>
-          ${p.location}
-        </div>
-      </div>
-      <div class="card-footer">
-        <div class="card-promoteur-badge" onclick="event.stopPropagation();window.location='${p.kind === 'neuf' ? 'promoteur.html' : 'agence.html'}'" style="cursor:pointer" title="Voir la fiche ${p.kind === 'neuf' ? 'promoteur' : 'agence'}">
-          <div class="card-promoteur-avatar ${p.kind === 'neuf' ? 'avatar-neuf' : 'avatar-agence'}">${initials}</div>
-          <div class="card-promoteur-info">
-            <div class="card-promoteur-role">${p.kind === 'neuf' ? 'Promoteur' : 'Agence'}</div>
-            <div class="card-promoteur-name" style="text-decoration:underline;text-underline-offset:2px;">${p.promoteur}</div>
+      <!-- LEFT: infos -->
+      <div class="card-info-left">
+        <div>
+          <div class="card-kind-row">
+            <span class="card-type-label">${p.type}</span>
+          </div>
+          <div class="card-price-row">
+            <span class="card-price">${p.transaction === 'location' ? p.price.toLocaleString('fr-TN') + ' TND<span style="font-size:12px;font-weight:500"> /mois</span>' : (p.kind === 'neuf' ? '<span style="font-size:11px;font-weight:600;color:var(--gray-600)">dès </span>' : '') + formatPrice(p.price)}</span>
+            ${p.transaction !== 'location' ? `<span class="card-price-m2">${Math.round(p.price/p.surface).toLocaleString()} TND/m²</span>` : ''}
+          </div>
+          ${p.type === 'Terrain' ? `
+          <div class="card-terrain-specs">
+            <span class="terrain-chip ${p.tf ? 'tf' : 'no-tf'}"><i class="fas fa-file-alt"></i> ${p.tf ? 'Titre foncier' : 'Sans TF'}</span>
+            <span class="terrain-chip ${p.constructible ? 'construct' : 'agricole'}"><i class="fas fa-${p.constructible ? 'hard-hat' : 'seedling'}"></i> ${p.constructible ? 'Constructible' : p.nature || 'Agricole'}</span>
+            <span class="terrain-chip no-tf"><i class="fas fa-ruler-combined"></i> ${p.surface} m²</span>
+          </div>` : `
+          <div class="card-specs">
+            ${p.surface} m²${p.rooms > 0 ? `<span class="card-specs-sep">·</span>${p.rooms <= 1 ? 'Studio' : 'S+' + (p.rooms - 1)}` : ''}${p.bathrooms > 0 ? `<span class="card-specs-sep">·</span>${p.bathrooms} SDB` : ''}
+          </div>`}
+          <div class="card-location">
+            <svg class="pin-svg" width="11" height="14" viewBox="0 0 24 28" fill="currentColor">
+              <path d="M12 0C7.032 0 3 4.032 3 9c0 6.75 9 17 9 17s9-10.25 9-17c0-4.968-4.032-9-9-9zm0 12a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/>
+            </svg>
+            ${p.location}
           </div>
         </div>
-        ${p.kind === 'neuf' ? `<div class="card-delivery ${deliveryClass}"><i class="fas ${deliveryIcon}"></i> ${p.delivery}</div>` : ''}
-        ${freshnessChip(p.date)}
+        <div class="card-footer">
+          <div class="card-promoteur-badge" onclick="event.stopPropagation();window.location='${p.kind === 'neuf' ? 'promoteur.html' : 'agence.html'}'" style="cursor:pointer" title="Voir la fiche ${p.kind === 'neuf' ? 'promoteur' : 'agence'}">
+            <div class="card-promoteur-avatar ${p.kind === 'neuf' ? 'avatar-neuf' : 'avatar-agence'}">${initials}</div>
+            <div class="card-promoteur-info">
+              <div class="card-promoteur-role">${p.kind === 'neuf' ? 'Promoteur' : 'Agence'}</div>
+              <div class="card-promoteur-name">${p.promoteur}</div>
+            </div>
+          </div>
+          ${p.kind === 'neuf' ? `<div class="card-delivery ${deliveryClass}"><i class="fas ${deliveryIcon}"></i> ${p.delivery}</div>` : ''}
+        </div>
+      </div>
+      <!-- RIGHT: badge + freshness + CTAs -->
+      <div class="card-info-right">
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+          <span class="card-kind-badge ${p.kind}">${p.kind === 'neuf' ? '★ Projet neuf' : '🏢 Agence'}</span>
+          ${freshnessChip(p.date)}
+        </div>
+        <div class="lv-ctas" onclick="event.stopPropagation()">
+          <button class="lv-btn lv-btn-primary" onclick="window.location='${p.kind === 'neuf' ? 'projet-neuf.html' : p.type === 'Terrain' ? 'terrain.html' : 'listing.html'}'">
+            <i class="fas fa-eye"></i> Voir l'annonce
+          </button>
+          <button class="lv-btn lv-btn-wa">
+            <i class="fab fa-whatsapp"></i> WhatsApp
+          </button>
+        </div>
       </div>
     </div>
   </div>`;
