@@ -17,6 +17,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <!-- Leaflet (hero map) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" defer></script>
 
   <style>
     /* ===== TOKENS ===== */
@@ -149,15 +152,30 @@
     .hero-dot.active { background: var(--gold); width: 22px; }
     .hero-overlay {
       position: absolute; inset: 0; z-index: 1;
+      /* overlay pour slides photo */
       background:
         linear-gradient(to right,
-          rgba(8,20,50,.48) 0%,
-          rgba(8,20,50,.24) 40%,
-          rgba(8,20,50,.05) 100%),
+          rgba(8,20,50,.55) 0%,
+          rgba(8,20,50,.28) 45%,
+          rgba(8,20,50,.06) 100%),
         linear-gradient(to bottom,
           rgba(8,20,50,.15) 0%,
           rgba(8,20,50,.01) 50%,
-          rgba(8,20,50,.30) 100%);
+          rgba(8,20,50,.32) 100%);
+      transition: background .6s ease;
+    }
+    /* Overlay allégé pour la carte (fond clair CARTO Positron) */
+    .hero-slide-map.active ~ .hero-overlay,
+    .hero-slide-map.active + .hero-overlay {
+      background:
+        linear-gradient(to right,
+          rgba(8,20,50,.70) 0%,
+          rgba(8,20,50,.38) 38%,
+          rgba(8,20,50,.04) 100%),
+        linear-gradient(to bottom,
+          rgba(8,20,50,.08) 0%,
+          rgba(8,20,50,0)   50%,
+          rgba(8,20,50,.12) 100%);
     }
 
     /* pins dans la moitié basse de la bannière */
@@ -580,6 +598,91 @@
       background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
       background-size: 200px 200px;
       mix-blend-mode: soft-light;
+    }
+
+    /* ===== HERO MAP (slide 0) ===== */
+    #hero-map {
+      position: absolute; inset: 0; z-index: 0;
+      width: 100%; height: 100%;
+    }
+    /* Suppress Leaflet chrome on hero */
+    #hero-map .leaflet-control-attribution,
+    #hero-map .leaflet-control-zoom { display: none !important; }
+    /* Map slide must not zoom-animate (unlike photo slides) */
+    .hero-slide-map.active { animation: none !important; }
+    /* Fallback image if JS/Leaflet fails or on mobile */
+    .hero-map-fallback {
+      position: absolute; inset: 0;
+      background-size: cover; background-position: center;
+      background-image: url('https://images.unsplash.com/photo-1665083766545-a5b0b11fc4f3?w=1200&q=80');
+    }
+    @media (max-width: 640px) {
+      #hero-map { display: none; }
+      .hero-map-fallback { display: block; }
+    }
+
+    /* ===== HERO PRICE PINS ===== */
+    .hero-pin {
+      position: relative;
+      opacity: 0;
+      animation: heroPinDrop .45s cubic-bezier(.34,1.56,.64,1) forwards;
+      cursor: pointer;
+    }
+    @keyframes heroPinDrop {
+      from { opacity: 0; transform: translateY(-22px) scale(.55); }
+      to   { opacity: 1; transform: none; }
+    }
+    .hero-pin__dot {
+      width: 14px; height: 14px; border-radius: 50%;
+      background: var(--gold);
+      border: 3px solid var(--navy);
+      display: block; margin: 0 auto;
+      box-shadow: 0 0 0 0 rgba(230,168,23,.6);
+      animation: heroPinPulse 2.6s ease-out 1s infinite;
+    }
+    @keyframes heroPinPulse {
+      0%   { box-shadow: 0 0 0 0   rgba(230,168,23,.6); }
+      70%  { box-shadow: 0 0 0 20px rgba(230,168,23,0); }
+      100% { box-shadow: 0 0 0 0   rgba(230,168,23,0); }
+    }
+    .hero-pin__label {
+      background: rgba(255,255,255,.96);
+      border: 1px solid rgba(230,168,23,.3);
+      border-radius: 8px;
+      padding: 5px 9px;
+      font-size: 11px;
+      font-family: 'Inter', sans-serif;
+      white-space: nowrap;
+      position: absolute;
+      left: 18px; top: -10px;
+      box-shadow: 0 3px 12px rgba(0,0,0,.15);
+      pointer-events: none;
+      line-height: 1.45;
+      transition: background .2s, color .2s;
+    }
+    .hero-pin__label strong {
+      display: block;
+      font-weight: 700;
+      color: var(--navy);
+      font-size: 11px;
+    }
+    .hero-pin__label em {
+      font-style: normal;
+      color: var(--gold-dark);
+      font-weight: 600;
+      font-size: 10px;
+    }
+    .hero-pin:hover .hero-pin__dot { transform: scale(1.2); }
+    .hero-pin:hover .hero-pin__label {
+      background: var(--navy);
+      border-color: var(--navy);
+    }
+    .hero-pin:hover .hero-pin__label strong { color: #fff; }
+    .hero-pin:hover .hero-pin__label em { color: var(--gold); }
+    /* Respect prefers-reduced-motion */
+    @media (prefers-reduced-motion: reduce) {
+      .hero-pin { opacity: 1; animation: none; }
+      .hero-pin__dot { animation: none; }
     }
 
     /* ===== SCROLL REVEALS ===== */
@@ -1857,18 +1960,16 @@
 <section class="hero">
 
   <div class="hero-img">
-    <!-- Slide 1 : Avenue Habib Bourguiba — Tunis vue aérienne -->
-    <div class="hero-slide active" style="background-image:url('https://images.unsplash.com/photo-1665083766545-a5b0b11fc4f3?w=1600&q=85')">
-      <video autoplay muted loop playsinline
-        style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;">
-        <source src="https://videos.pexels.com/video-files/3769133/3769133-hd_1920_1080_25fps.mp4" type="video/mp4" />
-      </video>
+    <!-- Slide 0 : Mini-carte Grand Tunis avec pins de prix -->
+    <div class="hero-slide hero-slide-map active">
+      <div class="hero-map-fallback"></div>
+      <div id="hero-map" aria-hidden="true"></div>
     </div>
-    <!-- Slide 2 : Tunis vue aérienne -->
+    <!-- Slide 1 : Tunis vue aérienne -->
     <div class="hero-slide" style="background-image:url('https://images.unsplash.com/photo-1665083767053-5e7ad680953d?w=1600&q=85')"></div>
-    <!-- Slide 3 : Port tunisien vue du ciel -->
+    <!-- Slide 2 : Port tunisien vue du ciel -->
     <div class="hero-slide" style="background-image:url('https://images.unsplash.com/photo-1653173449794-09b4ec96a17f?w=1600&q=85')"></div>
-    <!-- Slide 4 : Côte tunisienne -->
+    <!-- Slide 3 : Côte tunisienne -->
     <div class="hero-slide" style="background-image:url('https://images.unsplash.com/photo-1573731500579-ea553ac6fb2e?w=1600&q=85')"></div>
     <div class="hero-overlay"></div>
   </div>
@@ -1883,15 +1984,6 @@
     <div class="hero-dot"         onclick="heroGoTo(1)"></div>
     <div class="hero-dot"         onclick="heroGoTo(2)"></div>
     <div class="hero-dot"         onclick="heroGoTo(3)"></div>
-  </div>
-
-  <!-- pins dans la moitié basse -->
-  <div class="hero-pins">
-    <div class="hpin hpin-1"><div class="hpin-dot"></div><div class="hpin-dot-shadow"></div></div>
-    <div class="hpin hpin-2"><div class="hpin-dot"></div><div class="hpin-dot-shadow"></div></div>
-    <div class="hpin hpin-3"><div class="hpin-dot"></div><div class="hpin-dot-shadow"></div></div>
-    <div class="hpin hpin-4"><div class="hpin-dot"></div><div class="hpin-dot-shadow"></div></div>
-    <div class="hpin hpin-5"><div class="hpin-dot"></div><div class="hpin-dot-shadow"></div></div>
   </div>
 
   <!-- layout : texte gauche + carte recherche droite -->
@@ -3199,6 +3291,87 @@
 
   paint(0);
   startTimer();
+})();
+
+/* ===== HERO MAP — Grand Tunis avec pins de prix ===== */
+(function() {
+  const HERO_PINS = [
+    { q: "La Marsa",             p: "678 000", lat: 36.878, lng: 10.324 },
+    { q: "Gammarth",             p: "540 000", lat: 36.917, lng: 10.291 },
+    { q: "Les Berges du Lac",    p: "420 000", lat: 36.842, lng: 10.272 },
+    { q: "Carthage",             p: "610 000", lat: 36.853, lng: 10.323 },
+    { q: "El Manar",             p: "285 000", lat: 36.840, lng: 10.158 },
+    { q: "Ennasr / Ariana",      p: "350 000", lat: 36.866, lng: 10.166 },
+    { q: "Centre Tunis",         p: "198 000", lat: 36.806, lng: 10.181 },
+  ];
+
+  let heroMap = null;
+
+  function initHeroMap() {
+    if (heroMap) return;
+    if (window.matchMedia('(max-width: 640px)').matches) return;
+    if (typeof L === 'undefined') { setTimeout(initHeroMap, 200); return; }
+
+    heroMap = L.map('hero-map', {
+      zoomControl:       false,
+      dragging:          false,
+      scrollWheelZoom:   false,
+      doubleClickZoom:   false,
+      touchZoom:         false,
+      keyboard:          false,
+      attributionControl:false,
+    }).setView([36.855, 10.22], 11);
+
+    /* CARTO Positron — clair et désaturé, pins dorés ressortent */
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+      subdomains: 'abcd',
+      maxZoom: 19,
+    }).addTo(heroMap);
+
+    /* Pins en cascade */
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    HERO_PINS.forEach(function(pin, i) {
+      const el = document.createElement('div');
+      el.className = 'hero-pin';
+      if (!reducedMotion) el.style.animationDelay = (0.4 + i * 0.38) + 's';
+      el.innerHTML =
+        '<span class="hero-pin__dot"></span>' +
+        '<div class="hero-pin__label"><strong>' + pin.q + '</strong>' +
+        '<em>dès ' + pin.p + ' TND</em></div>';
+      el.addEventListener('click', function() {
+        window.location.href = 'map-listings.html';
+      });
+      L.marker([pin.lat, pin.lng], {
+        icon: L.divIcon({
+          className: '',
+          html: el,
+          iconSize: [14, 14],
+          iconAnchor: [7, 7],
+        }),
+      }).addTo(heroMap);
+    });
+
+    /* Léger mouvement Ken-Burns carte — lent flyTo sur 14s */
+    if (!reducedMotion) {
+      setTimeout(function() {
+        heroMap.flyTo([36.870, 10.24], 11.4, { animate: true, duration: 14, easeLinearity: 0.05 });
+      }, 2000);
+    }
+  }
+
+  /* Resize Leaflet quand slide 0 redevient active */
+  const _origGoTo = window.heroGoTo;
+  window.heroGoTo = function(n) {
+    _origGoTo(n);
+    if (n === 0 && heroMap) { setTimeout(function() { heroMap.invalidateSize(); }, 50); }
+  };
+
+  /* Init après chargement de Leaflet */
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initHeroMap);
+  } else {
+    initHeroMap();
+  }
 })();
 
 /* ===== NAVBAR SCROLL ===== */
