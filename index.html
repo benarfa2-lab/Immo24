@@ -101,12 +101,14 @@
     .nav-btn-gold:hover { background: var(--gold-dark); }
 
     /* ===== HERO ===== */
+    /* Hero : fond navy par défaut — texte blanc toujours lisible */
     .hero {
       position: relative;
       min-height: min(100dvh, 820px); min-height: 640px;
       display: flex; flex-direction: column;
       align-items: center; justify-content: center;
       overflow: hidden;
+      background: var(--navy-dark);
     }
 
     /* ===== HERO SLIDER ===== */
@@ -601,18 +603,23 @@
     }
 
     /* ===== HERO MAP (slide 0) ===== */
+    /* Le slide carte a son propre fond sombre en attendant Leaflet */
+    .hero-slide-map {
+      background: var(--navy-dark);
+    }
     #hero-map {
-      position: absolute; inset: 0; z-index: 0;
+      position: absolute; inset: 0; z-index: 1;
       width: 100%; height: 100%;
+      background: transparent; /* ne pas masquer le fallback */
     }
     /* Suppress Leaflet chrome on hero */
     #hero-map .leaflet-control-attribution,
     #hero-map .leaflet-control-zoom { display: none !important; }
     /* Map slide must not zoom-animate (unlike photo slides) */
     .hero-slide-map.active { animation: none !important; }
-    /* Fallback image if JS/Leaflet fails or on mobile */
+    /* Fallback photo visible immédiatement — z-index 0 sous la carte */
     .hero-map-fallback {
-      position: absolute; inset: 0;
+      position: absolute; inset: 0; z-index: 0;
       background-size: cover; background-position: center;
       background-image: url('https://images.unsplash.com/photo-1665083766545-a5b0b11fc4f3?w=1200&q=80');
     }
