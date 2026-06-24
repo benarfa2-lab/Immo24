@@ -82,25 +82,16 @@
     section { width: 100%; }
     .container { max-width: 1180px; margin: 0 auto; padding: 0 24px; }
 
-    /* NAVBAR — island pill */
+    /* NAVBAR */
     .navbar {
-      position: fixed; top: 14px; left: 50%; transform: translateX(-50%);
-      z-index: 1000; width: calc(100% - 48px); max-width: 1200px;
-      height: 58px;
+      position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+      height: 64px;
       display: flex; align-items: center;
-      padding: 0 20px; gap: 20px;
-      border-radius: 999px;
-      transition: background .3s, box-shadow .3s, backdrop-filter .3s;
-      background: rgba(18,41,82,.55);
-      backdrop-filter: blur(18px) saturate(1.6);
-      -webkit-backdrop-filter: blur(18px) saturate(1.6);
-      border: 1px solid rgba(255,255,255,.12);
-      box-shadow: 0 8px 32px rgba(18,41,82,.28);
+      padding: 0 32px; gap: 24px;
+      transition: background .3s, box-shadow .3s;
     }
-    .navbar.scrolled {
-      background: rgba(18,41,82,.92);
-      box-shadow: 0 8px 32px rgba(18,41,82,.38);
-    }
+    .navbar.scrolled { background: var(--navy); box-shadow: 0 2px 16px rgba(8,20,55,.25); }
+    .navbar:not(.scrolled) { background: transparent; }
     .nav-logo { display: flex; align-items: center; flex-shrink: 0; text-decoration: none; transition: opacity .2s; }
     .nav-logo:hover { opacity: .85; }
     .nav-logo img { height: 52px; width: auto; display: block; }
