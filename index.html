@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Immo24.tn – L'immobilier professionnel en Tunisie</title>
+  <title>Immo24.tn – L'immobilier professionnel en Tunisie </title>
   <meta name="description" content="Immo24.tn — La plateforme immobilière professionnelle en Tunisie. Achat, vente, location et projets neufs." />
   <meta property="og:title" content="Immo24.tn – L'immobilier professionnel en Tunisie" />
   <meta property="og:description" content="Trouvez votre bien immobilier parmi des milliers d'annonces vérifiées en Tunisie." />
@@ -1375,6 +1375,80 @@
     }
     .sim-cta:hover { background: var(--gold-dark); }
 
+    /* ===== NEW CARD COMPONENTS  ===== */
+    :root {
+      --green-light:#E1F5EE; --green-dark:#0F6E56;
+    }
+    /* ---- horizontal carousel ---- */
+    .cards-scroll-wrap { position:relative; }
+    .cards-grid {
+      display:flex; gap:20px;
+      overflow-x:auto; scroll-snap-type:x mandatory;
+      -webkit-overflow-scrolling:touch;
+      scrollbar-width:none; padding-bottom:4px;
+    }
+    .cards-grid::-webkit-scrollbar { display:none; }
+    .cards-grid .card { flex:0 0 300px; scroll-snap-align:start; }
+    @media (min-width:768px)  { .cards-grid .card { flex-basis:320px; } }
+    @media (min-width:1280px) { .cards-grid .card { flex-basis:360px; } }
+    .cscroll-btn {
+      position:absolute; top:50%; transform:translateY(-50%);
+      width:38px; height:38px; border-radius:50%;
+      background:var(--white); border:1px solid var(--gray-200);
+      box-shadow:0 2px 8px rgba(0,0,0,.12);
+      display:flex; align-items:center; justify-content:center;
+      cursor:pointer; z-index:2; color:var(--navy-dark); font-size:13px;
+      transition:background .15s, box-shadow .15s;
+    }
+    .cscroll-btn:hover { background:var(--navy); color:#fff; box-shadow:0 4px 14px rgba(0,0,0,.18); }
+    .cscroll-btn--prev { left:-18px; }
+    .cscroll-btn--next { right:-18px; }
+    @media (max-width:640px) { .cscroll-btn { display:none; } }
+    .card { background:var(--white); border:1px solid var(--gray-200); border-radius:var(--radius); overflow:hidden;
+            box-shadow:var(--shadow); transition:transform .2s,box-shadow .2s; }
+    .card:hover { transform:translateY(-4px); box-shadow:var(--shadow-lg); }
+    .card__media { position:relative; height:190px; background:var(--navy-light); }
+    .card__media img { width:100%; height:100%; object-fit:cover; display:block; }
+    .badge-status { position:absolute; top:10px; left:10px; background:var(--gold); color:#3a2a00; font-size:11px; font-weight:600;
+                    padding:4px 9px; border-radius:7px; }
+    .fav { position:absolute; top:10px; right:10px; width:30px; height:30px; border-radius:50%; background:rgba(255,255,255,.92);
+           display:flex; align-items:center; justify-content:center; color:var(--navy); border:none; cursor:pointer; }
+    .media-pills { position:absolute; bottom:10px; left:10px; display:flex; gap:6px; }
+    .media-pills span { background:rgba(18,41,82,.92); color:#fff; font-size:11px; padding:3px 8px; border-radius:6px;
+                        cursor:pointer; transition:background .15s; }
+    .media-pills span:hover { background:rgba(18,41,82,1); }
+    .thumbs { display:flex; gap:5px; padding:8px; }
+    .thumbs img, .thumbs .more { width:25%; height:46px; border-radius:6px; object-fit:cover; }
+    .thumbs .more { background:var(--navy-dark); color:#fff; display:flex; align-items:center; justify-content:center; font-size:12px; }
+    .card__body { padding:4px 14px 14px; }
+    .card__title { font-size:17px; font-weight:700; color:var(--navy-dark); margin:6px 0 0; }
+    .pro-row { display:flex; align-items:center; gap:6px; margin-top:6px; flex-wrap:wrap; }
+    .pro-name { font-size:13px; color:var(--gray-600); }
+    .verified { display:inline-flex; align-items:center; gap:3px; background:var(--green-light); color:var(--green-dark);
+                font-size:11px; font-weight:600; padding:2px 7px; border-radius:6px; }
+    .loc { font-size:12.5px; color:var(--gray-400); margin-top:5px; }
+    .chips { display:flex; flex-wrap:wrap; gap:6px; margin-top:10px; }
+    .chip { font-size:11px; color:var(--navy); background:var(--navy-light); padding:3px 8px; border-radius:6px; }
+    .chip--dispo { color:var(--green-dark); background:var(--green-light); }
+    .price-row { display:flex; align-items:baseline; gap:8px; margin-top:12px; padding-top:12px; border-top:1px solid var(--gray-200); }
+    .price { font-size:19px; font-weight:700; color:var(--navy-dark); }
+    .price-sqm { font-size:12px; color:var(--gray-400); }
+    .card .actions { display:flex; gap:7px; margin-top:12px; }
+    .btn { border:none; border-radius:var(--radius-sm); padding:9px 0; font-size:12.5px; font-weight:600; cursor:pointer; font-family:inherit; }
+    .btn--primary { flex:1; background:var(--navy); color:#fff; }
+    .btn--wa { background:#1D9E75; color:#fff; padding:9px 12px; }
+    .btn--ghost { background:#fff; color:var(--gold-dark); border:1px solid var(--gold); padding:9px 11px; }
+
+    /* card stretch — equal height columns */
+    .card { display:flex; flex-direction:column; height:100%; }
+    .card__body { flex:1; display:flex; flex-direction:column; }
+    .card .price-row { margin-top:auto; padding-top:12px; }
+
+    /* programme info bar (replaces thumbs) */
+    .prog-info { display:flex; gap:12px; padding:8px 14px; background:var(--navy-light); font-size:11.5px; color:var(--navy-dark); border-top:1px solid var(--gray-200); }
+    .prog-info span { display:flex; align-items:center; gap:4px; }
+    .prog-info i { color:var(--navy); font-size:10px; }
+
     /* ===== CAROUSEL : PROJETS EN VOGUE ===== */
     .vogue-section { padding: 28px 0 44px; background: var(--white); overflow: hidden; }
     .vogue-section .container { max-width: 1360px; }
@@ -2204,25 +2278,113 @@
       </a>
     </div>
 
-    <div class="listing-tabs">
-      <button class="ltab active" data-zone="" onclick="setTab(this)">Tous</button>
-      <button class="ltab" data-zone="La Marsa" onclick="setTab(this)">La Marsa</button>
-      <button class="ltab" data-zone="Sidi Bou Saïd" onclick="setTab(this)">Sidi Bou Saïd</button>
-      <button class="ltab" data-zone="Lac 2" onclick="setTab(this)">Lac 2</button>
-      <button class="ltab" data-zone="Carthage" onclick="setTab(this)">Carthage</button>
-      <button class="ltab" data-zone="Ennasr" onclick="setTab(this)">Ennasr</button>
-    </div>
+    <div class="cards-scroll-wrap" style="margin-top:24px">
+      <button class="cscroll-btn cscroll-btn--prev" onclick="cScroll(this,-1)"><i class="fas fa-chevron-left"></i></button>
+      <button class="cscroll-btn cscroll-btn--next" onclick="cScroll(this,1)"><i class="fas fa-chevron-right"></i></button>
+    <div class="cards-grid">
 
-    <div class="carousel-wrap">
-      <button class="carousel-nav carousel-prev" onclick="fSlide(-1)"><i class="fas fa-chevron-left"></i></button>
-      <div class="carousel-track-outer" id="feat-outer">
-        <div class="carousel-track" id="feat-track">
-          <!-- injecté par JS -->
+      <article class="card">
+        <div class="card__media">
+          <img src="https://bullaregia-immobiliere.com/wp-content/uploads/2024/03/int-7.jpg" alt="Appartement S+3 — Aïn Zaghouan" loading="lazy">
+          <span class="badge-status" style="background:#1D9E75;color:#fff"><i class="fa-solid fa-tag"></i> Vente</span>
+          <button class="fav" aria-label="Ajouter aux favoris"><i class="fa-regular fa-heart"></i></button>
+          <div class="media-pills">
+            <span><i class="fa-regular fa-image"></i> HD</span>
+            <span><i class="fa-regular fa-file-lines"></i> Plan</span>
+          </div>
         </div>
-      </div>
-      <button class="carousel-nav carousel-next" onclick="fSlide(1)"><i class="fas fa-chevron-right"></i></button>
-    </div>
-    <div class="carousel-dots" id="fdots"></div>
+        <div class="card__body">
+          <h3 class="card__title">Appartement S+3 — Aïn Zaghouan</h3>
+          <div class="pro-row">
+            <span class="pro-name">Prestige Immobilier</span>
+            <span class="verified"><i class="fa-solid fa-circle-check"></i> Agence vérifiée</span>
+          </div>
+          <div class="loc"><i class="fa-solid fa-location-dot"></i> Aïn Zaghouan, Tunis</div>
+          <div class="chips">
+            <span class="chip">135 m²</span>
+            <span class="chip">4 pièces</span>
+            <span class="chip">Haut standing</span>
+            <span class="chip">Titre foncier ✓</span>
+          </div>
+          <div class="price-row">
+            <span class="price">450 000 TND</span>
+            <span class="price-sqm">3 333 TND/m²</span>
+          </div>
+          <div class="actions">
+            <button class="btn btn--primary" onclick="window.location='listing.html'"><i class="fa-regular fa-eye"></i> Voir l'annonce</button>
+            <button class="btn btn--wa"><i class="fa-brands fa-whatsapp"></i> WhatsApp</button>
+          </div>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card__media">
+          <img src="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=600&q=80" alt="Villa S+4 — La Marsa" loading="lazy">
+          <span class="badge-status" style="background:#1D9E75;color:#fff"><i class="fa-solid fa-tag"></i> Vente</span>
+          <button class="fav" aria-label="Ajouter aux favoris"><i class="fa-regular fa-heart"></i></button>
+          <div class="media-pills">
+            <span><i class="fa-solid fa-vr-cardboard"></i> 360°</span>
+            <span><i class="fa-regular fa-image"></i> HD</span>
+          </div>
+        </div>
+        <div class="card__body">
+          <h3 class="card__title">Villa S+4 — La Marsa</h3>
+          <div class="pro-row">
+            <span class="pro-name">Carthage Immobilier</span>
+            <span class="verified"><i class="fa-solid fa-circle-check"></i> Agence vérifiée</span>
+          </div>
+          <div class="loc"><i class="fa-solid fa-location-dot"></i> La Marsa, Tunis</div>
+          <div class="chips">
+            <span class="chip">280 m²</span>
+            <span class="chip">6 pièces</span>
+            <span class="chip">Piscine</span>
+            <span class="chip">Titre foncier ✓</span>
+          </div>
+          <div class="price-row">
+            <span class="price">980 000 TND</span>
+            <span class="price-sqm">3 500 TND/m²</span>
+          </div>
+          <div class="actions">
+            <button class="btn btn--primary" onclick="window.location='listing.html'"><i class="fa-regular fa-eye"></i> Voir l'annonce</button>
+            <button class="btn btn--wa"><i class="fa-brands fa-whatsapp"></i> WhatsApp</button>
+          </div>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card__media">
+          <img src="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=600&q=80" alt="Bureau 120 m² — Lac 2" loading="lazy">
+          <span class="badge-status" style="background:var(--gold);color:#3a2a00"><i class="fa-solid fa-tag"></i> Location</span>
+          <button class="fav" aria-label="Ajouter aux favoris"><i class="fa-regular fa-heart"></i></button>
+          <div class="media-pills">
+            <span><i class="fa-regular fa-image"></i> HD</span>
+          </div>
+        </div>
+        <div class="card__body">
+          <h3 class="card__title">Bureau 120 m² — Lac 2</h3>
+          <div class="pro-row">
+            <span class="pro-name">Odéon Immobilière</span>
+            <span class="verified"><i class="fa-solid fa-circle-check"></i> Agence vérifiée</span>
+          </div>
+          <div class="loc"><i class="fa-solid fa-location-dot"></i> Les Berges du Lac II, Tunis</div>
+          <div class="chips">
+            <span class="chip">120 m²</span>
+            <span class="chip">Open-space</span>
+            <span class="chip">Parking</span>
+          </div>
+          <div class="price-row">
+            <span class="price">3 200 TND/mois</span>
+            <span class="price-sqm">26,7 TND/m²</span>
+          </div>
+          <div class="actions">
+            <button class="btn btn--primary" onclick="window.location='listing.html'"><i class="fa-regular fa-eye"></i> Voir l'annonce</button>
+            <button class="btn btn--wa"><i class="fa-brands fa-whatsapp"></i> WhatsApp</button>
+          </div>
+        </div>
+      </article>
+
+    </div><!-- /cards-grid -->
+    </div><!-- /cards-scroll-wrap -->
   </div>
 </section>
 
@@ -2370,7 +2532,7 @@
   </div>
 </section>
 
-<!-- ===== PROJETS EN VOGUE (carousel) ===== -->
+<!-- ===== PROJETS EN VOGUE ===== -->
 <section class="vogue-section">
   <div class="container">
     <div class="vogue-header">
@@ -2380,141 +2542,129 @@
       </div>
       <a href="map-listings.html" class="view-all-link">Voir tout <i class="fas fa-arrow-right"></i></a>
     </div>
-    <div class="carousel-wrap">
-      <button class="carousel-nav carousel-prev" onclick="slide(-1)"><i class="fas fa-chevron-left"></i></button>
-      <div class="carousel-track-outer">
-        <div class="carousel-track" id="ctrack">
 
-          <!-- CARD 1 — The Pantheon Residence -->
-          <div class="vcard" onclick="window.location='projet-neuf.html'" style="cursor:pointer;">
-            <div class="vcard-img">
-              <img src="https://bullaregia-immobiliere.com/wp-content/uploads/2024/03/exterieur-7.jpg" alt="The Pantheon Residence" loading="lazy">
-              <div class="vcard-img-overlay"></div>
-              <button class="vcard-fav" onclick="event.stopPropagation()"><i class="fas fa-heart"></i></button>
-              <div class="vcard-status prochainement">Remise des clés prochainement</div>
-              <div class="vcard-progress-bar">
-                <div class="vcard-progress-label">
-                  <span>Avancement 92%</span><span>Livraison imminente</span>
-                </div>
-                <div class="vcard-progress-track"><div class="vcard-progress-fill" style="width:92%"></div></div>
-              </div>
-            </div>
-            <div class="vcard-body">
-              <div class="vcard-title">The Pantheon Residence</div>
-              <div class="vcard-meta"><i class="fas fa-building" style="color:var(--navy);font-size:10px"></i> <strong class="vcard-promoteur-name">Bullaregia Immobilière</strong> <span class="sep">·</span> <i class="fas fa-map-marker-alt" style="color:var(--red);font-size:10px"></i> Route de la Marsa, Tunis</div>
-              <div class="vcard-pills">
-                <span class="vcard-pill vcard-pill-lots">8 biens dispo</span>
-              </div>
-              <div class="vcard-price-main">À partir de 198 000 TND</div>
-              <div class="vcard-price-m2">3 046 TND / m²</div>
-            </div>
+    <div class="cards-scroll-wrap">
+      <button class="cscroll-btn cscroll-btn--prev" onclick="cScroll(this,-1)"><i class="fas fa-chevron-left"></i></button>
+      <button class="cscroll-btn cscroll-btn--next" onclick="cScroll(this,1)"><i class="fas fa-chevron-right"></i></button>
+    <div class="cards-grid">
+
+      <article class="card">
+        <div class="card__media">
+          <img src="https://bullaregia-immobiliere.com/wp-content/uploads/2024/03/exterieur-7.jpg" alt="The Pantheon Residence" loading="lazy">
+          <span class="badge-status"><i class="fa-regular fa-clock"></i> Livraison imminente · 92%</span>
+          <button class="fav" aria-label="Ajouter aux favoris"><i class="fa-regular fa-heart"></i></button>
+          <div class="media-pills">
+            <span><i class="fa-solid fa-vr-cardboard"></i> 360°</span>
+            <span><i class="fa-regular fa-file-lines"></i> Plans</span>
+            <span><i class="fa-regular fa-image"></i> HD</span>
           </div>
-
-          <!-- CARD 2 -->
-          <div class="vcard">
-            <div class="vcard-img">
-              <img src="https://images.unsplash.com/photo-1567496898669-ee935f5f647a?w=600&q=80" alt="Marina Heights" loading="lazy">
-              <div class="vcard-img-overlay"></div>
-              <button class="vcard-fav" onclick="event.stopPropagation()"><i class="fas fa-heart"></i></button>
-              <div class="vcard-status prochainement">Remise des clés prochainement</div>
-              <div class="vcard-progress-bar">
-                <div class="vcard-progress-label">
-                  <span>Avancement 40%</span><span>Livraison Juin 2026</span>
-                </div>
-                <div class="vcard-progress-track"><div class="vcard-progress-fill" style="width:40%"></div></div>
-              </div>
-            </div>
-            <div class="vcard-body">
-              <div class="vcard-title">Marina Heights</div>
-              <div class="vcard-meta"><i class="fas fa-building" style="color:var(--navy);font-size:10px"></i> <strong class="vcard-promoteur-name">TunisPromo</strong> <span class="sep">·</span> <i class="fas fa-map-marker-alt" style="color:var(--red);font-size:10px"></i> La Goulette</div>
-              <div class="vcard-pills">
-                <span class="vcard-pill vcard-pill-lots">60 biens</span>
-              </div>
-              <div class="vcard-price-main">À partir de 280 000 TND</div>
-              <div class="vcard-price-m2">3 111 TND / m²</div>
-            </div>
+        </div>
+        <div class="prog-info">
+          <span><i class="fa-solid fa-layer-group"></i> 2 blocs · R+4</span>
+          <span><i class="fa-solid fa-percent"></i> Avancement 92%</span>
+          <span><i class="fa-regular fa-images"></i> 12 photos</span>
+        </div>
+        <div class="card__body">
+          <h3 class="card__title">The Pantheon Residence</h3>
+          <div class="pro-row">
+            <span class="pro-name">Bullaregia Immobilière</span>
+            <span class="verified"><i class="fa-solid fa-circle-check"></i> Promoteur vérifié</span>
           </div>
-
-          <!-- CARD 3 -->
-          <div class="vcard">
-            <div class="vcard-img">
-              <img src="https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=600&q=80" alt="Les Villas du Sahel" loading="lazy">
-              <div class="vcard-img-overlay"></div>
-              <button class="vcard-fav" onclick="event.stopPropagation()"><i class="fas fa-heart"></i></button>
-              <div class="vcard-status immediate">Remise des clés immédiate</div>
-              <div class="vcard-progress-bar">
-                <div class="vcard-progress-label">
-                  <span>Avancement 100%</span><span>Livré — Disponible</span>
-                </div>
-                <div class="vcard-progress-track"><div class="vcard-progress-fill" style="width:100%"></div></div>
-              </div>
-            </div>
-            <div class="vcard-body">
-              <div class="vcard-title">Les Villas du Sahel</div>
-              <div class="vcard-meta"><i class="fas fa-building" style="color:var(--navy);font-size:10px"></i> <strong class="vcard-promoteur-name">Sahel Immo</strong> <span class="sep">·</span> <i class="fas fa-map-marker-alt" style="color:var(--red);font-size:10px"></i> Hammamet Nord</div>
-              <div class="vcard-pills">
-                <span class="vcard-pill vcard-pill-lots">8 biens</span>
-              </div>
-              <div class="vcard-price-main">À partir de 550 000 TND</div>
-              <div class="vcard-price-m2">2 750 TND / m²</div>
-            </div>
+          <div class="loc"><i class="fa-solid fa-location-dot"></i> Route de la Marsa, Tunis</div>
+          <div class="chips">
+            <span class="chip">2 blocs · R+4</span>
+            <span class="chip">S+1 · S+2 · S+3 · Duplex</span>
+            <span class="chip chip--dispo">8 biens disponibles</span>
           </div>
-
-          <!-- CARD 4 -->
-          <div class="vcard">
-            <div class="vcard-img">
-              <img src="https://images.unsplash.com/photo-1486325212027-8081e485255e?w=600&q=80" alt="Prestige Tower Ariana" loading="lazy">
-              <div class="vcard-img-overlay"></div>
-              <button class="vcard-fav" onclick="event.stopPropagation()"><i class="fas fa-heart"></i></button>
-              <div class="vcard-status prochainement">Remise des clés prochainement</div>
-              <div class="vcard-progress-bar">
-                <div class="vcard-progress-label">
-                  <span>Avancement 15%</span><span>Livraison Déc 2026</span>
-                </div>
-                <div class="vcard-progress-track"><div class="vcard-progress-fill" style="width:15%"></div></div>
-              </div>
-            </div>
-            <div class="vcard-body">
-              <div class="vcard-title">Prestige Tower Ariana</div>
-              <div class="vcard-meta"><i class="fas fa-building" style="color:var(--navy);font-size:10px"></i> <strong class="vcard-promoteur-name">Prestige Dev.</strong> <span class="sep">·</span> <i class="fas fa-map-marker-alt" style="color:var(--red);font-size:10px"></i> Ennasr, Ariana</div>
-              <div class="vcard-pills">
-                <span class="vcard-pill vcard-pill-lots">45 biens</span>
-              </div>
-              <div class="vcard-price-main">À partir de 350 000 TND</div>
-              <div class="vcard-price-m2">3 182 TND / m²</div>
-            </div>
+          <div class="price-row">
+            <span class="price">dès 198 000 TND</span>
+            <span class="price-sqm">3 046 TND/m²</span>
           </div>
-
-          <!-- CARD 5 -->
-          <div class="vcard">
-            <div class="vcard-img">
-              <img src="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=600&q=80" alt="Résidence Côtière Sousse" loading="lazy">
-              <div class="vcard-img-overlay"></div>
-              <button class="vcard-fav" onclick="event.stopPropagation()"><i class="fas fa-heart"></i></button>
-              <div class="vcard-status prochainement">Remise des clés prochainement</div>
-              <div class="vcard-progress-bar">
-                <div class="vcard-progress-label">
-                  <span>Avancement 60%</span><span>Livraison Mars 2026</span>
-                </div>
-                <div class="vcard-progress-track"><div class="vcard-progress-fill" style="width:60%"></div></div>
-              </div>
-            </div>
-            <div class="vcard-body">
-              <div class="vcard-title">Résidence Côtière Sousse</div>
-              <div class="vcard-meta"><i class="fas fa-building" style="color:var(--navy);font-size:10px"></i> <strong class="vcard-promoteur-name">Réalco</strong> <span class="sep">·</span> <i class="fas fa-map-marker-alt" style="color:var(--red);font-size:10px"></i> Sousse Corniche</div>
-              <div class="vcard-pills">
-                <span class="vcard-pill vcard-pill-lots">32 biens</span>
-              </div>
-              <div class="vcard-price-main">À partir de 195 000 TND</div>
-              <div class="vcard-price-m2">2 437 TND / m²</div>
-            </div>
+          <div class="actions">
+            <button class="btn btn--primary" onclick="window.location='projet-neuf.html'"><i class="fa-regular fa-eye"></i> Voir le projet</button>
+            <button class="btn btn--wa"><i class="fa-brands fa-whatsapp"></i> WhatsApp</button>
           </div>
+        </div>
+      </article>
 
-        </div><!-- /track -->
-      </div>
-      <button class="carousel-nav carousel-next" onclick="slide(1)"><i class="fas fa-chevron-right"></i></button>
-    </div>
-    <div class="carousel-dots" id="cdots"></div>
+      <article class="card">
+        <div class="card__media">
+          <img src="https://images.unsplash.com/photo-1567496898669-ee935f5f647a?w=600&q=80" alt="Marina Heights" loading="lazy">
+          <span class="badge-status"><i class="fa-regular fa-clock"></i> Livraison Juin 2026 · 40%</span>
+          <button class="fav" aria-label="Ajouter aux favoris"><i class="fa-regular fa-heart"></i></button>
+          <div class="media-pills">
+            <span><i class="fa-regular fa-file-lines"></i> Plans</span>
+            <span><i class="fa-regular fa-image"></i> HD</span>
+          </div>
+        </div>
+        <div class="prog-info">
+          <span><i class="fa-solid fa-layer-group"></i> 3 blocs · R+7</span>
+          <span><i class="fa-solid fa-percent"></i> Avancement 40%</span>
+          <span><i class="fa-regular fa-images"></i> 9 photos</span>
+        </div>
+        <div class="card__body">
+          <h3 class="card__title">Marina Heights</h3>
+          <div class="pro-row">
+            <span class="pro-name">TunisPromo</span>
+          </div>
+          <div class="loc"><i class="fa-solid fa-location-dot"></i> La Goulette, Tunis</div>
+          <div class="chips">
+            <span class="chip">3 blocs · R+7</span>
+            <span class="chip">S+2 · S+3 · Penthouse</span>
+            <span class="chip chip--dispo">60 biens disponibles</span>
+          </div>
+          <div class="price-row">
+            <span class="price">dès 280 000 TND</span>
+            <span class="price-sqm">3 111 TND/m²</span>
+          </div>
+          <div class="actions">
+            <button class="btn btn--primary"><i class="fa-regular fa-eye"></i> Voir le projet</button>
+            <button class="btn btn--wa"><i class="fa-brands fa-whatsapp"></i> WhatsApp</button>
+          </div>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card__media">
+          <img src="https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=600&q=80" alt="Les Villas du Sahel" loading="lazy">
+          <span class="badge-status" style="background:#1D9E75;color:#fff"><i class="fa-solid fa-circle-check"></i> Livré — Disponible</span>
+          <button class="fav" aria-label="Ajouter aux favoris"><i class="fa-regular fa-heart"></i></button>
+          <div class="media-pills">
+            <span><i class="fa-solid fa-vr-cardboard"></i> 360°</span>
+            <span><i class="fa-solid fa-video"></i> Vidéo</span>
+            <span><i class="fa-regular fa-image"></i> HD</span>
+          </div>
+        </div>
+        <div class="prog-info">
+          <span><i class="fa-solid fa-house"></i> Villas individuelles</span>
+          <span><i class="fa-solid fa-percent"></i> Livré 100%</span>
+          <span><i class="fa-regular fa-images"></i> 14 photos</span>
+        </div>
+        <div class="card__body">
+          <h3 class="card__title">Les Villas du Sahel</h3>
+          <div class="pro-row">
+            <span class="pro-name">Sahel Immo</span>
+            <span class="verified"><i class="fa-solid fa-circle-check"></i> Promoteur vérifié</span>
+          </div>
+          <div class="loc"><i class="fa-solid fa-location-dot"></i> Hammamet Nord</div>
+          <div class="chips">
+            <span class="chip">Villas individuelles</span>
+            <span class="chip">S+3 · S+4</span>
+            <span class="chip chip--dispo">8 biens disponibles</span>
+          </div>
+          <div class="price-row">
+            <span class="price">dès 550 000 TND</span>
+            <span class="price-sqm">2 750 TND/m²</span>
+          </div>
+          <div class="actions">
+            <button class="btn btn--primary"><i class="fa-regular fa-eye"></i> Voir le projet</button>
+            <button class="btn btn--wa"><i class="fa-brands fa-whatsapp"></i> WhatsApp</button>
+          </div>
+        </div>
+      </article>
+
+    </div><!-- /cards-grid -->
+    </div><!-- /cards-scroll-wrap -->
   </div>
 </section>
 
@@ -3873,6 +4023,14 @@ function cookieAccept() {
 function cookieDecline() {
   localStorage.setItem('immo24_cookies', 'declined');
   document.getElementById('cookie-banner').classList.add('hidden');
+}
+</script>
+<script>
+function cScroll(btn, dir) {
+  const grid = btn.closest('.cards-scroll-wrap').querySelector('.cards-grid');
+  const card = grid.querySelector('.card');
+  const step = card ? card.offsetWidth + 20 : 340;
+  grid.scrollBy({ left: dir * step, behavior: 'smooth' });
 }
 </script>
 
