@@ -314,45 +314,169 @@
     .featured-spec i { color: var(--navy); font-size: 9px; }
 
     /* ===== VUE LISTE ===== */
+    /* ══════════════════════════════════════════════
+       LIST-ONLY VIEW  — grille SeLoger style
+       N'affecte QUE .main.list-view (pas le split)
+       ══════════════════════════════════════════════ */
     .main.list-view .map-panel { display: none !important; }
     .main.list-view .list-panel {
       width: 100% !important;
       min-width: 0 !important;
       border-left: none !important;
     }
+    /* grille 3 colonnes */
     .main.list-view .list-scroll {
-      display: flex !important;
-      flex-direction: column !important;
-      gap: 10px !important;
-      padding: 14px 20px !important;
+      display: grid !important;
+      grid-template-columns: repeat(3, 1fr) !important;
+      gap: 20px !important;
+      padding: 24px 28px !important;
       overflow-y: auto !important;
       overflow-x: hidden !important;
-      flex: 1 !important;
+      align-content: start !important;
     }
+    @media (max-width: 1100px) {
+      .main.list-view .list-scroll { grid-template-columns: repeat(2, 1fr) !important; }
+    }
+    /* card verticale */
     .main.list-view .card {
       display: flex !important;
-      flex-direction: row !important;
+      flex-direction: column !important;
       width: 100% !important;
-      min-height: 120px !important;
-      max-height: 140px !important;
+      min-height: unset !important;
+      max-height: unset !important;
+      height: 100% !important;
       flex-shrink: 0 !important;
-      border-radius: 10px !important;
+      border-radius: 14px !important;
       overflow: hidden !important;
+      box-shadow: 0 2px 16px rgba(27,58,107,.10), inset 0 0 0 1px rgba(255,255,255,.8) !important;
+      outline: 1px solid rgba(27,58,107,.08) !important;
+      border: none !important;
+      transition: transform .25s cubic-bezier(.16,1,.3,1), box-shadow .25s !important;
     }
+    .main.list-view .card:hover {
+      transform: translateY(-5px) !important;
+      box-shadow: 0 12px 36px rgba(27,58,107,.16) !important;
+    }
+    /* image pleine largeur */
     .main.list-view .card-img {
-      width: 200px !important;
-      min-width: 200px !important;
-      height: auto !important;
+      width: 100% !important;
+      min-width: unset !important;
+      height: 196px !important;
       flex-shrink: 0 !important;
     }
+    /* body vertical */
     .main.list-view .card-body {
       flex: 1 !important;
+      display: flex !important;
+      flex-direction: column !important;
       min-width: 0 !important;
-      padding: 10px 14px !important;
+      padding: 14px 16px 12px !important;
+    }
+    /* header: type label + kind badge côte à côte */
+    .main.list-view .card-kind-row {
+      display: flex !important;
+      align-items: center !important;
+      justify-content: space-between !important;
+      margin-bottom: 6px !important;
+    }
+    .main.list-view .card-type-label {
+      font-size: 11px !important;
+      font-weight: 700 !important;
+      text-transform: uppercase !important;
+      letter-spacing: .5px !important;
+      color: var(--gray-600) !important;
+    }
+    /* prix bien mis en avant */
+    .main.list-view .card-price-row {
+      margin-bottom: 8px !important;
+    }
+    .main.list-view .card-price {
+      font-size: 1.25rem !important;
+      font-family: 'Fraunces', Georgia, serif !important;
+      font-weight: 700 !important;
+      color: var(--navy-dark) !important;
+      letter-spacing: -.3px !important;
+    }
+    .main.list-view .card-price-m2 {
+      font-size: 11.5px !important;
+      color: var(--gray-500) !important;
+    }
+    /* specs chips */
+    .main.list-view .card-specs {
+      display: flex !important;
+      flex-wrap: wrap !important;
+      gap: 5px !important;
+      font-size: 0 !important; /* reset inline */
+      margin-bottom: 7px !important;
+      white-space: normal !important;
+    }
+    .main.list-view .card-specs .lv-chip,
+    .main.list-view .card-specs .card-specs-sep { display: none !important; }
+    /* location */
+    .main.list-view .card-location {
+      font-size: 12px !important;
+      color: var(--gray-600) !important;
+      margin-bottom: 10px !important;
+    }
+    /* footer toujours en bas */
+    .main.list-view .card-footer {
+      margin-top: auto !important;
+      padding-top: 10px !important;
+      border-top: 1px solid var(--gray-100) !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: space-between !important;
+    }
+    /* CTA buttons dans le body */
+    .main.list-view .lv-ctas {
+      display: flex !important;
+      gap: 6px !important;
+      margin-top: 10px !important;
+    }
+    .lv-btn {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 8px 14px; border-radius: 8px;
+      font-size: 12px; font-weight: 700; font-family: inherit;
+      cursor: pointer; border: none; transition: all .2s;
+      white-space: nowrap;
+    }
+    .lv-btn-primary { background: var(--navy); color: #fff; flex:1; justify-content:center; }
+    .lv-btn-primary:hover { background: var(--navy-dark); }
+    .lv-btn-wa { background: #1D9E75; color: #fff; padding: 8px 10px; }
+    .lv-btn-wa:hover { background: #0F6E56; }
+    /* inline ad spans full width in grid */
+    .main.list-view .inline-ad-card {
+      grid-column: 1 / -1 !important;
+      width: 100% !important;
+      max-height: none !important;
+      min-height: 110px !important;
     }
     .main.list-view .card-logo-watermark { display: none !important; }
-    .main.list-view .inline-ad-card { width: 100% !important; max-height: none !important; min-height: 110px !important; }
     .main.list-view .card-view-btn { display: none !important; }
+    /* count row stays bottom-right of image */
+    .main.list-view .card-media-row { bottom: 8px; right: 8px; }
+    .main.list-view .card-media-pictos { bottom: 8px; left: 8px; }
+    /* show list-only elements */
+    .main.list-view .lv-ctas        { display: flex !important; }
+    .main.list-view .lv-spec-chips  { display: flex !important; }
+    /* spec chips style */
+    .lv-chip-tag {
+      font-size: 11px; font-weight: 600; color: var(--navy);
+      background: var(--navy-light); padding: 3px 8px; border-radius: 6px;
+    }
+    .lv-chip-media {
+      color: var(--green-dark, #0F6E56); background: #E1F5EE;
+    }
+    /* Fonts for list view */
+    .main.list-view .card-price {
+      font-family: 'Fraunces', Georgia, serif !important;
+      font-size: 1.2rem !important;
+      font-weight: 700 !important;
+    }
+    /* mobile: list-view back to 1 col */
+    @media (max-width: 640px) {
+      .main.list-view .list-scroll { grid-template-columns: 1fr !important; padding: 12px !important; }
+    }
 
     /* Bouton Voir l'annonce */
     .card-view-btn {
@@ -1156,10 +1280,11 @@
       .card-location { font-size: 12.5px; }
       .card-footer { padding: 8px 14px 12px; }
 
-      /* Overrides pour list-view desktop (annulés sur mobile) */
-      .main.list-view .card            { flex-direction: column !important; }
-      .main.list-view .card-img        { width: 100% !important; height: 210px !important; }
-      .main.list-view .card-body       { max-width: 100% !important; }
+      /* Overrides pour list-view mobile */
+      .main.list-view .list-scroll     { grid-template-columns: 1fr !important; padding: 12px 16px !important; gap: 14px !important; }
+      .main.list-view .card            { flex-direction: column !important; border-radius: 12px !important; }
+      .main.list-view .card-img        { width: 100% !important; height: 180px !important; min-width: unset !important; }
+      .main.list-view .card-body       { max-width: 100% !important; padding: 12px !important; }
 
       /* ── Barre du bas (SeLoger style) ───────── */
       .mob-view-bar {
@@ -2150,12 +2275,27 @@ function buildCardHtml(p) {
         </div>` : `
         <div class="card-specs">
           ${p.surface} m²${p.rooms > 0 ? `<span class="card-specs-sep">·</span>${p.rooms <= 1 ? 'Studio' : 'S+' + (p.rooms - 1)}` : ''}${p.bathrooms > 0 ? `<span class="card-specs-sep">·</span>${p.bathrooms} SDB` : ''}
+        </div>
+        <div class="lv-spec-chips" style="display:none;flex-wrap:wrap;gap:5px;margin-bottom:8px">
+          <span class="lv-chip-tag">${p.surface} m²</span>
+          ${p.rooms > 0 ? `<span class="lv-chip-tag">${p.rooms <= 1 ? 'Studio' : 'S+' + (p.rooms - 1)}</span>` : ''}
+          ${p.bathrooms > 0 ? `<span class="lv-chip-tag">${p.bathrooms} SDB</span>` : ''}
+          ${media.includes('360') ? `<span class="lv-chip-tag lv-chip-media">360°</span>` : ''}
+          ${media.includes('video') ? `<span class="lv-chip-tag lv-chip-media">Vidéo</span>` : ''}
         </div>`}
         <div class="card-location">
           <svg class="pin-svg" width="11" height="14" viewBox="0 0 24 28" fill="currentColor">
             <path d="M12 0C7.032 0 3 4.032 3 9c0 6.75 9 17 9 17s9-10.25 9-17c0-4.968-4.032-9-9-9zm0 12a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/>
           </svg>
           ${p.location}
+        </div>
+        <div class="lv-ctas" style="display:none" onclick="event.stopPropagation()">
+          <button class="lv-btn lv-btn-primary" onclick="window.location='${p.kind === 'neuf' ? 'projet-neuf.html' : p.type === 'Terrain' ? 'terrain.html' : 'listing.html'}'">
+            <i class="fas fa-eye"></i> Voir l'annonce
+          </button>
+          <button class="lv-btn lv-btn-wa">
+            <i class="fab fa-whatsapp"></i>
+          </button>
         </div>
       </div>
       <div class="card-footer">
