@@ -1413,6 +1413,17 @@
     .btn--wa { background:#1D9E75; color:#fff; padding:9px 12px; }
     .btn--ghost { background:#fff; color:var(--gold-dark); border:1px solid var(--gold); padding:9px 11px; }
 
+    /* card stretch — equal height columns */
+    .cards-grid { align-items: start; }
+    .card { display:flex; flex-direction:column; }
+    .card__body { flex:1; display:flex; flex-direction:column; }
+    .card .price-row { margin-top:auto; padding-top:12px; }
+
+    /* programme info bar (replaces thumbs) */
+    .prog-info { display:flex; gap:12px; padding:8px 14px; background:var(--navy-light); font-size:11.5px; color:var(--navy-dark); border-top:1px solid var(--gray-200); }
+    .prog-info span { display:flex; align-items:center; gap:4px; }
+    .prog-info i { color:var(--navy); font-size:10px; }
+
     /* ===== CAROUSEL : PROJETS EN VOGUE ===== */
     .vogue-section { padding: 28px 0 44px; background: var(--white); overflow: hidden; }
     .vogue-section .container { max-width: 1360px; }
@@ -2519,11 +2530,10 @@
             <span><i class="fa-regular fa-image"></i> HD</span>
           </div>
         </div>
-        <div class="thumbs">
-          <img src="https://bullaregia-immobiliere.com/wp-content/uploads/2024/03/int-1.jpg" alt="" loading="lazy">
-          <img src="https://bullaregia-immobiliere.com/wp-content/uploads/2024/03/int-3.jpg" alt="" loading="lazy">
-          <img src="https://bullaregia-immobiliere.com/wp-content/uploads/2024/03/int-5.jpg" alt="" loading="lazy">
-          <div class="more">+9</div>
+        <div class="prog-info">
+          <span><i class="fa-solid fa-layer-group"></i> 2 blocs · R+4</span>
+          <span><i class="fa-solid fa-percent"></i> Avancement 92%</span>
+          <span><i class="fa-regular fa-images"></i> 12 photos</span>
         </div>
         <div class="card__body">
           <h3 class="card__title">The Pantheon Residence</h3>
@@ -2559,11 +2569,10 @@
             <span><i class="fa-regular fa-image"></i> HD</span>
           </div>
         </div>
-        <div class="thumbs">
-          <img src="https://images.unsplash.com/photo-1560185007-cde436f6a4d0?w=200&q=70" alt="" loading="lazy">
-          <img src="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=200&q=70" alt="" loading="lazy">
-          <img src="https://images.unsplash.com/photo-1505577058444-a3dab90d4253?w=200&q=70" alt="" loading="lazy">
-          <div class="more">+6</div>
+        <div class="prog-info">
+          <span><i class="fa-solid fa-layer-group"></i> 3 blocs · R+7</span>
+          <span><i class="fa-solid fa-percent"></i> Avancement 40%</span>
+          <span><i class="fa-regular fa-images"></i> 9 photos</span>
         </div>
         <div class="card__body">
           <h3 class="card__title">Marina Heights</h3>
@@ -2599,11 +2608,10 @@
             <span><i class="fa-regular fa-image"></i> HD</span>
           </div>
         </div>
-        <div class="thumbs">
-          <img src="https://images.unsplash.com/photo-1510627489930-0c1b0bfb6785?w=200&q=70" alt="" loading="lazy">
-          <img src="https://images.unsplash.com/photo-1519643381401-22c77e60520e?w=200&q=70" alt="" loading="lazy">
-          <img src="https://images.unsplash.com/photo-1484154218962-a197022b5858?w=200&q=70" alt="" loading="lazy">
-          <div class="more">+11</div>
+        <div class="prog-info">
+          <span><i class="fa-solid fa-house"></i> Villas individuelles</span>
+          <span><i class="fa-solid fa-percent"></i> Livré 100%</span>
+          <span><i class="fa-regular fa-images"></i> 14 photos</span>
         </div>
         <div class="card__body">
           <h3 class="card__title">Les Villas du Sahel</h3>
