@@ -1388,9 +1388,10 @@
       scrollbar-width:none; padding-bottom:4px;
     }
     .cards-grid::-webkit-scrollbar { display:none; }
-    .cards-grid .card { flex:0 0 300px; scroll-snap-align:start; }
-    @media (min-width:768px)  { .cards-grid .card { flex-basis:320px; } }
-    @media (min-width:1280px) { .cards-grid .card { flex-basis:360px; } }
+    .cards-grid .card { flex:0 0 280px; scroll-snap-align:start; }
+    @media (min-width:640px)  { .cards-grid .card { flex-basis:calc(50% - 10px); } }
+    @media (min-width:900px)  { .cards-grid .card { flex-basis:calc(33.333% - 14px); } }
+    @media (min-width:1280px) { .cards-grid .card { flex-basis:calc(25% - 15px); } }
     .cscroll-btn {
       position:absolute; top:50%; transform:translateY(-50%);
       width:38px; height:38px; border-radius:50%;
