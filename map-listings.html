@@ -50,7 +50,7 @@
       --radius-sm: 6px;
       --radius:    10px;
       --radius-lg: 16px;
-      --shadow-sm: 0 1px 3px rgba(0,0,0,.08);
+      --shadow-sm: 0 1px 8px rgba(27,58,107,.08);
       --shadow:    0 4px 16px rgba(0,0,0,.12);
       --shadow-lg: 0 8px 32px rgba(0,0,0,.16);
       --nav-h:     60px;
@@ -175,7 +175,7 @@
     /* ===== MAIN LAYOUT ===== */
     .main {
       display: flex;
-      height: calc(100vh - var(--nav-h) - var(--filter-h));
+      height: calc(100dvh - var(--nav-h) - var(--filter-h));
       margin-top: calc(var(--nav-h) + var(--filter-h));
     }
 
@@ -218,7 +218,7 @@
       cursor: pointer; font-family: inherit;
       padding-right: 2px;
     }
-    .sort-select:focus { outline: none; }
+    .sort-select:focus { outline: 2px solid var(--navy); outline-offset: 2px; border-color: var(--navy); }
 
     .view-toggle { display: flex; gap: 3px; }
     .view-btn {
@@ -245,7 +245,7 @@
       position: relative;
       overflow: hidden;
       max-height: 32px;
-      transition: max-height .3s ease;
+      transition: max-height .35s cubic-bezier(.16,1,.3,1);
     }
     .featured-section.expanded {
       max-height: 220px;
@@ -488,8 +488,8 @@
   background: var(--white);
   border-radius: 14px;
   overflow: hidden;
-  box-shadow: var(--shadow-sm), inset 0 0 0 1px rgba(255,255,255,.8);
-  outline: 1px solid rgba(27,58,107,.08);
+  box-shadow: var(--shadow-sm), inset 0 0 0 1px rgba(255,255,255,.9);
+  outline: 1px solid rgba(27,58,107,.07);
   cursor: pointer;
   display: flex;
   flex-direction: column;
@@ -568,11 +568,12 @@
       background: var(--white);
       border-radius: var(--radius); overflow: hidden;
       border: 1.5px solid var(--gray-200);
-      box-shadow: var(--shadow-sm); cursor: pointer;
+      box-shadow: var(--shadow-sm), inset 0 0 0 1px rgba(255,255,255,.9); cursor: pointer;
       transition: box-shadow .18s, transform .18s;
       position: relative; flex-shrink: 0; min-height: 100px;
+      outline: 1px solid rgba(27,58,107,.07);
     }
-    .card:hover { box-shadow: var(--shadow); transform: translateY(-1px); }
+    .card:hover { box-shadow: var(--shadow), inset 0 0 0 1px rgba(255,255,255,.9); transform: translateY(-1px); }
     .card.active { border-color: var(--navy); box-shadow: 0 0 0 2px rgba(27,58,107,.2); }
     .card.kind-neuf { border-left: 3px solid var(--gold); }
 
@@ -1239,7 +1240,7 @@
       /* ── Layout principal ───────────────────── */
       .main {
         flex-direction: column;
-        height: calc(100vh - var(--nav-h) - var(--filter-h));
+        height: calc(100dvh - var(--nav-h) - var(--filter-h));
         padding-bottom: 62px;
         overflow: hidden;
       }
@@ -1259,7 +1260,7 @@
       .main.mob-carte .list-panel { display: none; }
       .main.mob-carte .map-panel {
         display: block; width: 100%;
-        height: calc(100vh - var(--nav-h) - var(--filter-h) - 62px);
+        height: calc(100dvh - var(--nav-h) - var(--filter-h) - 62px);
       }
       .main.mob-carte #map { height: 100%; }
 

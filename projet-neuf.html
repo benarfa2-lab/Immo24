@@ -323,10 +323,11 @@
       background: linear-gradient(135deg, var(--navy) 0%, var(--navy-dark) 100%); color: white;
       border-radius: var(--radius); font-size: 14px; font-weight: 700;
       display: flex; align-items: center; justify-content: center; gap: 9px;
-      transition: opacity .2s; margin-bottom: 10px;
-      cursor: pointer;
+      transition: opacity .2s, transform .15s; margin-bottom: 10px;
+      cursor: pointer; border: none; text-decoration: none;
     }
     .aside-cta-brochure:hover { opacity: .88; }
+    .aside-cta-brochure:active { transform: scale(0.97); }
     .aside-cta-wa {
       width: 100%; padding: 14px;
       background: #25D366; color: white;
@@ -929,9 +930,9 @@
           <span class="aside-dispo-lbl"><i class="fas fa-door-open"></i> Biens disponibles</span>
           <span class="aside-dispo-val">8 / 48 <i class="fas fa-arrow-right" style="font-size:10px;margin-left:4px;opacity:.6"></i></span>
         </button>
-        <button class="aside-cta-brochure" onclick="alert('Brochure disponible sur demande. Contactez Bullaregia Immobilière.')">
-          <i class="fas fa-file-pdf" style="font-size:16px;"></i> Télécharger la brochure
-        </button>
+        <a class="aside-cta-brochure" href="brochures/pantheon-residence.pdf" download="Pantheon-Residence-Brochure.pdf">
+          <i class="fas fa-file-arrow-down" style="font-size:16px;"></i> Télécharger la brochure
+        </a>
         <a href="https://wa.me/21627050510?text=Bonjour%2C+je+suis+int%C3%A9ress%C3%A9(e)+par+The+Pantheon+Residence+sur+la+Route+de+la+Marsa.+Pouvez-vous+me+donner+plus+d%27informations+%3F" target="_blank" class="aside-cta-wa">
           <i class="fab fa-whatsapp" style="font-size:18px;"></i> Contacter via WhatsApp
         </a>
