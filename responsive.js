@@ -7,9 +7,9 @@
 
     btn.addEventListener('click', function () {
       var open = menu.classList.toggle('open');
-      btn.classList.toggle('active', open);
+      btn.classList.toggle('open', open);
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
       document.body.style.overflow = open ? 'hidden' : '';
-      btn.querySelector('i').className = open ? 'fas fa-times' : 'fas fa-bars';
     });
 
     // Close on outside click
@@ -24,9 +24,9 @@
 
     function close() {
       menu.classList.remove('open');
-      btn.classList.remove('active');
+      btn.classList.remove('open');
+      btn.setAttribute('aria-expanded', 'false');
       document.body.style.overflow = '';
-      if (btn.querySelector('i')) btn.querySelector('i').className = 'fas fa-bars';
     }
   }
 
