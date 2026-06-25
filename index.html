@@ -849,6 +849,7 @@
       border: 1px solid var(--gray-200);
       transition: all .22s;
       cursor: pointer;
+      display: flex; flex-direction: column;
     }
     .lcard:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
 
@@ -895,8 +896,8 @@
       display: flex; align-items: center; gap: 4px;
     }
 
-    .lcard-body { padding: 14px 16px 16px; }
-    .lcard-price { font-size: var(--ts-lg); font-weight: 800; color: var(--navy); letter-spacing: -.5px; }
+    .lcard-body { padding: 14px 16px 16px; flex: 1; display: flex; flex-direction: column; }
+    .lcard-price { font-size: var(--ts-lg); font-weight: 800; color: var(--navy); letter-spacing: -.5px; font-variant-numeric: tabular-nums; }
     .lcard-price-m2 { font-size: var(--ts-xs); color: var(--gray-400); font-weight: 400; }
 
     .lcard-title {
@@ -929,7 +930,7 @@
     .lcard-footer {
       display: flex; align-items: center; justify-content: space-between;
       border-top: 1px solid var(--gray-100); padding-top: 10px;
-      gap: 8px;
+      gap: 8px; margin-top: auto;
     }
     .lcard-promoteur {
       display: flex; align-items: center; gap: 7px;

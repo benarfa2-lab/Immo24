@@ -2,6 +2,13 @@
    responsive.css — Immo24.tn  |  Shared responsive styles
    ============================================================ */
 
+/* ── Design tokens — shadow system (source of truth) ──────── */
+:root {
+  --shadow-sm:  0 1px 8px rgba(27,58,107,.08);
+  --shadow:     0 4px 24px rgba(27,58,107,.13), 0 1px 4px rgba(27,58,107,.06);
+  --shadow-lg:  0 16px 48px rgba(27,58,107,.18), 0 4px 12px rgba(27,58,107,.08);
+}
+
 /* ── Hamburger button ──────────────────────────── */
 .nav-hamburger {
   display: none;

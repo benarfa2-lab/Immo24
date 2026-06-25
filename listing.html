@@ -27,9 +27,7 @@
       --gray-400:#ADB5BD; --gray-600:#6C757D; --gray-800:#343A40;
       --white:#FFFFFF; --red:#E63946; --green:#25D366;
       --radius-sm:6px; --radius:12px; --radius-lg:20px;
-      --shadow-sm:0 1px 6px rgba(27,58,107,.07);
-      --shadow:0 4px 20px rgba(27,58,107,.10);
-      --shadow-lg:0 12px 40px rgba(27,58,107,.16);
+
       --nav-h:64px;
       --font-display: 'Fraunces', Georgia, serif;
       --font-body:    'Plus Jakarta Sans', system-ui, sans-serif;
@@ -333,6 +331,7 @@
       transition:all .2s;
     }
     .btn-call:hover { background:var(--navy); color:var(--white); }
+    .btn-call:active { background:var(--navy-dark); color:var(--white); transform:scale(0.97); }
     .btn-call i { font-size:15px; }
     .btn-wa-agent {
       padding:13px; border-radius:var(--radius-sm);
@@ -343,6 +342,7 @@
       transition:background .2s;
     }
     .btn-wa-agent:hover { background:#1ebc59; border-color:#1ebc59; }
+    .btn-wa-agent:active { background:#0f8c46; border-color:#0f8c46; transform:scale(0.97); }
     .btn-wa-agent i { font-size:15px; }
     .phone-reveal {
       font-size:11px; color:var(--gray-400); text-align:center;
@@ -533,7 +533,9 @@
 /* Amélioration hover/focus */
 .plan-field input:focus, .plan-field select:focus, .plan-field textarea:focus {
   border-color: var(--navy);
-  box-shadow: 0 0 0 3px rgba(27,58,107,.12);
+  outline: 2px solid var(--navy);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(27,58,107,.18);
 }
 /* Spacing upgrade */
 .listing-layout { padding: 36px 24px; }

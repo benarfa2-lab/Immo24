@@ -348,7 +348,7 @@
       flex-shrink: 0 !important;
       border-radius: 14px !important;
       overflow: hidden !important;
-      box-shadow: 0 2px 16px rgba(27,58,107,.10), inset 0 0 0 1px rgba(255,255,255,.8) !important;
+      box-shadow: var(--shadow-sm), inset 0 0 0 1px rgba(255,255,255,.8) !important;
       outline: 1px solid rgba(27,58,107,.08) !important;
       border: none !important;
       transition: transform .25s cubic-bezier(.16,1,.3,1), box-shadow .25s !important;
@@ -446,6 +446,7 @@
     }
     .lv-btn-primary { background: var(--navy); color: #fff; flex:1; justify-content:center; }
     .lv-btn-primary:hover { background: var(--navy-dark); }
+    .lv-btn-primary:active { background: var(--navy-dark); transform: scale(0.97); }
     .lv-btn-wa { background: #1D9E75; color: #fff; padding: 8px 10px; }
     .lv-btn-wa:hover { background: #0F6E56; }
     /* inline ad spans full width in grid */
@@ -487,7 +488,7 @@
   background: var(--white);
   border-radius: 14px;
   overflow: hidden;
-  box-shadow: 0 2px 16px rgba(27,58,107,.10), inset 0 0 0 1px rgba(255,255,255,.8);
+  box-shadow: var(--shadow-sm), inset 0 0 0 1px rgba(255,255,255,.8);
   outline: 1px solid rgba(27,58,107,.08);
   cursor: pointer;
   display: flex;
@@ -555,10 +556,11 @@
       flex-direction: column;
       gap: 7px;
     }
-    .list-scroll::-webkit-scrollbar { width: 16px; }
-    .list-scroll::-webkit-scrollbar-track { background: var(--gray-200); border-radius: 8px; }
-    .list-scroll::-webkit-scrollbar-thumb { background: var(--navy); border-radius: 8px; border: 1px solid var(--gray-200); }
-    .list-scroll::-webkit-scrollbar-thumb:hover { background: var(--gold); }
+    .list-scroll { scrollbar-width: thin; scrollbar-color: var(--navy) transparent; }
+    .list-scroll::-webkit-scrollbar { width: 6px; }
+    .list-scroll::-webkit-scrollbar-track { background: transparent; }
+    .list-scroll::-webkit-scrollbar-thumb { background: rgba(27,58,107,.35); border-radius: 6px; }
+    .list-scroll::-webkit-scrollbar-thumb:hover { background: var(--navy); }
 
     /* ===== PROPERTY CARD — layout horizontal compact ===== */
     .card {
@@ -715,7 +717,7 @@
 
     /* Prix */
     .card-price-row { display: flex; align-items: baseline; gap: 4px; margin-bottom: 2px; }
-    .card-price { font-size: var(--ts-base); font-weight: 800; color: #1a1a1a; letter-spacing: -.2px; }
+    .card-price { font-size: var(--ts-base); font-weight: 800; color: #1a1a1a; letter-spacing: -.2px; font-variant-numeric: tabular-nums; }
     .card-price-m2 { font-size: var(--ts-xs); color: var(--gray-500); }
 
     /* Specs : 118 m² · 4 pièces · 2 SDB */
@@ -872,6 +874,7 @@
       transition: background .2s; text-decoration: none !important;
     }
     .popup-btn:hover { background: var(--navy-dark); color: var(--white) !important; }
+    .popup-btn:active { background: var(--navy-dark); transform: scale(0.97); }
 
     /* custom pin — wrapper Leaflet */
     .custom-pin-wrapper {

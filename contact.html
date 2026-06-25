@@ -35,9 +35,9 @@
       --red:        #E63946;
       --radius:     12px;
       --radius-lg:  20px;
-      --shadow-sm:  0 1px 4px rgba(0,0,0,.08);
-      --shadow:     0 4px 20px rgba(0,0,0,.10);
-      --shadow-lg:  0 12px 40px rgba(0,0,0,.16);
+      --shadow-sm:  0 1px 8px rgba(27,58,107,.08);
+      --shadow:     0 4px 24px rgba(27,58,107,.13), 0 1px 4px rgba(27,58,107,.06);
+      --shadow-lg:  0 16px 48px rgba(27,58,107,.18), 0 4px 12px rgba(27,58,107,.08);
     }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
@@ -131,7 +131,9 @@
     }
     .form-input:focus, .form-select:focus, .form-textarea:focus {
       border-color: var(--navy);
-      box-shadow: 0 0 0 3px rgba(27,58,107,.1);
+      outline: 2px solid var(--navy);
+      outline-offset: 2px;
+      box-shadow: 0 0 0 4px rgba(27,58,107,.18);
     }
     .form-textarea { resize: vertical; min-height: 130px; }
     .form-select { cursor: pointer; }
