@@ -2456,6 +2456,8 @@ function buildListCardHtml(p) {
   </div>`;
 }
 
+let currentView = 'map';
+
 function renderCards() {
   const container = document.getElementById('list-scroll');
   const filtered = getFiltered();
@@ -2488,8 +2490,7 @@ function renderCards() {
   }
 
   /* build cards, insert inline ad after 4th */
-  const isListMode = !!document.querySelector('.main.list-view');
-  const parts = filtered.map(p => isListMode ? buildListCardHtml(p) : buildCardHtml(p));
+  const parts = filtered.map(p => currentView === 'list' ? buildListCardHtml(p) : buildCardHtml(p));
   if (parts.length > 4) parts.splice(4, 0, INLINE_AD_HTML);
   container.innerHTML = parts.join('');
 }
@@ -2520,6 +2521,7 @@ function setView(mode) {
   const main = document.querySelector('.main');
   const btnMap  = document.getElementById('btn-map-view');
   const btnList = document.getElementById('btn-list-view');
+  currentView = mode;
   if (mode === 'list') {
     main.classList.add('list-view');
     btnList.classList.add('active');
