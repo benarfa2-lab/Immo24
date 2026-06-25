@@ -98,7 +98,20 @@
     .breadcrumb-back:hover { background: var(--gray-200); }
 
     /* HERO */
-    .hero { background: linear-gradient(135deg, #0f2444 0%, var(--navy-dark) 100%); padding: 8px 0 0; }
+    .hero {
+      background: linear-gradient(135deg, #0f2444 0%, var(--navy-dark) 100%);
+      padding: 8px 0 0;
+      position: relative;
+    }
+    .hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      background-size: 200px 200px;
+      opacity: 0.04;
+      mix-blend-mode: soft-light;
+      pointer-events: none;
+    }
     .hero-inner { max-width: 1200px; margin: 0 auto; padding: 0 24px 10px; display: flex; align-items: flex-start; gap: 28px; }
     .hero-logo {
       width: 100px; height: 100px; border-radius: 16px; flex-shrink: 0;
@@ -246,13 +259,37 @@
     .map-zoom-btn { width: 36px; height: 36px; border-radius: 8px; background: var(--white); box-shadow: 0 2px 8px rgba(0,0,0,.15); border: none; cursor: pointer; font-size: 16px; font-weight: 700; color: var(--navy-dark); display: flex; align-items: center; justify-content: center; transition: background .2s; }
     .map-zoom-btn:hover { background: var(--gray-50); }
 
+    /* SKIP LINK */
+    .skip-link { position: absolute; left: -9999px; top: 8px; z-index: 9999; padding: 8px 18px; background: var(--gold); color: var(--navy-dark); font-weight: 700; border-radius: 6px; font-size: 13px; }
+    .skip-link:focus { left: 8px; }
+
+    /* BUTTONS (replace inline hover JS) */
+    .btn-voir-annonces {
+      display: inline-flex; align-items: center;
+      padding: 11px 28px; border-radius: 50px;
+      border: 1.5px solid var(--navy); color: var(--navy);
+      font-size: 13.5px; font-weight: 700; cursor: pointer;
+      background: var(--white); transition: all .2s;
+      text-decoration: none;
+    }
+    .btn-voir-annonces:hover { background: var(--navy); color: var(--white); }
+    .btn-voir-carte {
+      width: 100%; height: 100px; border-radius: var(--radius);
+      background: var(--navy-light); border: 1.5px dashed var(--navy);
+      color: var(--navy); font-size: 13px; font-weight: 700;
+      cursor: pointer; display: flex; align-items: center;
+      justify-content: center; gap: 8px; margin-bottom: 14px;
+      transition: background .2s;
+    }
+    .btn-voir-carte:hover { background: #dde6f4; }
+
     /* ZONES */
     .zones-list { display: flex; flex-wrap: wrap; gap: 8px; }
     .zone-tag { padding: 5px 14px; border-radius: 50px; background: var(--navy-light); color: var(--navy); font-size: 12px; font-weight: 600; }
 
     /* NOS BIENS */
     .biens-stats-bar {
-      background: #3d4e5e;
+      background: var(--navy);
       border-radius: var(--radius-lg) var(--radius-lg) 0 0;
       padding: 16px 22px;
       display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
@@ -328,6 +365,7 @@
 <link rel="stylesheet" href="responsive.css" />
 </head>
 <body>
+<a href="#main-content" class="skip-link">Aller au contenu principal</a>
 
 <!-- ── NAVBAR ── -->
 <nav class="navbar" id="navbar">
@@ -392,7 +430,7 @@
 </div>
 
 <!-- HERO -->
-<section class="hero">
+<section class="hero" id="main-content">
   <div class="hero-inner">
     <div class="hero-logo"><img src="https://ui-avatars.com/api/?name=Prestige+Immobilier&background=1B3A6B&color=E6A817&size=128&bold=true&font-size=0.35&rounded=true" alt="Prestige Immo" style="width:100%;height:100%;border-radius:inherit;object-fit:cover;" /></div>
     <div class="hero-info">
@@ -614,9 +652,9 @@
 
         </div>
         <div style="text-align:center;margin-top:20px;">
-          <button onclick="window.location='map-listings.html'" style="padding:11px 28px;border-radius:50px;border:1.5px solid var(--navy);color:var(--navy);font-size:13.5px;font-weight:700;cursor:pointer;background:var(--white);transition:all .2s;" onmouseover="this.style.background='var(--navy)';this.style.color='var(--white)'" onmouseout="this.style.background='var(--white)';this.style.color='var(--navy)'">
+          <a href="map-listings.html" class="btn-voir-annonces">
             Voir toutes les annonces <i class="fas fa-arrow-right" style="margin-left:6px;"></i>
-          </button>
+          </a>
         </div>
       </div>
     </div>
@@ -807,12 +845,12 @@
     </div>
 
     <div class="aside-card" style="padding:16px;">
-      <button onclick="document.querySelector('.map-section').scrollIntoView({behavior:'smooth'})" style="width:100%;height:100px;border-radius:var(--radius);background:var(--navy-light);border:1.5px dashed var(--navy);color:var(--navy);font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:14px;transition:background .2s;" onmouseover="this.style.background='#dde6f4'" onmouseout="this.style.background='var(--navy-light)'">
+      <button onclick="document.querySelector('.map-section').scrollIntoView({behavior:'smooth'})" class="btn-voir-carte">
         <i class="fas fa-map-location-dot" style="font-size:20px;color:var(--gold)"></i> Voir sur la carte
       </button>
-      <button class="cta-btn cta-primary" onclick="alert('Appelez-nous au +216 71 33 XX XX')">
+      <a href="tel:+21671330000" class="cta-btn cta-primary" style="text-decoration:none;">
         <i class="fas fa-phone"></i> Appeler maintenant
-      </button>
+      </a>
       <a href="https://wa.me/21671330000" target="_blank" class="cta-btn cta-wa" style="text-decoration:none;">
         <i class="fab fa-whatsapp" style="font-size:16px;"></i> WhatsApp
       </a>
@@ -860,9 +898,9 @@
       <button class="map-info-btn" onclick="window.open('https://www.openstreetmap.org/directions?from=&to=36.8190,10.1658','_blank')">
         <i class="fas fa-route"></i> Obtenir l'itinéraire
       </button>
-      <button class="map-info-btn-outline" onclick="alert('Appelez-nous au +216 71 33 XX XX')">
+      <a href="tel:+21671330000" class="map-info-btn-outline" style="text-decoration:none;">
         <i class="fas fa-phone"></i> +216 71 33 XX XX
-      </button>
+      </a>
     </div>
   </div>
 </section>
@@ -880,6 +918,7 @@ function switchTab(id, btn) {
 function closeAdStrip() {
   const strip = document.getElementById('ad-strip');
   strip.style.display = 'none';
+  document.documentElement.style.setProperty('--ad-h', '0px');
   document.querySelector('[style*="calc(var(--nav-h) + var(--ad-h))"]').style.height = 'var(--nav-h)';
 }
 document.querySelectorAll('.listing-filter-btn').forEach(btn => {
