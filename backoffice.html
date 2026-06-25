@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Immo24 – Backoffice</title>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,700;0,9..144,800;1,9..144,300;1,9..144,700\&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800\&display=swap" rel="stylesheet" />
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%231B3A6B'/><text x='16' y='22' text-anchor='middle' font-size='16' font-weight='900' font-family='sans-serif' fill='%23E6A817'>I</text></svg>" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -38,7 +38,7 @@
       --shadow-sm:  0 1px 6px rgba(27,58,107,.07);
       --shadow:     0 4px 20px rgba(27,58,107,.10);
       --shadow-lg:  0 12px 40px rgba(27,58,107,.16);
-      --font-display: 'Outfit', 'Inter', sans-serif;
+      --font-display: 'Fraunces', Georgia, serif;
 
       /* z-index scale — document every layer here, use vars everywhere */
       --z-bg:           0;     /* decorative background elements */
@@ -55,7 +55,7 @@
     }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
-    body { font-family: 'Inter', sans-serif; color: var(--gray-800); background: var(--gray-50); display: flex; height: 100vh; overflow: hidden; }
+    body { font-family: 'Plus Jakarta Sans', sans-serif; color: var(--gray-800); background: var(--gray-50); display: flex; height: 100vh; overflow: hidden; }
     .skip-link { position:absolute; top:-100px; left:12px; z-index:var(--z-skip); background:var(--navy); color:#fff; padding:9px 16px; border-radius:0 0 8px 8px; font-size:13px; font-weight:700; text-decoration:none; transition:top .2s; }
     .skip-link:focus { top:0; }
     a { text-decoration: none; color: inherit; }
@@ -2820,14 +2820,14 @@ function renderDashboard() {
         <circle id="${dotId}-${i}" cx="${cx}" cy="${cy}" r="4" fill="var(--navy)" stroke="#fff" stroke-width="2" style="opacity:0;transition:opacity .15s"/>
         <g id="${tooltipId}-${i}" style="opacity:0;transition:opacity .15s" transform="translate(${cx},${cy - 18})">
           <rect x="-18" y="-14" width="36" height="18" rx="5" fill="var(--navy)"/>
-          <text x="0" y="-2" text-anchor="middle" fill="#fff" font-size="10" font-weight="700" font-family="Inter,sans-serif">${values[i]}</text>
+          <text x="0" y="-2" text-anchor="middle" fill="#fff" font-size="10" font-weight="700" font-family="Plus Jakarta Sans,sans-serif">${values[i]}</text>
         </g>
       </g>`).join('');
 
     const xLabels = labels.map((l,i) => {
       const cx = x(i);
       const isCur = i === new Date().getMonth();
-      return `<text x="${cx}" y="${H + 16}" text-anchor="middle" font-size="10" font-family="Inter,sans-serif"
+      return `<text x="${cx}" y="${H + 16}" text-anchor="middle" font-size="10" font-family="Plus Jakarta Sans,sans-serif"
         fill="${isCur ? 'var(--navy)' : 'var(--gray-400)'}" font-weight="${isCur ? '700' : '400'}">${l}</text>`;
     }).join('');
 
