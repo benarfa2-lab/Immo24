@@ -26,7 +26,7 @@
       --green:      #2A9D8F;
       --radius:     10px;
       --radius-lg:  16px;
-      --shadow-sm:  0 1px 6px rgba(27,58,107,.07);
+      --shadow-sm:  0 1px 8px rgba(27,58,107,.08);
       --shadow:     0 4px 20px rgba(27,58,107,.10);
       --nav-h:      64px;
       --ad-h:       120px;
@@ -300,7 +300,11 @@
   <div class="nav-right">
     <a href="login.html" class="nav-btn-outline"><i class="fas fa-user-tie" style="font-size:11px;margin-right:5px"></i>Mon espace pro</a>
   </div>
-  <button class="nav-hamburger" aria-label="Menu"><i class="fas fa-bars"></i></button>
+  <button class="nav-hamburger" aria-label="Menu" aria-expanded="false">
+    <span class="hbg-bar hbg-bar-1"></span>
+    <span class="hbg-bar hbg-bar-2"></span>
+    <span class="hbg-bar hbg-bar-3"></span>
+  </button>
 </nav>
 <div class="nav-mobile" id="nav-mobile">
   <a href="map-listings.html?type=neuf" class="nav-mob-link"><i class="fas fa-building"></i> Projets neufs</a>
@@ -585,9 +589,9 @@
       <button onclick="document.querySelector('.map-section').scrollIntoView({behavior:'smooth'})" style="width:100%;height:100px;border-radius:var(--radius);background:var(--navy-light);border:1.5px dashed var(--navy);color:var(--navy);font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:14px;transition:background .2s;" onmouseover="this.style.background='#dde6f4'" onmouseout="this.style.background='var(--navy-light)'">
         <i class="fas fa-map-location-dot" style="font-size:20px;color:var(--gold)"></i> Voir sur la carte
       </button>
-      <button class="cta-btn cta-primary" onclick="alert('Contactez-nous au +216 71 90 XX XX')">
+      <a href="tel:+21671900000" class="cta-btn cta-primary" style="text-decoration:none;">
         <i class="fas fa-phone"></i> Appeler maintenant
-      </button>
+      </a>
       <a href="https://wa.me/21671900000" target="_blank" class="cta-btn cta-wa" style="border:none;text-decoration:none;">
         <i class="fab fa-whatsapp" style="font-size:16px;"></i> WhatsApp
       </a>
@@ -635,9 +639,9 @@
       <button class="map-info-btn" onclick="window.open('https://www.openstreetmap.org/directions?from=&to=36.8205,10.1762','_blank')">
         <i class="fas fa-route"></i> Obtenir l'itinéraire
       </button>
-      <button class="map-info-btn-outline" onclick="alert('Appelez-nous au +216 71 90 XX XX')">
+      <a href="tel:+21671900000" class="map-info-btn-outline" style="text-decoration:none;">
         <i class="fas fa-phone"></i> +216 71 90 XX XX
-      </button>
+      </a>
     </div>
   </div>
 </section>

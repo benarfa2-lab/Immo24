@@ -15,7 +15,7 @@
       --gray-400:#ADB5BD; --gray-600:#6C757D; --gray-800:#343A40;
       --white:#FFFFFF; --green:#2A9D8F; --green-light:#E8F6F4;
       --radius:10px; --radius-lg:16px;
-      --shadow-sm:0 1px 4px rgba(0,0,0,.08);
+      --shadow-sm:  0 1px 8px rgba(27,58,107,.08);
       --shadow:0 4px 20px rgba(0,0,0,.10);
       --nav-h:64px;
     }
@@ -150,7 +150,11 @@
   <div class="nav-right">
     <a href="index.html" class="nav-btn-outline"><i class="fas fa-arrow-left"></i> Retour à l'accueil</a>
   </div>
-  <button class="nav-hamburger" aria-label="Menu"><i class="fas fa-bars"></i></button>
+  <button class="nav-hamburger" aria-label="Menu" aria-expanded="false">
+    <span class="hbg-bar hbg-bar-1"></span>
+    <span class="hbg-bar hbg-bar-2"></span>
+    <span class="hbg-bar hbg-bar-3"></span>
+  </button>
 </nav>
 <div class="nav-mobile" id="nav-mobile">
   <a href="index.html" class="nav-mob-link"><i class="fas fa-home"></i> Accueil</a>

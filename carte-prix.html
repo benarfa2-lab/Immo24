@@ -31,7 +31,7 @@
       --c-budget:    #2980B9;
       --radius:      12px;
       --radius-lg:   20px;
-      --shadow-sm:   0 1px 4px rgba(0,0,0,.08);
+      --shadow-sm:  0 1px 8px rgba(27,58,107,.08);
       --shadow:      0 4px 20px rgba(0,0,0,.10);
       --shadow-lg:   0 12px 40px rgba(0,0,0,.16);
     }
@@ -320,7 +320,11 @@
   <div class="nav-right">
     <a href="login.html" class="nav-btn-outline"><i class="fas fa-user-tie" style="font-size:11px;margin-right:5px"></i>Mon espace pro</a>
   </div>
-  <button class="nav-hamburger" aria-label="Menu"><i class="fas fa-bars"></i></button>
+  <button class="nav-hamburger" aria-label="Menu" aria-expanded="false">
+    <span class="hbg-bar hbg-bar-1"></span>
+    <span class="hbg-bar hbg-bar-2"></span>
+    <span class="hbg-bar hbg-bar-3"></span>
+  </button>
 </nav>
 <div class="nav-mobile" id="nav-mobile">
   <a href="map-listings.html?type=neuf" class="nav-mob-link"><i class="fas fa-building"></i> Projets neufs</a>

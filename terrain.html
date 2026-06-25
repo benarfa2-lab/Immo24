@@ -16,7 +16,7 @@
       --gray-400:#ADB5BD; --gray-600:#6C757D; --gray-800:#343A40;
       --white:#FFFFFF; --red:#E63946; --green:#2A9D8F; --green-light:#E8F6F4;
       --radius-sm:6px; --radius:12px; --radius-lg:20px;
-      --shadow-sm:0 1px 4px rgba(0,0,0,.08);
+      --shadow-sm:  0 1px 8px rgba(27,58,107,.08);
       --shadow:0 4px 20px rgba(0,0,0,.10);
       --shadow-lg:0 12px 40px rgba(0,0,0,.16);
       --nav-h:64px;
@@ -281,7 +281,11 @@
   <div class="nav-right">
     <a href="login.html" class="nav-btn-outline"><i class="fas fa-user-tie" style="font-size:11px;margin-right:5px"></i>Mon espace pro</a>
   </div>
-  <button class="nav-hamburger" aria-label="Menu"><i class="fas fa-bars"></i></button>
+  <button class="nav-hamburger" aria-label="Menu" aria-expanded="false">
+    <span class="hbg-bar hbg-bar-1"></span>
+    <span class="hbg-bar hbg-bar-2"></span>
+    <span class="hbg-bar hbg-bar-3"></span>
+  </button>
 </nav>
 <div class="nav-mobile" id="nav-mobile">
   <a href="map-listings.html?type=neuf" class="nav-mob-link"><i class="fas fa-building"></i> Projets neufs</a>
@@ -529,7 +533,7 @@ Le zonage PAU autorise une construction <strong>résidentielle jusqu'à R+3</str
             <i class="fas fa-cube" style="font-size:48px;color:var(--navy);opacity:.35;margin-bottom:16px;display:block"></i>
             <p style="font-weight:700;color:var(--navy);margin-bottom:6px;">Visite virtuelle 3D</p>
             <p style="font-size:13px;color:var(--gray-400);margin-bottom:20px;">La visite 3D sera disponible prochainement.</p>
-            <button style="padding:10px 24px;border-radius:50px;background:var(--gold);color:var(--navy-dark);font-size:13px;font-weight:700;border:none;cursor:pointer;" onclick="alert('Lien visite virtuelle à intégrer')">
+            <button style="padding:10px 24px;border-radius:50px;background:var(--gold);color:var(--navy-dark);font-size:13px;font-weight:700;border:none;cursor:pointer;" onclick="void 0" title="Visite virtuelle disponible prochainement">
               <i class="fas fa-play" style="margin-right:6px;"></i>Lancer la visite
             </button>
           </div>
