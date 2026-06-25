@@ -266,6 +266,36 @@
     .hpin-4 { left: 67%; top: 66%; }
     .hpin-5 { left: 82%; top: 60%; }
 
+    /* ── Pins statiques sur les slides photo ── */
+    .hero-static-pins {
+      position: absolute; inset: 0; z-index: 4;
+      pointer-events: none;
+    }
+    .hero-static-pins.on-map { display: none; }
+    .spin {
+      position: absolute;
+      display: flex; flex-direction: column; align-items: center;
+      pointer-events: all; cursor: pointer;
+      opacity: 0;
+      transform: translateY(-18px) scale(.6);
+      transition: opacity .45s cubic-bezier(.34,1.56,.64,1),
+                  transform .45s cubic-bezier(.34,1.56,.64,1);
+      will-change: transform;
+    }
+    .spin.visible {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+    /* Static pin label — non absolu, flex column */
+    .spin .hero-pin__label {
+      position: static;
+      left: auto; top: auto;
+      margin-bottom: 4px;
+    }
+    .spin .hero-pin__dot {
+      display: block; margin: 0 auto;
+    }
+
     /* hero layout : texte à gauche, carte de recherche à droite */
     .hero-inner {
       position: relative; z-index: 2;
@@ -2143,6 +2173,9 @@
     <div class="hero-overlay"></div>
   </div>
 
+  <!-- Pins prix statiques — visibles sur les slides photo (pas sur la carte) -->
+  <div class="hero-static-pins" id="hero-static-pins" aria-hidden="true"></div>
+
   <!-- Flèches navigation -->
   <button class="hero-arrow hero-arrow-prev" onclick="heroNav(-1)"><i class="fas fa-chevron-left"></i></button>
   <button class="hero-arrow hero-arrow-next" onclick="heroNav(1)"><i class="fas fa-chevron-right"></i></button>
@@ -3609,6 +3642,81 @@
 
   paint(0);
   startTimer();
+})();
+
+
+/* ===== HERO STATIC PINS — visibles sur les slides photo ===== */
+(function() {
+  const PINS_PHOTO = [
+    { q: "La Marsa",          p: "678 000", x: "72%", y: "28%" },
+    { q: "Gammarth",          p: "540 000", x: "84%", y: "20%" },
+    { q: "Les Berges du Lac", p: "420 000", x: "78%", y: "52%" },
+    { q: "Carthage",          p: "610 000", x: "65%", y: "38%" },
+    { q: "El Manar",          p: "285 000", x: "55%", y: "62%" },
+    { q: "Ennasr / Ariana",   p: "350 000", x: "45%", y: "30%" },
+    { q: "Centre Tunis",      p: "198 000", x: "62%", y: "72%" },
+  ];
+
+  const container = document.getElementById('hero-static-pins');
+  if (!container) return;
+
+  // Build pin elements
+  PINS_PHOTO.forEach(function(pin, i) {
+    const el = document.createElement('div');
+    el.className = 'spin';
+    el.style.left = pin.x;
+    el.style.top  = pin.y;
+    el.style.transitionDelay = (i * 0.09) + 's';
+    el.innerHTML =
+      '<div class="hero-pin__label"><strong>' + pin.q + '</strong>' +
+      '<em>dès ' + pin.p + ' TND</em></div>' +
+      '<span class="hero-pin__dot"></span>';
+    el.addEventListener('click', function() { window.location.href = 'map-listings.html'; });
+    container.appendChild(el);
+  });
+
+  let _pinsVisible = false;
+
+  function showPins() {
+    if (_pinsVisible) return;
+    _pinsVisible = true;
+    container.querySelectorAll('.spin').forEach(function(el) {
+      el.classList.add('visible');
+    });
+  }
+
+  function hidePins() {
+    if (!_pinsVisible) return;
+    _pinsVisible = false;
+    container.querySelectorAll('.spin').forEach(function(el) {
+      el.classList.remove('visible');
+    });
+  }
+
+  // Listen to slide changes via MutationObserver on .hero-slide
+  const slides = document.querySelectorAll('.hero-slide');
+
+  function onSlideChange() {
+    const active = document.querySelector('.hero-slide.active');
+    if (!active) return;
+    const isMap = active.classList.contains('hero-slide-map');
+    if (isMap) {
+      container.classList.add('on-map');
+      hidePins();
+    } else {
+      container.classList.remove('on-map');
+      // Small delay so old slide fades out first
+      setTimeout(showPins, 200);
+    }
+  }
+
+  // Initial check
+  onSlideChange();
+
+  // Observe each slide for class changes
+  slides.forEach(function(slide) {
+    new MutationObserver(onSlideChange).observe(slide, { attributes: true, attributeFilter: ['class'] });
+  });
 })();
 
 /* ===== HERO MAP — Grand Tunis avec pins de prix ===== */
