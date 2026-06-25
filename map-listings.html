@@ -482,6 +482,41 @@
       .main.list-view .list-scroll { grid-template-columns: 1fr !important; padding: 12px !important; }
     }
 
+    /* ===== LV-CARD — carte verticale dédiée vue liste ===== */
+.lv-card {
+  background: var(--white);
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 2px 16px rgba(27,58,107,.10), inset 0 0 0 1px rgba(255,255,255,.8);
+  outline: 1px solid rgba(27,58,107,.08);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  transition: transform .25s cubic-bezier(.16,1,.3,1), box-shadow .25s;
+}
+.lv-card:hover { transform: translateY(-5px); box-shadow: 0 12px 36px rgba(27,58,107,.16); }
+.lv-card-img { width: 100%; height: 200px; position: relative; overflow: hidden; flex-shrink: 0; background: var(--gray-100); }
+.lv-card-img img { width: 100%; height: 100%; object-fit: cover; transition: transform .35s; }
+.lv-card:hover .lv-card-img img { transform: scale(1.04); }
+.lv-card-body { flex: 1; display: flex; flex-direction: column; padding: 14px 16px 12px; }
+.lv-card-type { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; color: var(--gray-600); margin-bottom: 3px; }
+.lv-card-title { font-size: 13.5px; font-weight: 600; color: var(--navy-dark); line-height: 1.35; margin-bottom: 6px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.lv-card-price { font-family: 'Fraunces', Georgia, serif; font-size: 1.25rem; font-weight: 700; color: var(--navy-dark); letter-spacing: -.3px; font-variant-numeric: tabular-nums; }
+.lv-card-price-m2 { font-size: 11px; color: var(--gray-500, #6C757D); margin-top: 1px; }
+.lv-card-chips { display: flex; flex-wrap: wrap; gap: 5px; margin: 8px 0; }
+.lv-chip { font-size: 11px; font-weight: 600; color: var(--navy); background: var(--navy-light); padding: 3px 8px; border-radius: 6px; }
+.lv-chip-media { color: #0F6E56; background: #E1F5EE; }
+.lv-card-loc { font-size: 12px; color: var(--gray-600); display: flex; align-items: center; gap: 5px; margin-bottom: 10px; }
+.lv-card-ctas { display: flex; gap: 6px; margin-bottom: 10px; }
+.lv-card-btn-primary { flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 5px; padding: 8px 14px; border-radius: 8px; font-size: 12px; font-weight: 700; background: var(--navy); color: #fff; border: none; cursor: pointer; transition: background .2s; font-family: inherit; }
+.lv-card-btn-primary:hover { background: var(--navy-dark); }
+.lv-card-btn-wa { display: inline-flex; align-items: center; justify-content: center; padding: 8px 12px; border-radius: 8px; background: #1D9E75; color: #fff; border: none; cursor: pointer; transition: background .2s; font-size: 14px; }
+.lv-card-btn-wa:hover { background: #0F6E56; }
+.lv-card-footer { margin-top: auto; padding-top: 10px; border-top: 1px solid var(--gray-100); display: flex; align-items: center; justify-content: space-between; }
+.lv-card-agency { display: flex; align-items: center; gap: 7px; }
+.lv-card-agency-avatar { width: 26px; height: 26px; border-radius: 7px; background: linear-gradient(135deg, var(--navy), #2e5fad); display: flex; align-items: center; justify-content: center; font-size: 8px; font-weight: 800; color: #fff; flex-shrink: 0; }
+.lv-card-agency-name { font-size: 11px; font-weight: 600; color: var(--navy); text-decoration: underline; text-underline-offset: 2px; }
+
     /* Bouton Voir l'annonce */
     .card-view-btn {
       display: flex; align-items: center; justify-content: center; gap: 5px;
@@ -2364,6 +2399,63 @@ const INLINE_AD_HTML = `
   </div>
 </div>`;
 
+function buildListCardHtml(p) {
+  const initials = p.promoteur.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+  const media = getPropertyMedia(p);
+  const dest = p.kind === 'neuf' ? 'projet-neuf.html' : p.type === 'Terrain' ? 'terrain.html' : 'listing.html';
+  const priceStr = p.transaction === 'location'
+    ? p.price.toLocaleString('fr-TN') + ' TND<span style="font-size:12px;font-weight:500"> /mois</span>'
+    : (p.kind === 'neuf' ? '<span style="font-size:11px;font-weight:600;color:var(--gray-600)">À partir de </span>' : '') + formatPrice(p.price);
+  const priceM2 = p.transaction !== 'location' ? Math.round(p.price/p.surface).toLocaleString() + ' TND/m²' : '';
+  const specsChips = p.type !== 'Terrain'
+    ? `<span class="lv-chip">${p.surface} m²</span>
+       ${p.rooms > 0 ? `<span class="lv-chip">${p.rooms <= 1 ? 'Studio' : 'S+' + (p.rooms - 1)}</span>` : ''}
+       ${p.bathrooms > 0 ? `<span class="lv-chip">${p.bathrooms} SDB</span>` : ''}
+       ${media.includes('360') ? '<span class="lv-chip lv-chip-media">360°</span>' : ''}
+       ${media.includes('video') ? '<span class="lv-chip lv-chip-media">Vidéo</span>' : ''}`
+    : `<span class="lv-chip">${p.surface} m²</span>
+       <span class="lv-chip ${p.tf ? '' : 'lv-chip-media'}">${p.tf ? 'Titre foncier' : 'Sans TF'}</span>
+       <span class="lv-chip">${p.constructible ? 'Constructible' : 'Agricole'}</span>`;
+  const transactionBadgeCls = p.transaction === 'location' ? 'badge-location' : 'badge-vente';
+  const transactionLabel = p.transaction === 'location' ? 'Location' : 'Vente';
+  const kindLabel = p.kind === 'neuf' ? '★ Neuf' : '🏢 Agence';
+  const kindCls = p.kind === 'neuf' ? 'badge-neuf' : '';
+  const freshness = freshnessChip(p.date);
+  return `
+  <div class="lv-card" onclick="window.location='${dest}'">
+    <div class="lv-card-img">
+      <img src="${p.img}" alt="${p.title}" loading="lazy" />
+      <div class="card-badge" style="position:absolute;top:10px;left:10px;display:flex;gap:5px;z-index:2">
+        <span class="badge ${transactionBadgeCls}">${transactionLabel}</span>
+        <span class="badge ${kindCls}" style="${p.kind==='neuf'?'':'background:rgba(255,255,255,.88);color:var(--navy);backdrop-filter:blur(6px)'}">${kindLabel}</span>
+      </div>
+      <button class="card-fav" onclick="toggleFav(event,this)" aria-label="Favoris" style="position:absolute;top:10px;right:10px;z-index:2"><i class="fas fa-heart"></i></button>
+    </div>
+    <div class="lv-card-body">
+      <div class="lv-card-type">${p.type}</div>
+      <div class="lv-card-title">${p.title}</div>
+      <div class="lv-card-price">${priceStr}</div>
+      ${priceM2 ? `<div class="lv-card-price-m2">${priceM2}</div>` : ''}
+      <div class="lv-card-chips">${specsChips}</div>
+      <div class="lv-card-loc">
+        <svg width="11" height="14" viewBox="0 0 24 28" fill="currentColor" style="color:var(--gold);flex-shrink:0"><path d="M12 0C7.032 0 3 4.032 3 9c0 6.75 9 17 9 17s9-10.25 9-17c0-4.968-4.032-9-9-9zm0 12a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/></svg>
+        ${p.location}
+      </div>
+      <div class="lv-card-ctas" onclick="event.stopPropagation()">
+        <button class="lv-card-btn-primary" onclick="window.location='${dest}'"><i class="fas fa-eye"></i> Voir l'annonce</button>
+        <button class="lv-card-btn-wa" title="WhatsApp"><i class="fab fa-whatsapp"></i></button>
+      </div>
+      <div class="lv-card-footer">
+        <div class="lv-card-agency">
+          <div class="lv-card-agency-avatar">${initials}</div>
+          <div class="lv-card-agency-name">${p.promoteur}</div>
+        </div>
+        ${freshness}
+      </div>
+    </div>
+  </div>`;
+}
+
 function renderCards() {
   const container = document.getElementById('list-scroll');
   const filtered = getFiltered();
@@ -2396,10 +2488,10 @@ function renderCards() {
   }
 
   /* build cards, insert inline ad after 4th */
-  const parts = filtered.map(p => buildCardHtml(p));
+  const isListMode = !!document.querySelector('.main.list-view');
+  const parts = filtered.map(p => isListMode ? buildListCardHtml(p) : buildCardHtml(p));
   if (parts.length > 4) parts.splice(4, 0, INLINE_AD_HTML);
   container.innerHTML = parts.join('');
-  if (document.querySelector('.main.list-view')) applyListViewCardStyles();
 }
 
 function applyListViewCardStyles() {
@@ -2432,12 +2524,12 @@ function setView(mode) {
     main.classList.add('list-view');
     btnList.classList.add('active');
     btnMap.classList.remove('active');
-    applyListViewCardStyles();
+    renderCards();
   } else {
     main.classList.remove('list-view');
     btnMap.classList.add('active');
     btnList.classList.remove('active');
-    removeListViewCardStyles();
+    renderCards();
     if (window._map) window._map.invalidateSize();
   }
 }

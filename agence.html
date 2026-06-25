@@ -14,8 +14,10 @@
   <meta name="twitter:title" content="Prestige Immobilier – Agence à Tunis | Immo24.tn" />
   <meta name="twitter:image" content="https://benarfa2-lab.github.io/Immo24/og-image.jpg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,700;0,9..144,800;1,9..144,300;1,9..144,700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <script src="https://unpkg.com/@phosphor-icons/web@2.1.1/src/light/index.js" type="module"></script>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <style>
     :root {
@@ -35,13 +37,15 @@
       --green:      #2A9D8F;
       --radius:     10px;
       --radius-lg:  16px;
-      --shadow-sm:  0 1px 4px rgba(0,0,0,.08);
-      --shadow:     0 4px 20px rgba(0,0,0,.10);
+      --shadow-sm:  0 1px 8px rgba(27,58,107,.08);
+      --shadow:     0 4px 24px rgba(27,58,107,.13), 0 1px 4px rgba(27,58,107,.06);
       --nav-h:      64px;
       --ad-h:       120px;
+      --font-display: 'Fraunces', Georgia, serif;
+      --font-body:    'Plus Jakarta Sans', system-ui, sans-serif;
     }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Inter', sans-serif; color: var(--gray-800); background: var(--gray-50); }
+    body { font-family: var(--font-body); color: var(--gray-800); background: var(--gray-50); }
     a { text-decoration: none; color: inherit; }
     button { cursor: pointer; font-family: inherit; border: none; background: none; }
     img { display: block; max-width: 100%; }
@@ -306,6 +310,20 @@
     .footer-link:hover { color: var(--gold); }
     .footer-bottom { border-top: 1px solid rgba(255,255,255,.08); padding-top: 12px; display: flex; align-items: center; justify-content: space-between; font-size: 11px; color: rgba(255,255,255,.35); }
     .footer-bottom a { color: var(--gold); }
+/* Fraunces pour stats et titres agency */
+.hero-name { font-family: var(--font-display); letter-spacing: -.3px; }
+.hero-stat-val { font-family: var(--font-display); font-variant-numeric: tabular-nums; }
+.rating-score-val { font-family: var(--font-display); font-variant-numeric: tabular-nums; }
+.listing-card-price { font-family: var(--font-display); font-variant-numeric: tabular-nums; }
+.card-title { font-family: var(--font-display); }
+/* Shadow upgrade */
+.card { box-shadow: var(--shadow-sm); outline: 1px solid rgba(27,58,107,.06); }
+.listing-card { box-shadow: 0 2px 12px rgba(27,58,107,.08); border: none; outline: 1px solid rgba(27,58,107,.06); }
+.listing-card:hover { box-shadow: var(--shadow); }
+.aside-card { box-shadow: var(--shadow-sm); outline: 1px solid rgba(27,58,107,.06); }
+/* Hover states manquants */
+.agent-card:hover { box-shadow: 0 4px 20px rgba(27,58,107,.12); transform: translateY(-2px); }
+.agent-card { transition: box-shadow .2s, transform .2s; }
   </style>
 <link rel="stylesheet" href="responsive.css" />
 </head>

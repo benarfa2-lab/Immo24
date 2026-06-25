@@ -14,8 +14,10 @@
   <meta name="twitter:title" content="Appartement Neuf S+3 – La Marsa | Immo24.tn" />
   <meta name="twitter:image" content="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=1200&q=80" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,700;0,9..144,800;1,9..144,300;1,9..144,700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <script src="https://unpkg.com/@phosphor-icons/web@2.1.1/src/light/index.js" type="module"></script>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <style>
     :root {
@@ -29,10 +31,15 @@
       --shadow:0 4px 20px rgba(27,58,107,.10);
       --shadow-lg:0 12px 40px rgba(27,58,107,.16);
       --nav-h:64px;
+      --font-display: 'Fraunces', Georgia, serif;
+      --font-body:    'Plus Jakarta Sans', system-ui, sans-serif;
+      --shadow-sm:  0 1px 8px rgba(27,58,107,.08);
+      --shadow:     0 4px 24px rgba(27,58,107,.13), 0 1px 4px rgba(27,58,107,.06);
+      --shadow-lg:  0 16px 48px rgba(27,58,107,.18), 0 4px 12px rgba(27,58,107,.08);
     }
     *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
     html { scroll-behavior:smooth; }
-    body { font-family:'Inter',sans-serif; color:var(--gray-800); background:var(--gray-50); }
+    body { font-family: var(--font-body); color:var(--gray-800); background:var(--gray-50); }
     a { text-decoration:none; color:inherit; }
     button { cursor:pointer; font-family:inherit; border:none; background:none; }
     img { display:block; max-width:100%; }
@@ -516,6 +523,23 @@
     .prop-stats { flex-wrap: wrap; }
     .prop-stat { flex: 1 1 calc(50% - 1px); }
   }
+/* Fraunces pour prix et titres */
+.prop-title, .prop-price-inline, .price-main { font-family: var(--font-display); }
+.prop-stat-val, .agence-tab-stat-val { font-family: var(--font-display); }
+.price-main { font-variant-numeric: tabular-nums; letter-spacing: -.5px; }
+.prop-price-inline { font-variant-numeric: tabular-nums; }
+.sim-price { font-family: var(--font-display); font-variant-numeric: tabular-nums; }
+.agence-mini-price { font-family: var(--font-display); font-variant-numeric: tabular-nums; }
+/* Amélioration hover/focus */
+.plan-field input:focus, .plan-field select:focus, .plan-field textarea:focus {
+  border-color: var(--navy);
+  box-shadow: 0 0 0 3px rgba(27,58,107,.12);
+}
+/* Spacing upgrade */
+.listing-layout { padding: 36px 24px; }
+/* Cards similaires */
+.sim-card { box-shadow: var(--shadow-sm); outline: 1px solid rgba(27,58,107,.06); border: none; }
+.sim-card:hover { box-shadow: var(--shadow); }
   </style>
 <link rel="stylesheet" href="responsive.css" />
 </head>
