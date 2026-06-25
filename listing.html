@@ -309,8 +309,8 @@
     .plan-modal .plan-sub { font-size:13px; color:var(--gray-400); margin-bottom:24px; }
     .plan-field { margin-bottom:14px; }
     .plan-field label { display:block; font-size:12px; font-weight:700; color:var(--gray-600); margin-bottom:5px; text-transform:uppercase; letter-spacing:.04em; }
-    .plan-field input, .plan-field select, .plan-field textarea { width:100%; padding:10px 14px; border:1.5px solid var(--gray-200); border-radius:8px; font-size:14px; font-family:inherit; color:var(--gray-800); outline:none; transition:border .18s; background:#fff; box-sizing:border-box; }
-    .plan-field input:focus, .plan-field select:focus, .plan-field textarea:focus { border-color:var(--navy); }
+    .plan-field input, .plan-field select, .plan-field textarea { width:100%; padding:10px 14px; border:1.5px solid var(--gray-200); border-radius:8px; font-size:14px; font-family:inherit; color:var(--gray-800); outline:none; transition:border .18s, box-shadow .18s; background:#fff; box-sizing:border-box; }
+    .plan-field input:focus, .plan-field select:focus, .plan-field textarea:focus { border-color:var(--navy); outline:2px solid var(--navy); outline-offset:2px; box-shadow:0 0 0 4px rgba(27,58,107,.18); }
     .plan-field textarea { resize:vertical; min-height:80px; }
     .plan-row2 { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
     .plan-actions { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:20px; }
@@ -530,13 +530,6 @@
 .prop-price-inline { font-variant-numeric: tabular-nums; }
 .sim-price { font-family: var(--font-display); font-variant-numeric: tabular-nums; }
 .agence-mini-price { font-family: var(--font-display); font-variant-numeric: tabular-nums; }
-/* Amélioration hover/focus */
-.plan-field input:focus, .plan-field select:focus, .plan-field textarea:focus {
-  border-color: var(--navy);
-  outline: 2px solid var(--navy);
-  outline-offset: 2px;
-  box-shadow: 0 0 0 4px rgba(27,58,107,.18);
-}
 /* Spacing upgrade */
 .listing-layout { padding: 36px 24px; }
 /* Cards similaires */
