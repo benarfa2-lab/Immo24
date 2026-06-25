@@ -2399,6 +2399,29 @@ function renderCards() {
   const parts = filtered.map(p => buildCardHtml(p));
   if (parts.length > 4) parts.splice(4, 0, INLINE_AD_HTML);
   container.innerHTML = parts.join('');
+  if (document.querySelector('.main.list-view')) applyListViewCardStyles();
+}
+
+function applyListViewCardStyles() {
+  document.querySelectorAll('#list-scroll .card').forEach(card => {
+    card.style.flexDirection = 'column';
+    card.style.minHeight = '360px';
+    const img = card.querySelector('.card-img');
+    if (img) { img.style.width = '100%'; img.style.height = '196px'; img.style.minWidth = 'unset'; }
+    const body = card.querySelector('.card-body');
+    if (body) { body.style.flex = '1'; body.style.display = 'flex'; body.style.flexDirection = 'column'; }
+  });
+}
+
+function removeListViewCardStyles() {
+  document.querySelectorAll('#list-scroll .card').forEach(card => {
+    card.style.flexDirection = '';
+    card.style.minHeight = '';
+    const img = card.querySelector('.card-img');
+    if (img) { img.style.width = ''; img.style.height = ''; img.style.minWidth = ''; }
+    const body = card.querySelector('.card-body');
+    if (body) { body.style.flex = ''; body.style.display = ''; body.style.flexDirection = ''; }
+  });
 }
 
 function setView(mode) {
@@ -2409,10 +2432,12 @@ function setView(mode) {
     main.classList.add('list-view');
     btnList.classList.add('active');
     btnMap.classList.remove('active');
+    applyListViewCardStyles();
   } else {
     main.classList.remove('list-view');
     btnMap.classList.add('active');
     btnList.classList.remove('active');
+    removeListViewCardStyles();
     if (window._map) window._map.invalidateSize();
   }
 }
