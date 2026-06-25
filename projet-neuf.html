@@ -241,7 +241,9 @@
     }
     .lots-table td { padding: 13px 14px; border-bottom: 1px solid var(--gray-100); vertical-align: middle; }
     .lots-table tr:last-child td { border-bottom: none; }
-    .lots-table tr:hover td { background: var(--gray-50); }
+    .lots-table tbody tr { cursor: pointer; }
+    .lots-table tbody tr:hover td { background: var(--navy-light); }
+    .lots-table tbody tr:active td { background: #dde6f3; }
     .lot-ref { font-weight: 700; color: var(--navy); font-size: 12px; }
     .lot-type-tag {
       display: inline-block; padding: 3px 9px; border-radius: 50px;
@@ -778,7 +780,7 @@
 
     <!-- TABS -->
     <div class="tabs-bar" id="tabsBar">
-      <button class="tab-btn active" onclick="openTab('lots', this)">Biens disponibles</button>
+      <button class="tab-btn active" data-tab="lots" onclick="openTab('lots', this)">Biens disponibles</button>
       <button class="tab-btn" onclick="openTab('equip', this)">Équipements & Services</button>
       <button class="tab-btn" onclick="openTab('vr', this)" style="color:var(--gold);"><i class="fas fa-vr-cardboard" style="margin-right:5px;"></i>Visite 360°</button>
       <button class="tab-btn" onclick="openTab('map', this)">Localisation</button>
@@ -787,11 +789,12 @@
     <!-- TAB: LOTS -->
     <div class="tab-panel active" id="tab-lots">
       <div class="lots-filters">
-        <button class="lot-type-btn active" onclick="filterLots('all', this)">Tous</button>
-        <button class="lot-type-btn" onclick="filterLots('S+1', this)">S+1</button>
-        <button class="lot-type-btn" onclick="filterLots('S+2', this)">S+2</button>
-        <button class="lot-type-btn" onclick="filterLots('S+3', this)">S+3</button>
-        <button class="lot-type-btn" onclick="filterLots('Duplex', this)">Duplex</button>
+        <button class="lot-type-btn active" data-filter="all"   onclick="filterLots('all', this)">Tous</button>
+        <button class="lot-type-btn"        data-filter="dispo" onclick="filterLots('dispo', this)">Disponibles</button>
+        <button class="lot-type-btn"        data-filter="S+1"   onclick="filterLots('S+1', this)">S+1</button>
+        <button class="lot-type-btn"        data-filter="S+2"   onclick="filterLots('S+2', this)">S+2</button>
+        <button class="lot-type-btn"        data-filter="S+3"   onclick="filterLots('S+3', this)">S+3</button>
+        <button class="lot-type-btn"        data-filter="Duplex" onclick="filterLots('Duplex', this)">Duplex</button>
         <button class="lot-type-btn" onclick="filterLots('dispo', this)">Disponibles</button>
       </div>
       <table class="lots-table" id="lotsTable">
@@ -922,10 +925,10 @@
         <div class="aside-price-sub">S+1 · Livraison imminente · Smart Home inclus</div>
       </div>
       <div class="aside-body">
-        <div class="aside-dispo">
+        <button class="aside-dispo" onclick="filterDispoFromBadge()" title="Voir les biens disponibles" style="all:unset;display:flex;align-items:center;justify-content:space-between;width:100%;cursor:pointer;border-radius:10px;padding:10px 12px;background:var(--gray-50);border:1px solid var(--gray-100);transition:border-color .18s,box-shadow .18s" onmouseover="this.style.borderColor='var(--green)';this.style.boxShadow='0 0 0 3px rgba(42,157,143,.12)'" onmouseout="this.style.borderColor='var(--gray-100)';this.style.boxShadow='none'">
           <span class="aside-dispo-lbl"><i class="fas fa-door-open"></i> Biens disponibles</span>
-          <span class="aside-dispo-val">8 / 48</span>
-        </div>
+          <span class="aside-dispo-val">8 / 48 <i class="fas fa-arrow-right" style="font-size:10px;margin-left:4px;opacity:.6"></i></span>
+        </button>
         <button class="aside-cta-brochure" onclick="alert('Brochure disponible sur demande. Contactez Bullaregia Immobilière.')">
           <i class="fas fa-file-pdf" style="font-size:16px;"></i> Télécharger la brochure
         </button>
@@ -1113,7 +1116,7 @@ function renderLots(filter) {
     return l.type === filter;
   });
   tbody.innerHTML = filtered.map(l => `
-    <tr>
+    <tr style="cursor:pointer" onclick="openLot('${l.ref}', event)">
       <td><span class="lot-ref">${l.ref}</span></td>
       <td><span class="lot-type-tag">${l.type}</span></td>
       <td>${l.surface}</td>
@@ -1125,10 +1128,10 @@ function renderLots(filter) {
       <td>${l.jardin > 0 ? l.jardin : '—'}</td>
       <td>${l.terrasse > 0 ? l.terrasse : '—'}</td>
       <td><span class="lot-status ${l.statut}">${statusLabel(l.statut)}</span></td>
-      <td>
-        <button class="lot-btn" ${l.statut !== 'dispo' ? 'disabled' : ''} onclick="reserveLot('${l.ref}')">
-          ${l.statut === 'dispo' ? '<i class="fas fa-download"></i> Plan' : '—'}
-        </button>
+      <td onclick="event.stopPropagation()">
+        ${l.statut === 'dispo'
+          ? `<button class="lot-btn" onclick="downloadPlan('${l.ref}')"><i class="fas fa-file-download"></i> Plan</button>`
+          : '<span style="color:var(--gray-400)">—</span>'}
       </td>
     </tr>
   `).join('');
@@ -1138,11 +1141,30 @@ function filterLots(f, btn) {
   btn.classList.add('active');
   renderLots(f);
 }
-function reserveLot(ref) {
+function filterDispoFromBadge() {
+  const btn = document.querySelector('.lot-type-btn[data-filter="dispo"]');
+  document.getElementById('tabsBar').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector('.tab-btn[data-tab="lots"]').classList.add('active');
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-lots').classList.add('active');
+  document.querySelectorAll('.lot-type-btn').forEach(b => b.classList.remove('active'));
+  const dispoBtn = document.querySelector('.lot-type-btn[data-filter="dispo"]');
+  if (dispoBtn) dispoBtn.classList.add('active');
+  renderLots('dispo');
+}
+function openLot(ref, e) {
+  window.open('listing.html?lot=' + encodeURIComponent(ref), '_blank');
+}
+function downloadPlan(ref) {
   const lot = lots.find(l => l.ref === ref);
   if (!lot) return;
-  const msg = encodeURIComponent(`Bonjour, je souhaite réserver le lot ${ref} (${lot.type} – ${lot.surface}m² – ${formatPrix(lot.prix)}) dans The Pantheon Residence. Merci.`);
-  window.open(`https://wa.me/21627050510?text=${msg}`, '_blank');
+  /* Plans fictifs — remplacer par les URLs PDF réels */
+  const planUrl = `plans/plan-${ref.toLowerCase()}.pdf`;
+  const a = document.createElement('a');
+  a.href = planUrl;
+  a.download = `Plan-${ref}-Pantheon.pdf`;
+  a.click();
 }
 renderLots('all');
 
