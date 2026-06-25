@@ -315,6 +315,14 @@
       display: flex; align-items: center; justify-content: space-between;
       background: var(--gray-50); border-radius: var(--radius); padding: 12px 14px;
       margin-bottom: 14px; font-size: 13px;
+      width: 100%; box-sizing: border-box; cursor: pointer;
+      border: 1px solid var(--gray-100); text-align: left;
+      font-family: inherit; color: inherit;
+      transition: border-color .18s, box-shadow .18s;
+    }
+    .aside-dispo:hover {
+      border-color: var(--green);
+      box-shadow: 0 0 0 3px rgba(42,157,143,.12);
     }
     .aside-dispo-lbl { color: var(--gray-600); font-weight: 500; }
     .aside-dispo-val { font-weight: 700; color: var(--green); }
@@ -926,7 +934,7 @@
         <div class="aside-price-sub">S+1 · Livraison imminente · Smart Home inclus</div>
       </div>
       <div class="aside-body">
-        <button class="aside-dispo" onclick="filterDispoFromBadge()" title="Voir les biens disponibles" style="all:unset;display:flex;align-items:center;justify-content:space-between;width:100%;cursor:pointer;border-radius:10px;padding:10px 12px;background:var(--gray-50);border:1px solid var(--gray-100);transition:border-color .18s,box-shadow .18s" onmouseover="this.style.borderColor='var(--green)';this.style.boxShadow='0 0 0 3px rgba(42,157,143,.12)'" onmouseout="this.style.borderColor='var(--gray-100)';this.style.boxShadow='none'">
+        <button class="aside-dispo" onclick="filterDispoFromBadge()" title="Voir les biens disponibles">
           <span class="aside-dispo-lbl"><i class="fas fa-door-open"></i> Biens disponibles</span>
           <span class="aside-dispo-val">8 / 48 <i class="fas fa-arrow-right" style="font-size:10px;margin-left:4px;opacity:.6"></i></span>
         </button>
