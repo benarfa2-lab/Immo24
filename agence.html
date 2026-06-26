@@ -361,6 +361,25 @@
 /* Hover states manquants */
 .agent-card:hover { box-shadow: 0 4px 20px rgba(27,58,107,.12); transform: translateY(-2px); }
 .agent-card { transition: box-shadow .2s, transform .2s; }
+
+    /* --- hover cards (remplace onmouseover inline) --- */
+    .promo-card-hover {
+      background: #fff; border-radius: 16px; border: 1.5px solid var(--gray-200);
+      padding: 20px 18px 16px; display: flex; flex-direction: column; gap: 12px;
+      cursor: pointer; transition: box-shadow .2s cubic-bezier(.37,0,.63,1), transform .2s cubic-bezier(.37,0,.63,1), border-color .2s;
+    }
+    .promo-card-hover:hover {
+      box-shadow: 0 4px 20px rgba(27,58,107,.10);
+      transform: translateY(-3px);
+      border-color: var(--navy);
+    }
+    .map-scroll-btn {
+      width:100%;height:100px;border-radius:var(--radius);background:var(--navy-light);
+      border:1.5px dashed var(--navy);color:var(--navy);font-size:13px;font-weight:700;
+      cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;
+      margin-bottom:14px;transition:background .2s cubic-bezier(.37,0,.63,1);
+    }
+    .map-scroll-btn:hover { background: #dde6f4; }
   </style>
 <link rel="stylesheet" href="responsive.css" />
 </head>
@@ -995,7 +1014,7 @@ biensProps.forEach(p => {
   <div class="container">
     <div>
 
-      <div style="background:#fff;border-radius:16px;border:1.5px solid var(--gray-200);padding:20px 18px 16px;display:flex;flex-direction:column;gap:12px;cursor:pointer;transition:box-shadow .2s,transform .2s,border-color .2s;" onclick="window.location='promoteur.html'" onmouseover="this.style.boxShadow='0 4px 20px rgba(0,0,0,.10)';this.style.transform='translateY(-3px)';this.style.borderColor='var(--navy)'" onmouseout="this.style.boxShadow='';this.style.transform='';this.style.borderColor='var(--gray-200)'">
+      <div class="promo-card-hover" onclick="window.location='promoteur.html'">
         <div style="display:flex;align-items:center;gap:12px;">
           <div style="width:46px;height:46px;border-radius:11px;background:#1B3A6B;color:#E6A817;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:900;flex-shrink:0;">BI</div>
           <div><div style="font-size:14px;font-weight:700;color:var(--gray-800);margin-bottom:4px;">Bullaregia Immobilière</div><span style="font-size:11px;font-weight:600;padding:2px 9px;border-radius:50px;background:var(--gold-light);color:var(--gold-dark);border:1px solid #f0c96a;">Promoteur</span></div>
@@ -1010,7 +1029,7 @@ biensProps.forEach(p => {
         <div style="display:flex;align-items:center;justify-content:space-between;font-size:12px;font-weight:600;color:var(--navy);">Voir les biens <i class="fas fa-arrow-right" style="font-size:10px;"></i></div>
       </div>
 
-      <div style="background:#fff;border-radius:16px;border:1.5px solid var(--gray-200);padding:20px 18px 16px;display:flex;flex-direction:column;gap:12px;cursor:pointer;transition:box-shadow .2s,transform .2s,border-color .2s;" onclick="window.location='promoteur.html'" onmouseover="this.style.boxShadow='0 4px 20px rgba(0,0,0,.10)';this.style.transform='translateY(-3px)';this.style.borderColor='var(--navy)'" onmouseout="this.style.boxShadow='';this.style.transform='';this.style.borderColor='var(--gray-200)'">
+      <div class="promo-card-hover" onclick="window.location='promoteur.html'">
         <div style="display:flex;align-items:center;gap:12px;">
           <div style="width:46px;height:46px;border-radius:11px;background:#2A9D8F;color:#fff;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:900;flex-shrink:0;">OI</div>
           <div><div style="font-size:14px;font-weight:700;color:var(--gray-800);margin-bottom:4px;">Odéon Immobilière</div><span style="font-size:11px;font-weight:600;padding:2px 9px;border-radius:50px;background:var(--gold-light);color:var(--gold-dark);border:1px solid #f0c96a;">Promoteur</span></div>
@@ -1025,7 +1044,7 @@ biensProps.forEach(p => {
         <div style="display:flex;align-items:center;justify-content:space-between;font-size:12px;font-weight:600;color:var(--navy);">Voir les biens <i class="fas fa-arrow-right" style="font-size:10px;"></i></div>
       </div>
 
-      <div style="background:#fff;border-radius:16px;border:1.5px solid var(--gray-200);padding:20px 18px 16px;display:flex;flex-direction:column;gap:12px;cursor:pointer;transition:box-shadow .2s,transform .2s,border-color .2s;" onclick="window.location='promoteur.html'" onmouseover="this.style.boxShadow='0 4px 20px rgba(0,0,0,.10)';this.style.transform='translateY(-3px)';this.style.borderColor='var(--navy)'" onmouseout="this.style.boxShadow='';this.style.transform='';this.style.borderColor='var(--gray-200)'">
+      <div class="promo-card-hover" onclick="window.location='promoteur.html'">
         <div style="display:flex;align-items:center;gap:12px;">
           <div style="width:46px;height:46px;border-radius:11px;background:#E6A817;color:#122952;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:900;flex-shrink:0;">RL</div>
           <div><div style="font-size:14px;font-weight:700;color:var(--gray-800);margin-bottom:4px;">Réalco</div><span style="font-size:11px;font-weight:600;padding:2px 9px;border-radius:50px;background:var(--gold-light);color:var(--gold-dark);border:1px solid #f0c96a;">Promoteur</span></div>
@@ -1040,7 +1059,7 @@ biensProps.forEach(p => {
         <div style="display:flex;align-items:center;justify-content:space-between;font-size:12px;font-weight:600;color:var(--navy);">Voir les biens <i class="fas fa-arrow-right" style="font-size:10px;"></i></div>
       </div>
 
-      <div style="background:#fff;border-radius:16px;border:1.5px solid var(--gray-200);padding:20px 18px 16px;display:flex;flex-direction:column;gap:12px;cursor:pointer;transition:box-shadow .2s,transform .2s,border-color .2s;" onclick="window.location='agence.html'" onmouseover="this.style.boxShadow='0 4px 20px rgba(0,0,0,.10)';this.style.transform='translateY(-3px)';this.style.borderColor='var(--navy)'" onmouseout="this.style.boxShadow='';this.style.transform='';this.style.borderColor='var(--gray-200)'">
+      <div class="promo-card-hover" onclick="window.location='agence.html'">
         <div style="display:flex;align-items:center;gap:12px;">
           <div style="width:46px;height:46px;border-radius:11px;background:#264d9b;color:#fff;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:900;flex-shrink:0;">CI</div>
           <div><div style="font-size:14px;font-weight:700;color:var(--gray-800);margin-bottom:4px;">Carthage Immobilier</div><span style="font-size:11px;font-weight:600;padding:2px 9px;border-radius:50px;background:var(--navy-light);color:var(--navy);border:1px solid #C5D5EE;">Agence</span></div>
@@ -1055,7 +1074,7 @@ biensProps.forEach(p => {
         <div style="display:flex;align-items:center;justify-content:space-between;font-size:12px;font-weight:600;color:var(--navy);">Voir les biens <i class="fas fa-arrow-right" style="font-size:10px;"></i></div>
       </div>
 
-      <div style="background:#fff;border-radius:16px;border:1.5px solid var(--gray-200);padding:20px 18px 16px;display:flex;flex-direction:column;gap:12px;cursor:pointer;transition:box-shadow .2s,transform .2s,border-color .2s;" onclick="window.location='agence.html'" onmouseover="this.style.boxShadow='0 4px 20px rgba(0,0,0,.10)';this.style.transform='translateY(-3px)';this.style.borderColor='var(--navy)'" onmouseout="this.style.boxShadow='';this.style.transform='';this.style.borderColor='var(--gray-200)'">
+      <div class="promo-card-hover" onclick="window.location='agence.html'">
         <div style="display:flex;align-items:center;gap:12px;">
           <div style="width:46px;height:46px;border-radius:11px;background:#343A40;color:#E6A817;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:900;flex-shrink:0;">EI</div>
           <div><div style="font-size:14px;font-weight:700;color:var(--gray-800);margin-bottom:4px;">Étoile Immobilier</div><span style="font-size:11px;font-weight:600;padding:2px 9px;border-radius:50px;background:var(--navy-light);color:var(--navy);border:1px solid #C5D5EE;">Agence</span></div>
@@ -1070,7 +1089,7 @@ biensProps.forEach(p => {
         <div style="display:flex;align-items:center;justify-content:space-between;font-size:12px;font-weight:600;color:var(--navy);">Voir les biens <i class="fas fa-arrow-right" style="font-size:10px;"></i></div>
       </div>
 
-      <div style="background:#fff;border-radius:16px;border:1.5px solid var(--gray-200);padding:20px 18px 16px;display:flex;flex-direction:column;gap:12px;cursor:pointer;transition:box-shadow .2s,transform .2s,border-color .2s;" onclick="window.location='agence.html'" onmouseover="this.style.boxShadow='0 4px 20px rgba(0,0,0,.10)';this.style.transform='translateY(-3px)';this.style.borderColor='var(--navy)'" onmouseout="this.style.boxShadow='';this.style.transform='';this.style.borderColor='var(--gray-200)'">
+      <div class="promo-card-hover" onclick="window.location='agence.html'">
         <div style="display:flex;align-items:center;gap:12px;">
           <div style="width:46px;height:46px;border-radius:11px;background:#C8900E;color:#fff;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:900;flex-shrink:0;">IG</div>
           <div><div style="font-size:14px;font-weight:700;color:var(--gray-800);margin-bottom:4px;">Immob. du Golfe</div><span style="font-size:11px;font-weight:600;padding:2px 9px;border-radius:50px;background:var(--navy-light);color:var(--navy);border:1px solid #C5D5EE;">Agence</span></div>
@@ -1085,7 +1104,7 @@ biensProps.forEach(p => {
         <div style="display:flex;align-items:center;justify-content:space-between;font-size:12px;font-weight:600;color:var(--navy);">Voir les biens <i class="fas fa-arrow-right" style="font-size:10px;"></i></div>
       </div>
 
-      <div style="background:#fff;border-radius:16px;border:1.5px solid var(--gray-200);padding:20px 18px 16px;display:flex;flex-direction:column;gap:12px;cursor:pointer;transition:box-shadow .2s,transform .2s,border-color .2s;" onclick="window.location='promoteur.html'" onmouseover="this.style.boxShadow='0 4px 20px rgba(0,0,0,.10)';this.style.transform='translateY(-3px)';this.style.borderColor='var(--navy)'" onmouseout="this.style.boxShadow='';this.style.transform='';this.style.borderColor='var(--gray-200)'">
+      <div class="promo-card-hover" onclick="window.location='promoteur.html'">
         <div style="display:flex;align-items:center;gap:12px;">
           <div style="width:46px;height:46px;border-radius:11px;background:#1B3A6B;color:#E6A817;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:900;flex-shrink:0;">PD</div>
           <div><div style="font-size:14px;font-weight:700;color:var(--gray-800);margin-bottom:4px;">Prestige Dev.</div><span style="font-size:11px;font-weight:600;padding:2px 9px;border-radius:50px;background:var(--gold-light);color:var(--gold-dark);border:1px solid #f0c96a;">Promoteur</span></div>
@@ -1100,7 +1119,7 @@ biensProps.forEach(p => {
         <div style="display:flex;align-items:center;justify-content:space-between;font-size:12px;font-weight:600;color:var(--navy);">Voir les biens <i class="fas fa-arrow-right" style="font-size:10px;"></i></div>
       </div>
 
-      <div style="background:#fff;border-radius:16px;border:1.5px solid var(--gray-200);padding:20px 18px 16px;display:flex;flex-direction:column;gap:12px;cursor:pointer;transition:box-shadow .2s,transform .2s,border-color .2s;" onclick="window.location='promoteur.html'" onmouseover="this.style.boxShadow='0 4px 20px rgba(0,0,0,.10)';this.style.transform='translateY(-3px)';this.style.borderColor='var(--navy)'" onmouseout="this.style.boxShadow='';this.style.transform='';this.style.borderColor='var(--gray-200)'">
+      <div class="promo-card-hover" onclick="window.location='promoteur.html'">
         <div style="display:flex;align-items:center;gap:12px;">
           <div style="width:46px;height:46px;border-radius:11px;background:#2A9D8F;color:#fff;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:900;flex-shrink:0;">TP</div>
           <div><div style="font-size:14px;font-weight:700;color:var(--gray-800);margin-bottom:4px;">TunisPromo</div><span style="font-size:11px;font-weight:600;padding:2px 9px;border-radius:50px;background:var(--gold-light);color:var(--gold-dark);border:1px solid #f0c96a;">Promoteur</span></div>

@@ -535,6 +535,15 @@
 /* Cards similaires */
 .sim-card { box-shadow: var(--shadow-sm); outline: 1px solid rgba(27,58,107,.06); border: none; }
 .sim-card:hover { box-shadow: var(--shadow); }
+
+    /* --- agent card hover (remplace onmouseover inline) --- */
+    .card-hover-lift {
+      cursor: pointer; transition: box-shadow .2s cubic-bezier(.37,0,.63,1);
+    }
+    .card-hover-lift:hover { box-shadow: var(--shadow); }
+
+    .form-err-msg { display:none; color:#c0392b; font-size:13px; font-weight:600; margin-top:8px; padding:8px 12px; background:#fdecea; border-radius:8px; border-left:3px solid #c0392b; }
+    .form-err-msg.show { display:block; }
   </style>
 <link rel="stylesheet" href="responsive.css" />
 </head>
@@ -926,7 +935,7 @@ Finitions haut de gamme : marbre Thala, menuiserie aluminium double vitrage, cli
       </div>
 
       <!-- Agent -->
-      <div class="agent-card" onclick="window.location='agence.html'" style="cursor:pointer;transition:box-shadow .2s;" onmouseover="this.style.boxShadow='0 4px 20px rgba(0,0,0,.12)'" onmouseout="this.style.boxShadow=''">
+      <div class="agent-card" onclick="window.location='agence.html'" class="card-hover-lift">
         <div class="agent-header">
           <div class="agent-avatar">MA</div>
           <div>
@@ -1136,7 +1145,7 @@ function closePlanModalOutside(e) {
 function submitPlanVisite() {
   const nom = document.getElementById('pv-nom').value.trim();
   const tel = document.getElementById('pv-tel').value.trim();
-  if (!nom || !tel) { alert('Veuillez renseigner votre nom et téléphone.'); return; }
+  if (!nom || !tel) { showFormError('Veuillez renseigner votre nom et téléphone.'); return; }
   // Simulate save to backoffice (in production: POST to API)
   const demand = {
     id: 'DC-' + Math.floor(Math.random()*900+100),
@@ -1158,6 +1167,19 @@ function submitPlanVisite() {
   document.getElementById('planSuccess').style.display = 'block';
 }
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closePlanModal(); });
+
+  function showFormError(msg) {
+    let el = document.getElementById('form-err-msg');
+    if (!el) {
+      el = document.createElement('div');
+      el.id = 'form-err-msg'; el.className = 'form-err-msg';
+      const btn = document.querySelector('.btn-contact,.btn-submit,button[type=submit]');
+      if (btn) btn.parentNode.insertBefore(el, btn);
+      else document.body.appendChild(el);
+    }
+    el.textContent = msg; el.classList.add('show');
+    setTimeout(() => el.classList.remove('show'), 4000);
+  }
 </script>
 
 </body>

@@ -3146,7 +3146,14 @@ function setMobView() {
     </div>
   </div>
 </footer>
-<script src="responsive.js"></script>
+<script src="responsive.js">
+  function showToast(msg) {
+    let el = document.getElementById('app-toast');
+    if (!el) { el = document.createElement('div'); el.id='app-toast'; document.body.appendChild(el); }
+    el.textContent = msg; el.classList.add('show');
+    setTimeout(() => el.classList.remove('show'), 3500);
+  }
+</script>
 </body>
 </html>
 
