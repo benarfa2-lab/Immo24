@@ -2916,7 +2916,7 @@ function createAlert() {
   const zone  = window.__filterZone  ? ` · ${window.__filterZone}` : '';
   const kind  = window.__filterKind  ? ` · ${window.__filterKind}` : '';
   const price = window.__priceMin != null ? ` · budget ${window.__priceMin.toLocaleString()}–${window.__priceMax === 999999999 ? '∞' : window.__priceMax.toLocaleString()} TND` : '';
-  alert(`Alerte créée !\nVous serez notifié des nouveaux biens correspondant à vos critères${zone}${kind}${price}.`);
+  showToast(`Alerte créée ! Vous serez notifié des nouveaux biens${zone}${kind}${price}.`);
 }
 
 /* ========================
