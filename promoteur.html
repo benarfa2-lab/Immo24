@@ -588,11 +588,16 @@
             <div class="aside-info-val">contact@bullaregia.tn</div>
           </div>
         </div>
-        <div class="aside-info-row">
+        <div class="aside-info-row" id="site-web-row">
           <div class="aside-info-icon"><i class="fas fa-globe"></i></div>
           <div>
             <div class="aside-info-label">Site web</div>
-            <div class="aside-info-val" style="color:var(--navy);">www.bullaregia.tn</div>
+            <div class="aside-info-val">
+              <a id="site-web-link" href="https://www.bullaregia.tn" target="_blank" rel="noopener"
+                 style="color:var(--navy);font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:5px;">
+                www.bullaregia.tn <i class="fas fa-external-link-alt" style="font-size:10px;color:var(--gold);"></i>
+              </a>
+            </div>
           </div>
         </div>
       </div>
@@ -729,6 +734,23 @@ document.querySelectorAll('.map-zoom-btn').forEach(btn => {
     btn.dataset.dir === '+' ? map.zoomIn() : map.zoomOut();
   });
 });
+
+/* ── Site web : valeur par défaut, écrasée par le lien saisi dans le backoffice
+   (localStorage 'immo24_profil_public'). Masqué si aucune URL. ── */
+(function syncSiteWeb() {
+  var DEFAULT = 'www.bullaregia.tn';
+  var web = DEFAULT;
+  try {
+    var s = JSON.parse(localStorage.getItem('immo24_profil_public') || 'null');
+    if (s && typeof s.promoteurWeb === 'string') web = s.promoteurWeb.trim();
+  } catch (e) {}
+  var row = document.getElementById('site-web-row');
+  var link = document.getElementById('site-web-link');
+  if (!web) { if (row) row.style.display = 'none'; return; }
+  var clean = web.replace(/^https?:\/\//, '');
+  link.href = /^https?:\/\//.test(web) ? web : 'https://' + web;
+  link.innerHTML = clean + ' <i class="fas fa-external-link-alt" style="font-size:10px;color:var(--gold);"></i>';
+})();
 </script>
 
 <!-- ===== PARTENAIRES (removed) ===== -->

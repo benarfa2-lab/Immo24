@@ -5317,7 +5317,7 @@ function renderProfilInfoPromoteur(d) {
           <div class="form-group"><label>Téléphone fixe</label><input type="tel" id="p-tel" value="${d.tel}" /></div>
           <div class="form-group"><label>Mobile</label><input type="tel" id="p-mobile" value="${d.mobile||''}" /></div>
           <div class="form-group"><label>Email</label><input type="email" id="p-email" value="${d.email}" /></div>
-          <div class="form-group"><label>Site web</label><input type="url" id="p-web" value="${d.web||''}" placeholder="www.votresite.tn" /></div>
+          <div class="form-group"><label>Site web</label><input type="url" id="p-web" value="${d.web||''}" placeholder="www.votresite.tn" onchange="PROFIL_DATA.promoteur.web=this.value" /></div>
           <div class="form-group"><label>WhatsApp</label><input type="tel" id="p-wa" value="${d.whatsapp||''}" /></div>
         </div>
       </div>
@@ -5428,6 +5428,7 @@ function renderProfilInfoAgent(d) {
           <div class="form-group" style="grid-column:1/-1"><label>Téléphone</label><input type="tel" value="${d.tel}" /></div>
           <div class="form-group" style="grid-column:1/-1"><label>Mobile</label><input type="tel" value="${d.mobile||''}" /></div>
           <div class="form-group" style="grid-column:1/-1"><label>Email professionnel</label><input type="email" value="${d.email}" /></div>
+          <div class="form-group" style="grid-column:1/-1"><label>Site web de l'agence</label><input type="url" id="a-web" value="${d.web||''}" placeholder="www.votreagence.tn" onchange="PROFIL_DATA.agent.web=this.value" /></div>
           <div class="form-group" style="grid-column:1/-1"><label>WhatsApp</label><input type="tel" value="${d.whatsapp||''}" /></div>
         </div>
         <div style="font-size:14px;font-weight:800;color:var(--navy);margin:18px 0 14px;display:flex;align-items:center;gap:8px"><i class="fas fa-share-nodes" style="color:var(--gold)"></i> Réseaux</div>
@@ -5676,7 +5677,19 @@ function verifyOtpSelf() {
 })();
 
 function saveProfilData() {
-  // En prod : envoi API. Ici on simule juste un toast de succès.
+  // Récupère les liens de site web saisis (si les champs sont affichés)
+  var pWeb = document.getElementById('p-web');
+  var aWeb = document.getElementById('a-web');
+  if (pWeb) PROFIL_DATA.promoteur.web = pWeb.value.trim();
+  if (aWeb) PROFIL_DATA.agent.web = aWeb.value.trim();
+  // Persiste les liens publics pour que les fiches Agence / Promoteur les affichent
+  try {
+    localStorage.setItem('immo24_profil_public', JSON.stringify({
+      promoteurWeb: PROFIL_DATA.promoteur.web || '',
+      agenceWeb:    PROFIL_DATA.agent.web || '',
+    }));
+  } catch (e) {}
+  // En prod : envoi API. Ici on simule un toast de succès.
   showToast('✅ Modifications enregistrées avec succès !');
 }
 
