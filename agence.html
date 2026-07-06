@@ -380,6 +380,36 @@
       margin-bottom:14px;transition:background .2s cubic-bezier(.37,0,.63,1);
     }
     .map-scroll-btn:hover { background: #dde6f4; }
+
+    /* ===== POPUP BIENS (Mapbox) ===== */
+    .biens-popup .mapboxgl-popup-content {
+      padding: 0; border-radius: 14px; overflow: hidden; border: none;
+      box-shadow: 0 10px 34px rgba(15,36,68,.22), 0 2px 8px rgba(15,36,68,.10);
+    }
+    .biens-popup .mapboxgl-popup-tip { border-top-color: #fff; }
+    .biens-popup .mapboxgl-popup-close-button {
+      width: 24px; height: 24px; right: 6px; top: 6px;
+      font-size: 15px; line-height: 1; color: #fff;
+      background: rgba(15,36,68,.5); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      transition: background .18s;
+    }
+    .biens-popup .mapboxgl-popup-close-button:hover { background: rgba(15,36,68,.8); }
+    .bp-card { padding: 13px 15px 14px; font-family: var(--font-body); }
+    .bp-badge {
+      display: inline-block; font-size: 9.5px; font-weight: 800;
+      letter-spacing: .5px; text-transform: uppercase;
+      padding: 3px 9px; border-radius: 50px; color: #fff; margin-bottom: 8px;
+    }
+    .bp-badge.vente { background: #1B3A6B; }
+    .bp-badge.loc   { background: #2A9D8F; }
+    .bp-title {
+      font-family: var(--font-display, 'Fraunces', serif);
+      font-size: 14px; font-weight: 700; color: var(--navy);
+      line-height: 1.3; margin-bottom: 6px;
+    }
+    .bp-price { font-size: 15px; font-weight: 800; font-variant-numeric: tabular-nums; }
+    .bp-addr { font-size: 12px; color: var(--gray-600); line-height: 1.4; }
   </style>
 <link rel="stylesheet" href="responsive.css" />
 </head>
@@ -980,7 +1010,12 @@ htmlMarker(`<div style="
     font-family:'Plus Jakarta Sans',sans-serif;text-align:center;line-height:1.2;padding:4px;
   ">PI</div>`)
   .setLngLat([10.1658, 36.8190])
-  .setPopup(new mapboxgl.Popup({ offset: 24 }).setHTML('<b>Prestige Immobilier Tunis</b><br>Av. Habib Bourguiba, 1001 Tunis<br><small style="color:#E6A817">★ Top vendeur 2024</small>'))
+  .setPopup(new mapboxgl.Popup({ offset: 26, className: 'biens-popup', maxWidth: '250px' }).setHTML(
+    `<div class="bp-card">
+       <span class="bp-badge vente" style="background:#E6A817;color:#1B3A6B">★ Top vendeur 2024</span>
+       <div class="bp-title">Prestige Immobilier Tunis</div>
+       <div class="bp-addr">Av. Habib Bourguiba, 1001 Tunis</div>
+     </div>`))
   .addTo(map)
   .togglePopup();
 
@@ -1003,10 +1038,16 @@ const biensProps = [
 ];
 
 biensProps.forEach(p => {
-  const color = p.type === 'location' ? '#2A9D8F' : '#1B3A6B';
-  htmlMarker(`<div style="width:30px;height:30px;border-radius:50%;background:${color};border:2px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center;font-size:9px;color:#fff;font-weight:800;">${p.type === 'location' ? 'L' : 'V'}</div>`)
+  const isLoc = p.type === 'location';
+  const color = isLoc ? '#2A9D8F' : '#1B3A6B';
+  htmlMarker(`<div style="width:30px;height:30px;border-radius:50%;background:${color};border:2px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center;font-size:9px;color:#fff;font-weight:800;">${isLoc ? 'L' : 'V'}</div>`)
     .setLngLat([p.lng, p.lat])
-    .setPopup(new mapboxgl.Popup({ offset: 18 }).setHTML(`<b style="font-size:13px">${p.title}</b><br><span style="font-size:12px;color:${color};font-weight:700">${p.price}</span>`))
+    .setPopup(new mapboxgl.Popup({ offset: 20, className: 'biens-popup', maxWidth: '240px' }).setHTML(
+      `<div class="bp-card">
+         <span class="bp-badge ${isLoc ? 'loc' : 'vente'}">${isLoc ? 'Location' : 'Vente'}</span>
+         <div class="bp-title">${p.title}</div>
+         <div class="bp-price" style="color:${color}">${p.price}</div>
+       </div>`))
     .addTo(biensMap);
 });
 </script>
