@@ -14,10 +14,8 @@
   <meta name="twitter:title" content="Recherche immobilière sur carte – Immo24.tn" />
   <meta name="twitter:image" content="https://benarfa2-lab.github.io/Immo24/og-image.jpg" />
 
-  <!-- Leaflet CSS -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
-  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
+  <!-- Mapbox GL CSS -->
+  <link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/v3.9.0/mapbox-gl.css" />
   <!-- Font -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,700;0,9..144,800;1,9..144,300;1,9..144,700\&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800\&display=swap" rel="stylesheet" />
@@ -843,18 +841,18 @@
     .map-count-bubble:hover::after { content: ' · voir tout'; font-size: 11px; opacity: .65; }
     .map-count-bubble i { color: var(--gold); font-size: 11px; }
 
-    /* ===== MAP POPUP ===== */
-    .leaflet-popup-content-wrapper {
+    /* ===== MAP POPUP (Mapbox GL) ===== */
+    .mapboxgl-popup-content {
       border-radius: var(--radius) !important;
       box-shadow: var(--shadow-lg) !important;
       padding: 0 !important;
       overflow: hidden;
       border: none !important;
+      width: 260px;
     }
-    .leaflet-popup-content {
-      margin: 0 !important; width: 260px !important;
-    }
-    .leaflet-popup-tip-container { display: none; }
+    .mapboxgl-popup-tip { display: none !important; }
+    .mapboxgl-popup-close-button { display: none; }
+    .mapboxgl-ctrl-logo, .mapboxgl-ctrl-attrib { font-size: 10px; }
 
     .popup-card { width: 260px; position: relative; }
     .popup-close-btn { position: absolute; top: 8px; right: 8px; z-index: 10; background: rgba(0,0,0,.45); border: none; color: #fff; width: 26px; height: 26px; border-radius: 50%; cursor: pointer; font-size: 15px; line-height: 1; display: flex; align-items: center; justify-content: center; transition: background .2s; }
@@ -1680,8 +1678,8 @@
 </div>
 
 <!-- ===== LEAFLET JS ===== -->
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+<script src="https://api.mapbox.com/mapbox-gl-js/v3.9.0/mapbox-gl.js"></script>
+<script src="https://unpkg.com/supercluster@8.0.1/dist/supercluster.min.js"></script>
 <script>
 
 /* ========================
@@ -2533,7 +2531,7 @@ function setView(mode) {
     btnMap.classList.add('active');
     btnList.classList.remove('active');
     renderCards();
-    if (window._map) window._map.invalidateSize();
+    if (window._map) window._map.resize();
   }
 }
 
@@ -2542,11 +2540,15 @@ function toggleFav(e, btn) {
   btn.classList.toggle('active');
 }
 
+function _pinInner(marker) {
+  const el = marker.getElement();
+  return el.querySelector('.pin-price, .pin-programme') || el;
+}
 function selectProperty(id) {
   if (activeId) {
     const prev = document.getElementById('card-' + activeId);
     if (prev) prev.classList.remove('active');
-    if (markers[activeId]) markers[activeId]._icon.classList.remove('active');
+    if (markers[activeId]) _pinInner(markers[activeId]).classList.remove('active');
   }
   activeId = id;
   const card = document.getElementById('card-' + id);
@@ -2554,29 +2556,23 @@ function selectProperty(id) {
     card.classList.add('active');
     card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }
-  if (markers[id]) {
-    markers[id]._icon.classList.add('active');
-    const p = properties.find(p => p.id === id);
-    const zoom = 14;
-    /* Décale le centre vers le bas pour que le popup (au-dessus du pin) soit entièrement visible */
-    const pt = map.project([p.lat, p.lng], zoom);
-    pt.y += map.getSize().y * 0.22;
-    map.setView(map.unproject(pt, zoom), zoom, { animate: true });
-    markers[id].openPopup();
-  }
+  const p = properties.find(p => p.id === id);
+  if (!p) return;
+  const pos = displayedPos(p);
+  /* Décale le centre vers le bas (offset px) pour que le popup au-dessus du pin soit visible */
+  map.easeTo({ center: [pos.lng, pos.lat], zoom: 14, offset: [0, map.getContainer().clientHeight * 0.22] });
+  if (markers[id]) _pinInner(markers[id]).classList.add('active');
+  openPropertyPopup(p);
 }
 
 /* ========================
    MAP
 ======================== */
-const planTile     = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
-const satTile      = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
-
 let currentLayer = 'plan';
-let tileLayer;
-const markers = {};
-let markerCluster = null;
-let approxCircles = [];   // cercles « zone approximative » (occasion + terrains)
+const markers = {};        // mapboxgl.Marker par id (pins individuels affichés)
+const clusterMarkers = {}; // mapboxgl.Marker par clusterId (pastilles de regroupement)
+let superIndex = null;     // instance Supercluster
+let currentPopup = null;   // popup ouvert (un seul à la fois)
 
 /* ── Localisation approximative (RG-GEO) ──────────────────────────────
    Le neuf garde l'adresse EXACTE. L'occasion et les terrains n'exposent
@@ -2604,31 +2600,57 @@ function approxCenter(p) {
   return { lat: p.lat + dLat, lng: p.lng + dLng, radius: r };
 }
 
-const map = L.map('map', {
-  center: [36.82, 10.18],
-  zoom: 12,
-  zoomControl: false,
-});
+/* ── Mapbox GL access token ──────────────────────────────────────────
+   Remplace la valeur ci-dessous par ton token public Mapbox (pk.xxx).
+   Gratuit jusqu'à 50 000 chargements de carte / mois.
+   → https://account.mapbox.com/access-tokens/ */
+mapboxgl.accessToken = window.MAPBOX_TOKEN || 'MAPBOX_TOKEN_PLACEHOLDER';
 
-tileLayer = L.tileLayer(planTile, {
-  attribution: '&copy; <a href="https://carto.com/">CARTO</a>',
-  maxZoom: 19,
-}).addTo(map);
+/* Style Mapbox custom : 2 sources raster (plan CARTO Voyager + satellite Esri)
+   dans un seul style → on bascule par visibilité (pas de setStyle qui efface les couches). */
+const baseStyle = {
+  version: 8,
+  glyphs: 'https://fonts.openmaptiles.org/{fontstack}/{range}.pbf',
+  sources: {
+    'carto-plan': {
+      type: 'raster', tileSize: 256,
+      tiles: ['https://a.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png'],
+      attribution: '&copy; <a href="https://carto.com/">CARTO</a>'
+    },
+    'esri-sat': {
+      type: 'raster', tileSize: 256,
+      tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],
+      attribution: '&copy; Esri'
+    }
+  },
+  layers: [
+    { id: 'carto-plan', type: 'raster', source: 'carto-plan', layout: { visibility: 'visible' } },
+    { id: 'esri-sat',   type: 'raster', source: 'esri-sat',   layout: { visibility: 'none' } }
+  ]
+};
+
+const map = new mapboxgl.Map({
+  container: 'map',
+  style: baseStyle,
+  center: [10.18, 36.82],   // Mapbox = [lng, lat]
+  zoom: 11,
+  attributionControl: false,
+});
+map.addControl(new mapboxgl.AttributionControl({ compact: true }));
+window._map = map;
 
 function setLayer(type, btn) {
   document.querySelectorAll('.layer-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   currentLayer = type;
-  map.removeLayer(tileLayer);
-  tileLayer = L.tileLayer(type === 'satellite' ? satTile : planTile, {
-    attribution: type === 'satellite' ? '&copy; Esri' : '&copy; CARTO',
-    maxZoom: 19,
-  }).addTo(map);
+  const sat = type === 'satellite';
+  map.setLayoutProperty('esri-sat',   'visibility', sat ? 'visible' : 'none');
+  map.setLayoutProperty('carto-plan', 'visibility', sat ? 'none' : 'visible');
 }
 
 function buildPopup(p) {
   return `<div class="popup-card">
-    <button class="popup-close-btn" onclick="map.closePopup()" title="Fermer">×</button>
+    <button class="popup-close-btn" onclick="closePopup()" title="Fermer">×</button>
     <img class="popup-img" src="${p.img}" alt="${p.title}" />
     <div class="popup-body">
       <div class="popup-price">${p.kind === 'neuf' ? '<span style="font-size:11px;font-weight:500;color:var(--gray-600)">À partir de </span>' : ''}${formatPrice(p.price)}${p.transaction === 'location' ? '<span style="font-size:12px;font-weight:500;color:var(--gray-600)"> / mois</span>' : ''}</div>
@@ -2758,7 +2780,7 @@ function getFiltered() {
       const pm = getPropertyMedia(p);
       for (const m of window.__filterMedia) { if (!pm.includes(m)) return false; }
     }
-    if (window.__mapBounds && !window.__mapBounds.contains([p.lat, p.lng])) return false;
+    if (window.__mapBounds && !window.__mapBounds.contains([p.lng, p.lat])) return false;
     return true;
   });
 }
@@ -2776,71 +2798,145 @@ function toggleMediaFilter(key, btn) {
   renderCards(); renderMarkers();
 }
 
-function renderMarkers() {
-  /* clear existing cluster + markers + cercles de zone */
-  if (markerCluster) { map.removeLayer(markerCluster); markerCluster = null; }
-  approxCircles.forEach(c => map.removeLayer(c)); approxCircles = [];
-  Object.keys(markers).forEach(k => delete markers[k]);
+/* ── position affichée par annonce (exacte pour le neuf, décalée sinon) ── */
+const dispPos = {};   // id → { lat, lng }
+function displayedPos(p) {
+  if (dispPos[p.id]) return dispPos[p.id];
+  let pos;
+  if (isApprox(p)) { const ac = approxCenter(p); pos = { lat: ac.lat, lng: ac.lng, radius: ac.radius }; }
+  else             { pos = { lat: p.lat, lng: p.lng }; }
+  dispPos[p.id] = pos;
+  return pos;
+}
 
-  markerCluster = L.markerClusterGroup({
-    maxClusterRadius: 48,
-    spiderfyOnMaxZoom: true,
-    showCoverageOnHover: false,
-    iconCreateFunction(cluster) {
-      return L.divIcon({
-        className: '',
-        html: `<div class="cluster-pin"><span>${cluster.getChildCount()}</span></div>`,
-        iconSize: [38, 38], iconAnchor: [19, 19]
-      });
-    }
-  });
+/* ── polygone de cercle (mètres → GeoJSON) pour la zone approximative ── */
+function circlePolygon(lat, lng, radiusM, pts = 40) {
+  const coords = [];
+  const dLat = radiusM / 111320;
+  const dLng = radiusM / (111320 * Math.cos(lat * Math.PI / 180));
+  for (let i = 0; i <= pts; i++) {
+    const t = (i / pts) * 2 * Math.PI;
+    coords.push([lng + dLng * Math.cos(t), lat + dLat * Math.sin(t)]);
+  }
+  return coords;
+}
 
-  getFiltered().forEach(p => {
-    let pinHtml, iconSize, iconAnchor, popupAnchor;
+/* ── crée l'élément DOM d'un pin (prix ou programme neuf) ── */
+function makePinElement(p) {
+  const el = document.createElement('div');
+  el.className = 'custom-pin-wrapper';
+  if (p.kind === 'neuf') {
+    const shortName = p.title.length > 18 ? p.title.slice(0, 17) + '…' : p.title;
+    const boardW = 72;
+    el.innerHTML = `
+      <div class="pin-programme" id="pin-${p.id}">
+        <div class="pin-programme-board" style="min-width:${boardW}px;max-width:${boardW}px;">
+          <div class="pin-prog-header">Neuf</div>
+          <div class="pin-prog-name">${shortName}</div>
+        </div>
+        <div class="pin-programme-stem"></div>
+        <div class="pin-prog-price">à partir de ${(p.price/1000).toFixed(0)}k</div>
+      </div>`;
+  } else {
     const locationClass = (p.kind === 'agence' && p.transaction === 'location') ? 'pin-location' : '';
     const priceLabel = p.transaction === 'location'
       ? `${p.price.toLocaleString('fr-TN')} TND/mois`
       : `${(p.price/1000).toFixed(0)}k TND`;
-    if (p.kind === 'neuf') {
-      const shortName = p.title.length > 18 ? p.title.slice(0, 17) + '…' : p.title;
-      const boardW = 72;
-      pinHtml = `
-        <div class="pin-programme" id="pin-${p.id}">
-          <div class="pin-programme-board" style="min-width:${boardW}px;max-width:${boardW}px;">
-            <div class="pin-prog-header">Neuf</div>
-            <div class="pin-prog-name">${shortName}</div>
-          </div>
-          <div class="pin-programme-stem"></div>
-          <div class="pin-prog-price">à partir de ${(p.price/1000).toFixed(0)}k</div>
-        </div>`;
-      iconSize = [boardW + 10, 62]; iconAnchor = [(boardW + 10) / 2, 62]; popupAnchor = [0, -64];
-    } else {
-      pinHtml = `<div class="pin-price ${locationClass}" id="pin-${p.id}">${priceLabel}</div>`;
-      iconSize = [90, 32]; iconAnchor = [45, 32]; popupAnchor = [0, -34];
-    }
-    // Position affichée : exacte pour le neuf, décalée+cercle pour l'occasion/terrains (RG-GEO)
-    let posLat = p.lat, posLng = p.lng;
+    el.innerHTML = `<div class="pin-price ${locationClass}" id="pin-${p.id}">${priceLabel}</div>`;
+  }
+  el.addEventListener('click', (e) => { e.stopPropagation(); selectProperty(p.id); openPropertyPopup(p); });
+  return el;
+}
+
+/* ── (re)construit l'index supercluster + les cercles de zone ── */
+function renderMarkers() {
+  const feats = [];
+  const circleFeats = [];
+  Object.keys(dispPos).forEach(k => delete dispPos[k]);
+
+  getFiltered().forEach(p => {
+    const pos = displayedPos(p);
+    feats.push({
+      type: 'Feature',
+      properties: { id: p.id },
+      geometry: { type: 'Point', coordinates: [pos.lng, pos.lat] }
+    });
     if (isApprox(p)) {
-      const ac = approxCenter(p);
-      posLat = ac.lat; posLng = ac.lng;
-      const circle = L.circle([ac.lat, ac.lng], {
-        radius: ac.radius,
-        color: '#1B3A6B', weight: 1.5, opacity: .55,
-        fillColor: '#E6A817', fillOpacity: .12, dashArray: '4 4',
-        interactive: false
-      }).addTo(map);
-      approxCircles.push(circle);
+      circleFeats.push({
+        type: 'Feature', properties: {},
+        geometry: { type: 'Polygon', coordinates: [circlePolygon(pos.lat, pos.lng, pos.radius)] }
+      });
     }
-    const icon = L.divIcon({ className: 'custom-pin-wrapper', html: pinHtml, iconSize, iconAnchor, popupAnchor });
-    const marker = L.marker([posLat, posLng], { icon })
-      .bindPopup(buildPopup(p), { maxWidth: 260, minWidth: 260, offset: [0, -8], autoPanPadding: [20, 90] });
-    marker.on('click', () => selectProperty(p.id));
-    markerCluster.addLayer(marker);
-    markers[p.id] = marker;
   });
 
-  map.addLayer(markerCluster);
+  superIndex = new Supercluster({ radius: 48, maxZoom: 16 });
+  superIndex.load(feats);
+
+  if (mapReady && map.getSource('approx-circles')) {
+    map.getSource('approx-circles').setData({ type: 'FeatureCollection', features: circleFeats });
+  }
+  updateMarkers();
 }
+
+/* ── affiche les marqueurs (clusters + pins) pour la vue courante ── */
+function updateMarkers() {
+  if (!superIndex || !mapReady) return;
+  const b = map.getBounds();
+  const bbox = [b.getWest(), b.getSouth(), b.getEast(), b.getNorth()];
+  const zoom = Math.round(map.getZoom());
+  const clusters = superIndex.getClusters(bbox, zoom);
+
+  const seenClusters = new Set();
+  const seenLeaves = new Set();
+
+  clusters.forEach(c => {
+    const [lng, lat] = c.geometry.coordinates;
+    if (c.properties.cluster) {
+      const cid = c.properties.cluster_id;
+      seenClusters.add(cid);
+      if (!clusterMarkers[cid]) {
+        const el = document.createElement('div');
+        el.className = 'cluster-pin-wrapper';
+        el.innerHTML = `<div class="cluster-pin"><span>${c.properties.point_count}</span></div>`;
+        el.addEventListener('click', () => {
+          const z = Math.min(superIndex.getClusterExpansionZoom(cid), 18);
+          map.easeTo({ center: [lng, lat], zoom: z });
+        });
+        clusterMarkers[cid] = new mapboxgl.Marker({ element: el, anchor: 'center' })
+          .setLngLat([lng, lat]).addTo(map);
+      }
+    } else {
+      const id = c.properties.id;
+      seenLeaves.add(id);
+      if (!markers[id]) {
+        const p = properties.find(pr => pr.id === id);
+        if (!p) return;
+        const el = makePinElement(p);
+        markers[id] = new mapboxgl.Marker({ element: el, anchor: 'bottom' })
+          .setLngLat([lng, lat]).addTo(map);
+      }
+    }
+  });
+
+  /* retire les marqueurs qui ne sont plus dans la vue / le cluster courant */
+  Object.keys(clusterMarkers).forEach(cid => {
+    if (!seenClusters.has(+cid)) { clusterMarkers[cid].remove(); delete clusterMarkers[cid]; }
+  });
+  Object.keys(markers).forEach(id => {
+    if (!seenLeaves.has(+id) && !seenLeaves.has(id)) { markers[id].remove(); delete markers[id]; }
+  });
+}
+
+/* ── ouvre le popup d'une annonce ── */
+function openPropertyPopup(p) {
+  if (currentPopup) { currentPopup.remove(); currentPopup = null; }
+  const pos = displayedPos(p);
+  currentPopup = new mapboxgl.Popup({ closeButton: false, maxWidth: '260px', offset: p.kind === 'neuf' ? 64 : 34 })
+    .setLngLat([pos.lng, pos.lat])
+    .setHTML(buildPopup(p))
+    .addTo(map);
+}
+function closePopup() { if (currentPopup) { currentPopup.remove(); currentPopup = null; } }
 
 function resetAllFilters() {
   window.__filterKind = '';
@@ -3064,9 +3160,36 @@ if (window.__filterKind) {
   });
 }
 renderCards();
-renderMarkers();
 renderAgenceList();
 updatePricePills();
+
+/* ── Mapbox prêt : ajoute la couche des cercles de zone puis rend les pins ──
+   On utilise 'style.load' (fiable dès que le style est parsé, sans attendre
+   les tuiles) plutôt que 'load' qui peut ne jamais se déclencher si une tuile
+   échoue. */
+let mapReady = false;
+function initMapLayers() {
+  if (mapReady) return;
+  if (!map.getSource('approx-circles')) {
+    map.addSource('approx-circles', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
+    map.addLayer({
+      id: 'approx-circles-fill', type: 'fill', source: 'approx-circles',
+      paint: { 'fill-color': '#E6A817', 'fill-opacity': 0.12 }
+    });
+    map.addLayer({
+      id: 'approx-circles-line', type: 'line', source: 'approx-circles',
+      paint: { 'line-color': '#1B3A6B', 'line-width': 1.5, 'line-opacity': 0.55, 'line-dasharray': [3, 3] }
+    });
+  }
+  mapReady = true;
+  renderMarkers();
+  if (window.__focusId) setTimeout(() => selectProperty(window.__focusId), 450);
+}
+if (map.isStyleLoaded()) initMapLayers();
+else map.on('style.load', initMapLayers);
+
+/* re-cluster à chaque déplacement / zoom */
+map.on('moveend', updateMarkers);
 
 /* show "Rechercher dans cette zone" after user pans — not on programmatic moves */
 let zoneSearchTimer = null;
@@ -3080,10 +3203,6 @@ map.on('drag', () => {
   window.__mapBounds = null; /* reset bounds filter while dragging */
 });
 
-if (window.__focusId) {
-  setTimeout(() => selectProperty(window.__focusId), 450);
-}
-
 /* ── Mobile toggle Carte / Liste ─────────────── */
 let _mobCarte = false;
 function setMobView() {
@@ -3096,7 +3215,7 @@ function setMobView() {
   btn.innerHTML = _mobCarte
     ? '<i class="fas fa-list"></i> Liste'
     : '<i class="fas fa-map"></i> Carte';
-  if (_mobCarte) setTimeout(() => { if (typeof map !== 'undefined') map.invalidateSize(); }, 120);
+  if (_mobCarte) setTimeout(() => { if (typeof map !== 'undefined') map.resize(); }, 120);
 }
 </script>
 
