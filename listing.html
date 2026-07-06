@@ -1097,6 +1097,13 @@ function openTab(name) {
   el.innerHTML = `<div style="width:34px;height:34px;border-radius:50% 50% 50% 0;background:#1B3A6B;transform:rotate(-45deg);border:3px solid #fff;box-shadow:0 3px 10px rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center;"><i class="fas fa-home" style="transform:rotate(45deg);color:#E6A817;font-size:13px;"></i></div>`;
   new mapboxgl.Marker({ element: el, anchor: 'bottom' })
     .setLngLat([LNG, LAT]).addTo(map);
+
+  /* La carte est dans l'onglet « Localisation » (masqué au chargement) : le
+     canvas est mal dimensionné tant que l'onglet n'est pas visible. Un
+     ResizeObserver déclenche resize() dès que le conteneur prend sa taille. */
+  if (window.ResizeObserver) {
+    new ResizeObserver(function() { map.resize(); }).observe(container);
+  }
 })();
 </script>
 <script src="responsive.js"></script>

@@ -3650,6 +3650,16 @@
       new mapboxgl.Marker({ element: wrap, anchor: 'center' })
         .setLngLat([pin.lng, pin.lat]).addTo(heroMap);
     });
+
+    /* Repositionne les pins dès que le conteneur est (re)dimensionné :
+       au 1er layout, les marqueurs sont placés avant que la carte ne connaisse
+       sa taille réelle → un resize() les recale correctement. */
+    if (window.ResizeObserver) {
+      new ResizeObserver(function() { heroMap.resize(); })
+        .observe(document.getElementById('hero-map'));
+    } else {
+      setTimeout(function() { heroMap.resize(); }, 200);
+    }
   }
 
   /* Resize Mapbox quand slide 0 redevient active */
