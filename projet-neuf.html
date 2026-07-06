@@ -1332,7 +1332,7 @@ function initMap() {
   const el = document.createElement('div');
   el.innerHTML = `<div style="width:36px;height:36px;border-radius:50% 50% 50% 0;background:#1B3A6B;transform:rotate(-45deg);border:3px solid #fff;box-shadow:0 3px 10px rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center;">
       <span style="transform:rotate(45deg);color:#E6A817;font-size:14px;font-weight:900;">B</span></div>`;
-  new mapboxgl.Marker({ element: el.firstElementChild, anchor: 'bottom' })
+  new mapboxgl.Marker({ element: el, anchor: 'bottom' })
     .setLngLat([10.3033, 36.8968])
     .setPopup(new mapboxgl.Popup({ offset: 30 }).setHTML('<b>The Pantheon Residence</b><br>Route de la Marsa, Tunis<br><small>Bullaregia Immobilière</small>'))
     .addTo(map)

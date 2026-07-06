@@ -770,7 +770,7 @@ function initMap() {
         <i class="fas fa-mountain" style="color:#1B3A6B;font-size:14px;"></i>
       </div>
     </div>`;
-  new mapboxgl.Marker({ element: el.firstElementChild, anchor: 'bottom' })
+  new mapboxgl.Marker({ element: el, anchor: 'bottom' })
     .setLngLat([LNG, LAT])
     .setPopup(new mapboxgl.Popup({ offset: 32 }).setHTML('<b>Terrain 650 m² – La Marsa</b><br><span style="color:#2A9D8F;font-weight:700;">✔ Titre foncier · Constructible</span>'))
     .addTo(map)

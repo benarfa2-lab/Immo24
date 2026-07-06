@@ -3643,7 +3643,11 @@
       el.addEventListener('click', function() {
         window.location.href = 'map-listings.html';
       });
-      new mapboxgl.Marker({ element: el, anchor: 'center' })
+      /* wrapper neutre : Mapbox positionne le wrapper via transform, l'animation
+         du .hero-pin (qui manipule aussi transform) reste isolée à l'intérieur */
+      const wrap = document.createElement('div');
+      wrap.appendChild(el);
+      new mapboxgl.Marker({ element: wrap, anchor: 'center' })
         .setLngLat([pin.lng, pin.lat]).addTo(heroMap);
     });
   }
