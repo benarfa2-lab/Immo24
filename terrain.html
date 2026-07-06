@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,700;0,9..144,800;1,9..144,300;1,9..144,700\&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800\&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/v3.9.0/mapbox-gl.css" />
   <style>
     :root {
       --gold:#E6A817; --gold-dark:#C8900E; --gold-light:#FFF8E6;
@@ -686,7 +686,7 @@ Le zonage PAU autorise une construction <strong>résidentielle jusqu'à R+3</str
 
 </div><!-- /page-wrap -->
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://api.mapbox.com/mapbox-gl-js/v3.9.0/mapbox-gl.js"></script>
 <script>
 /* ── GALLERY ── */
 let gIdx = 0;
@@ -728,14 +728,39 @@ function switchTab(idx, btn) {
   if (idx === 3 && !window._mapInited) { window._mapInited = true; setTimeout(initMap, 80); }
 }
 
-/* ── MAP (lazy init on tab open) ── */
+/* ── MAP (lazy init on tab open) — Mapbox GL, tuiles CARTO sans clé ── */
+let _terrainInited = false;
 function initMap() {
-  const map = L.map('terrain-map', { zoomControl: true, scrollWheelZoom: false }).setView([36.8820, 10.3170], 15);
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-    attribution: '© OpenStreetMap, © CARTO', maxZoom: 19
-  }).addTo(map);
+  if (_terrainInited) return; _terrainInited = true;
+  mapboxgl.accessToken = window.MAPBOX_TOKEN || 'MAPBOX_TOKEN_PLACEHOLDER';
+  const LAT = 36.8820, LNG = 10.3170;
+  const map = new mapboxgl.Map({
+    container: 'terrain-map',
+    style: {
+      version: 8,
+      sources: { carto: { type: 'raster', tileSize: 256,
+        tiles: ['https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', 'https://b.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png'],
+        attribution: '© OpenStreetMap, © CARTO' } },
+      layers: [{ id: 'carto', type: 'raster', source: 'carto' }]
+    },
+    center: [LNG, LAT], zoom: 14, scrollZoom: false, attributionControl: false
+  });
+  map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), 'top-right');
 
-  const pinHtml = `
+  function circlePolygon(lat, lng, radiusM, pts = 48) {
+    const coords = [], dLat = radiusM / 111320, dLng = radiusM / (111320 * Math.cos(lat * Math.PI / 180));
+    for (let i = 0; i <= pts; i++) { const t = (i / pts) * 2 * Math.PI; coords.push([lng + dLng * Math.cos(t), lat + dLat * Math.sin(t)]); }
+    return coords;
+  }
+
+  map.on('style.load', () => {
+    map.addSource('zone', { type: 'geojson', data: { type: 'Feature', geometry: { type: 'Polygon', coordinates: [circlePolygon(LAT, LNG, 150)] } } });
+    map.addLayer({ id: 'zone-fill', type: 'fill', source: 'zone', paint: { 'fill-color': '#1B3A6B', 'fill-opacity': 0.08 } });
+    map.addLayer({ id: 'zone-line', type: 'line', source: 'zone', paint: { 'line-color': '#1B3A6B', 'line-width': 1.5, 'line-dasharray': [4, 3] } });
+  });
+
+  const el = document.createElement('div');
+  el.innerHTML = `
     <div style="width:38px;height:38px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);
       background:linear-gradient(135deg,#FFD83D,#E6A817,#C8900E);
       border:2.5px solid rgba(255,255,255,.92);
@@ -745,17 +770,11 @@ function initMap() {
         <i class="fas fa-mountain" style="color:#1B3A6B;font-size:14px;"></i>
       </div>
     </div>`;
-
-  const icon = L.divIcon({ html: pinHtml, iconSize:[38,38], iconAnchor:[19,38], className:'' });
-  L.marker([36.8820, 10.3170], { icon })
+  new mapboxgl.Marker({ element: el.firstElementChild, anchor: 'bottom' })
+    .setLngLat([LNG, LAT])
+    .setPopup(new mapboxgl.Popup({ offset: 32 }).setHTML('<b>Terrain 650 m² – La Marsa</b><br><span style="color:#2A9D8F;font-weight:700;">✔ Titre foncier · Constructible</span>'))
     .addTo(map)
-    .bindPopup('<b>Terrain 650 m² – La Marsa</b><br><span style="color:#2A9D8F;font-weight:700;">✔ Titre foncier · Constructible</span>')
-    .openPopup();
-
-  L.circle([36.8820, 10.3170], {
-    radius:150, color:'#1B3A6B', fillColor:'rgba(27,58,107,.08)',
-    fillOpacity:1, weight:1.5, dashArray:'6 4'
-  }).addTo(map);
+    .togglePopup();
 }
 </script>
 <script src="responsive.js"></script>

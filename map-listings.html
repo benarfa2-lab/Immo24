@@ -1662,7 +1662,7 @@
       <span id="zone-search-label">Rechercher dans cette zone</span>
     </button>
 
-    <div class="map-count-bubble" onclick="map.fitBounds(Object.values(markers).map(m=>m.getLatLng()),{padding:[40,40],animate:true})" style="cursor:pointer" title="Voir tous les biens">
+    <div class="map-count-bubble" onclick="fitAllBounds()" style="cursor:pointer" title="Voir tous les biens">
       <i class="fas fa-map-marker-alt"></i>
       <span id="map-count-num">247</span> biens sur la carte
     </div>
@@ -2925,6 +2925,17 @@ function updateMarkers() {
   Object.keys(markers).forEach(id => {
     if (!seenLeaves.has(+id) && !seenLeaves.has(id)) { markers[id].remove(); delete markers[id]; }
   });
+}
+
+/* ── recadre la carte sur toutes les annonces filtrées ── */
+function fitAllBounds() {
+  const pts = getFiltered().map(p => { const pos = displayedPos(p); return [pos.lng, pos.lat]; });
+  if (!pts.length) return;
+  const bounds = pts.reduce(
+    (b, c) => b.extend(c),
+    new mapboxgl.LngLatBounds(pts[0], pts[0])
+  );
+  map.fitBounds(bounds, { padding: 60, maxZoom: 15, duration: 700 });
 }
 
 /* ── ouvre le popup d'une annonce ── */

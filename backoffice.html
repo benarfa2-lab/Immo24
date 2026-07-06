@@ -7,8 +7,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,700;0,9..144,800;1,9..144,300;1,9..144,700\&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800\&display=swap" rel="stylesheet" />
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%231B3A6B'/><text x='16' y='22' text-anchor='middle' font-size='16' font-weight='900' font-family='sans-serif' fill='%23E6A817'>I</text></svg>" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/v3.9.0/mapbox-gl.css" />
+  <script src="https://api.mapbox.com/mapbox-gl-js/v3.9.0/mapbox-gl.js"></script>
   <style>
     :root {
       --gold:       #E6A817;
@@ -6234,30 +6234,45 @@ function renderProjetDetail(projetId) {
 
 /* ===================== ADDRESS AUTOCOMPLETE + MAPS ===================== */
 const mapInstances = {};
+const mapMarkers = {};
 let addrDebounce = {};
 
 function initMap(id, lat, lng) {
-  if (mapInstances[id]) { mapInstances[id].remove(); delete mapInstances[id]; }
+  if (mapInstances[id]) { mapInstances[id].remove(); delete mapInstances[id]; delete mapMarkers[id]; }
   const container = document.getElementById('map-' + id);
   if (!container) return;
-  const map = L.map('map-' + id, { zoomControl: true, scrollWheelZoom: false }).setView([lat || 36.8, lng || 10.18], lat ? 15 : 7);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OSM' }).addTo(map);
-  const marker = L.marker([lat || 36.8, lng || 10.18], { draggable: true }).addTo(map);
+  mapboxgl.accessToken = window.MAPBOX_TOKEN || 'MAPBOX_TOKEN_PLACEHOLDER';
+  const map = new mapboxgl.Map({
+    container: 'map-' + id,
+    style: {
+      version: 8,
+      sources: { osm: { type: 'raster', tileSize: 256,
+        tiles: ['https://a.tile.openstreetmap.org/{z}/{x}/{y}.png', 'https://b.tile.openstreetmap.org/{z}/{x}/{y}.png'],
+        attribution: '© OSM' } },
+      layers: [{ id: 'osm', type: 'raster', source: 'osm' }]
+    },
+    center: [lng || 10.18, lat || 36.8], zoom: lat ? 15 : 6, scrollZoom: false, attributionControl: false
+  });
+  map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), 'top-right');
+
+  const marker = new mapboxgl.Marker({ draggable: true, color: '#1B3A6B' });
   if (lat) {
-    marker.bindPopup('<b>Position sélectionnée</b><br>Glissez le marqueur pour ajuster').openPopup();
-  } else {
-    marker.remove();
+    marker.setLngLat([lng, lat])
+      .setPopup(new mapboxgl.Popup({ offset: 28 }).setHTML('<b>Position sélectionnée</b><br>Glissez le marqueur pour ajuster'))
+      .addTo(map)
+      .togglePopup();
   }
   // Click on map to place marker
   map.on('click', function(e) {
-    marker.setLatLng(e.latlng).addTo(map);
-    reverseGeocode(id, e.latlng.lat, e.latlng.lng);
+    marker.setLngLat(e.lngLat).addTo(map);
+    reverseGeocode(id, e.lngLat.lat, e.lngLat.lng);
   });
   marker.on('dragend', function() {
-    const pos = marker.getLatLng();
+    const pos = marker.getLngLat();
     reverseGeocode(id, pos.lat, pos.lng);
   });
   mapInstances[id] = map;
+  mapMarkers[id] = marker;
 }
 
 function reverseGeocode(id, lat, lng) {
@@ -6321,15 +6336,12 @@ function selectAddr(id, lat, lng, displayName, addrJson) {
   const quartier = addr.suburb || addr.neighbourhood || addr.city_district || addr.town || '';
   fillAddrFields(id, gov, quartier, decodeURIComponent(displayName));
   initMap(id, parseFloat(lat), parseFloat(lng));
-  const map = mapInstances[id];
-  if (map) {
-    map.eachLayer(l => { if (l instanceof L.Marker) map.removeLayer(l); });
-    const marker = L.marker([parseFloat(lat), parseFloat(lng)], { draggable: true }).addTo(map);
-    marker.bindPopup('<b>' + decodeURIComponent(displayName).split(',')[0] + '</b>').openPopup();
-    marker.on('dragend', function() {
-      const pos = marker.getLatLng();
-      reverseGeocode(id, pos.lat, pos.lng);
-    });
+  const marker = mapMarkers[id];
+  if (marker) {
+    marker.setLngLat([parseFloat(lng), parseFloat(lat)])
+      .setPopup(new mapboxgl.Popup({ offset: 28 }).setHTML('<b>' + decodeURIComponent(displayName).split(',')[0] + '</b>'))
+      .addTo(mapInstances[id]);
+    if (!marker.getPopup().isOpen()) marker.togglePopup();
   }
 }
 

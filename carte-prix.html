@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,700;0,9..144,800;1,9..144,300;1,9..144,700\&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800\&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/v3.9.0/mapbox-gl.css" />
   <style>
     :root {
       --gold:        #E6A817;
@@ -493,7 +493,7 @@
   </div>
 </footer>
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://api.mapbox.com/mapbox-gl-js/v3.9.0/mapbox-gl.js"></script>
 <script>
 /* ===== DATA ===== */
 const zones = [
@@ -540,14 +540,20 @@ const tierLabels = {
 
 function fmt(n) { return n.toLocaleString('fr-TN') + ' TND'; }
 
-/* ===== MAP INIT ===== */
-const map = L.map('map', { zoomControl: false }).setView([36.8200, 10.2000], 11);
-L.control.zoom({ position: 'bottomright' }).addTo(map);
-
-L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-  attribution: '© OpenStreetMap, © CartoDB',
-  subdomains: 'abcd', maxZoom: 19
-}).addTo(map);
+/* ===== MAP INIT (Mapbox GL — tuiles CARTO light, sans clé) ===== */
+mapboxgl.accessToken = window.MAPBOX_TOKEN || 'MAPBOX_TOKEN_PLACEHOLDER';
+const map = new mapboxgl.Map({
+  container: 'map',
+  style: {
+    version: 8,
+    sources: { carto: { type: 'raster', tileSize: 256,
+      tiles: ['https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', 'https://b.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png'],
+      attribution: '© OpenStreetMap, © CartoDB' } },
+    layers: [{ id: 'carto', type: 'raster', source: 'carto' }]
+  },
+  center: [10.2000, 36.8200], zoom: 10, attributionControl: false
+});
+map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), 'bottom-right');
 
 const markers = {};
 
@@ -568,29 +574,23 @@ function buildPopupHtml(z) {
 
 zones.forEach(z => {
   const col = tierColors[z.tier];
-  const circle = L.circleMarker([z.lat, z.lng], {
-    radius: 18,
-    fillColor: col,
-    color: '#fff',
-    weight: 2.5,
-    opacity: 1,
-    fillOpacity: 0.88,
-  }).addTo(map);
+  const cEl = document.createElement('div');
+  cEl.style.cssText = `width:36px;height:36px;border-radius:50%;background:${col};border:2.5px solid #fff;opacity:.94;box-shadow:0 2px 6px rgba(0,0,0,.3);cursor:pointer;`;
+  const popup = new mapboxgl.Popup({ offset: 22, minWidth: '210px', closeButton: true }).setHTML(buildPopupHtml(z));
+  const circle = new mapboxgl.Marker({ element: cEl, anchor: 'center' })
+    .setLngLat([z.lng, z.lat]).setPopup(popup).addTo(map);
+  cEl.addEventListener('click', () => highlightRow(z.id));
 
-  const label = L.divIcon({
-    className: '',
-    html: `<div style="
+  const lEl = document.createElement('div');
+  lEl.innerHTML = `<div style="
       background:${col};border:2px solid #fff;border-radius:50px;
       padding:3px 8px;font-size:10.5px;font-weight:800;color:#fff;
       white-space:nowrap;box-shadow:0 2px 6px rgba(0,0,0,.25);
-      transform:translateX(-50%);display:inline-block;
-    ">${Math.round(z.price/1000)}k</div>`,
-    iconAnchor: [0, 0],
-  });
-  L.marker([z.lat + 0.003, z.lng], { icon: label, interactive: false }).addTo(map);
+      display:inline-block;
+    ">${Math.round(z.price/1000)}k</div>`;
+  new mapboxgl.Marker({ element: lEl.firstElementChild, anchor: 'center', offset: [0, -30] })
+    .setLngLat([z.lng, z.lat]).addTo(map);
 
-  circle.bindPopup(buildPopupHtml(z), { minWidth: 210 });
-  circle.on('click', () => highlightRow(z.id));
   markers[z.id] = circle;
 });
 
@@ -640,8 +640,8 @@ function renderTable() {
 function focusZone(id) {
   const z = zones.find(x => x.id === id);
   if (!z) return;
-  map.setView([z.lat, z.lng], 14, { animate: true });
-  markers[id].openPopup();
+  map.easeTo({ center: [z.lng, z.lat], zoom: 14, duration: 600 });
+  if (!markers[id].getPopup().isOpen()) markers[id].togglePopup();
   highlightRow(id);
 }
 
@@ -691,7 +691,7 @@ function setCpView(mode) {
     if (b) b.classList.toggle('active', m === mode || (m === 'both' && mode === 'both'));
   });
   if (mode !== 'stats') {
-    setTimeout(function() { if (typeof map !== 'undefined') map.invalidateSize(); }, 120);
+    setTimeout(function() { if (typeof map !== 'undefined') map.resize(); }, 120);
   }
 }
 </script>

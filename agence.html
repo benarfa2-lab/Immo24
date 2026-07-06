@@ -18,7 +18,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,700;0,9..144,800;1,9..144,300;1,9..144,700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <script src="https://unpkg.com/@phosphor-icons/web@2.1.1/src/light/index.js" type="module"></script>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/v3.9.0/mapbox-gl.css" />
   <style>
     :root {
       --gold:       #E6A817;
@@ -928,7 +928,7 @@
   </div>
 </section>
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://api.mapbox.com/mapbox-gl-js/v3.9.0/mapbox-gl.js"></script>
 <script>
 function switchTab(id, btn) {
   ['annonces','agents','about'].forEach(t => {
@@ -951,29 +951,38 @@ document.querySelectorAll('.listing-filter-btn').forEach(btn => {
   });
 });
 
-/* MAP */
-const map = L.map('agenceMap', { zoomControl: false, scrollWheelZoom: false }).setView([36.8190, 10.1658], 16);
-L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-  attribution: '© OpenStreetMap © CARTO', maxZoom: 19
-}).addTo(map);
+/* MAP (Mapbox GL — tuiles CARTO light, sans clé) */
+mapboxgl.accessToken = window.MAPBOX_TOKEN || 'MAPBOX_TOKEN_PLACEHOLDER';
+function cartoStyle() {
+  return {
+    version: 8,
+    sources: { carto: { type: 'raster', tileSize: 256,
+      tiles: ['https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
+              'https://b.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png'],
+      attribution: '© OpenStreetMap © CARTO' } },
+    layers: [{ id: 'carto', type: 'raster', source: 'carto' }]
+  };
+}
+function htmlMarker(html, anchor) {
+  const el = document.createElement('div');
+  el.innerHTML = html;
+  return new mapboxgl.Marker({ element: el.firstElementChild, anchor: anchor || 'center' });
+}
 
-const icon = L.divIcon({
-  className: '',
-  html: `<div style="
+const map = new mapboxgl.Map({ container: 'agenceMap', style: cartoStyle(), center: [10.1658, 36.8190], zoom: 15, scrollZoom: false, attributionControl: false });
+
+htmlMarker(`<div style="
     width:44px;height:44px;border-radius:50%;
     background:#1B3A6B;border:3px solid #fff;
     box-shadow:0 4px 16px rgba(0,0,0,.35);
     display:flex;align-items:center;justify-content:center;
     font-size:11px;color:#fff;font-weight:900;
     font-family:'Plus Jakarta Sans',sans-serif;text-align:center;line-height:1.2;padding:4px;
-  ">PI</div>`,
-  iconSize: [44, 44], iconAnchor: [22, 22]
-});
-
-L.marker([36.8190, 10.1658], { icon })
+  ">PI</div>`)
+  .setLngLat([10.1658, 36.8190])
+  .setPopup(new mapboxgl.Popup({ offset: 24 }).setHTML('<b>Prestige Immobilier Tunis</b><br>Av. Habib Bourguiba, 1001 Tunis<br><small style="color:#E6A817">★ Top vendeur 2024</small>'))
   .addTo(map)
-  .bindPopup('<b>Prestige Immobilier Tunis</b><br>Av. Habib Bourguiba, 1001 Tunis<br><small style="color:#E6A817">★ Top vendeur 2024</small>')
-  .openPopup();
+  .togglePopup();
 
 document.querySelectorAll('.map-zoom-btn').forEach(btn => {
   btn.addEventListener('click', () => {
@@ -982,10 +991,7 @@ document.querySelectorAll('.map-zoom-btn').forEach(btn => {
 });
 
 /* BIENS MAP */
-const biensMap = L.map('biensMap', { zoomControl: false, scrollWheelZoom: false }).setView([36.855, 10.26], 11);
-L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-  attribution: '© OpenStreetMap © CARTO', maxZoom: 19
-}).addTo(biensMap);
+const biensMap = new mapboxgl.Map({ container: 'biensMap', style: cartoStyle(), center: [10.26, 36.855], zoom: 10, scrollZoom: false, attributionControl: false });
 
 const biensProps = [
   { lat: 36.8712, lng: 10.3416, title: "Villa de luxe avec piscine", price: "890 000 TND", type: "vente" },
@@ -998,14 +1004,10 @@ const biensProps = [
 
 biensProps.forEach(p => {
   const color = p.type === 'location' ? '#2A9D8F' : '#1B3A6B';
-  const pinIcon = L.divIcon({
-    className: '',
-    html: `<div style="width:30px;height:30px;border-radius:50%;background:${color};border:2px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center;font-size:9px;color:#fff;font-weight:800;">${p.type === 'location' ? 'L' : 'V'}</div>`,
-    iconSize: [30, 30], iconAnchor: [15, 15]
-  });
-  L.marker([p.lat, p.lng], { icon: pinIcon })
-    .addTo(biensMap)
-    .bindPopup(`<b style="font-size:13px">${p.title}</b><br><span style="font-size:12px;color:${color};font-weight:700">${p.price}</span>`);
+  htmlMarker(`<div style="width:30px;height:30px;border-radius:50%;background:${color};border:2px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center;font-size:9px;color:#fff;font-weight:800;">${p.type === 'location' ? 'L' : 'V'}</div>`)
+    .setLngLat([p.lng, p.lat])
+    .setPopup(new mapboxgl.Popup({ offset: 18 }).setHTML(`<b style="font-size:13px">${p.title}</b><br><span style="font-size:12px;color:${color};font-weight:700">${p.price}</span>`))
+    .addTo(biensMap);
 });
 </script>
 

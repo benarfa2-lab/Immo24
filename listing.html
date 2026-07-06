@@ -18,7 +18,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,700;0,9..144,800;1,9..144,300;1,9..144,700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <script src="https://unpkg.com/@phosphor-icons/web@2.1.1/src/light/index.js" type="module"></script>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/v3.9.0/mapbox-gl.css" />
+  <script src="https://api.mapbox.com/mapbox-gl-js/v3.9.0/mapbox-gl.js" defer></script>
   <style>
     :root {
       --gold:#E6A817; --gold-dark:#C8900E; --gold-light:#FFF8E6;
@@ -1072,6 +1073,31 @@ function openTab(name) {
   switchTab(idx, null);
   document.querySelector('.tabs-wrap')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
+
+/* ── Mini-carte du bien (Mapbox GL — tuiles CARTO, sans clé) ── */
+(function initListingMap() {
+  const container = document.getElementById('listing-map');
+  if (!container) return;
+  if (typeof mapboxgl === 'undefined') { setTimeout(initListingMap, 200); return; }
+  mapboxgl.accessToken = window.MAPBOX_TOKEN || 'MAPBOX_TOKEN_PLACEHOLDER';
+  const LAT = 36.8785, LNG = 10.3247;   // La Marsa
+  const map = new mapboxgl.Map({
+    container: 'listing-map',
+    style: {
+      version: 8,
+      sources: { carto: { type: 'raster', tileSize: 256,
+        tiles: ['https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', 'https://b.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png'],
+        attribution: '© OpenStreetMap © CARTO' } },
+      layers: [{ id: 'carto', type: 'raster', source: 'carto' }]
+    },
+    center: [LNG, LAT], zoom: 14, scrollZoom: false, attributionControl: false
+  });
+  map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), 'top-right');
+  const el = document.createElement('div');
+  el.innerHTML = `<div style="width:34px;height:34px;border-radius:50% 50% 50% 0;background:#1B3A6B;transform:rotate(-45deg);border:3px solid #fff;box-shadow:0 3px 10px rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center;"><i class="fas fa-home" style="transform:rotate(45deg);color:#E6A817;font-size:13px;"></i></div>`;
+  new mapboxgl.Marker({ element: el.firstElementChild, anchor: 'bottom' })
+    .setLngLat([LNG, LAT]).addTo(map);
+})();
 </script>
 <script src="responsive.js"></script>
 
