@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Design System – Immo24.tn</title>
+  <meta name="robots" content="noindex" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,700;0,9..144,800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    :root {
+      --gold:#E6A817; --gold-dark:#C8900E; --gold-light:#FFF8E6;
+      --navy:#1B3A6B; --navy-dark:#122952; --navy-light:#EEF2F9;
+      --gray-50:#F8F9FA; --gray-100:#F1F3F5; --gray-200:#E9ECEF; --gray-300:#DEE2E6;
+      --gray-400:#ADB5BD; --gray-600:#6C757D; --gray-800:#343A40; --white:#FFFFFF;
+      --green:#2A9D8F; --red:#D64545;
+      --radius:12px; --radius-lg:20px; --radius-sm:6px;
+      --shadow-sm:0 1px 8px rgba(27,58,107,.08);
+      --shadow:0 4px 24px rgba(27,58,107,.13), 0 1px 4px rgba(27,58,107,.06);
+      --shadow-lg:0 16px 48px rgba(27,58,107,.18), 0 4px 12px rgba(27,58,107,.08);
+      --font-display:'Fraunces',Georgia,serif; --font-body:'Plus Jakarta Sans',sans-serif;
+      --dbezel: var(--shadow-sm), inset 0 0 0 1px rgba(255,255,255,.9);
+    }
+    *,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+    body { font-family:var(--font-body); color:var(--gray-800); background:var(--gray-50); line-height:1.5; }
+    img { display:block; max-width:100%; }
+    button { cursor:pointer; font-family:inherit; border:none; background:none; }
+    code { font-family:ui-monospace,Menlo,monospace; font-size:.86em; background:var(--gray-100); color:var(--navy); padding:1px 6px; border-radius:5px; }
+
+    /* chrome */
+    .page-head { background:var(--navy); color:#fff; padding:36px 24px; }
+    .page-head .wrap { max-width:1080px; margin:0 auto; }
+    .page-head .tag { display:inline-block; font-size:11px; font-weight:800; letter-spacing:1px; text-transform:uppercase; color:var(--gold); background:rgba(230,168,23,.14); padding:4px 12px; border-radius:50px; margin-bottom:12px; }
+    .page-head h1 { font-family:var(--font-display); font-size:32px; font-weight:800; margin-bottom:8px; }
+    .page-head p { font-size:14px; color:rgba(255,255,255,.75); max-width:640px; }
+
+    .container { max-width:1080px; margin:0 auto; padding:32px 24px 90px; }
+    .toc { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:40px; }
+    .toc a { font-size:12.5px; font-weight:600; color:var(--navy); background:var(--white); border:1px solid var(--gray-200); padding:7px 13px; border-radius:50px; box-shadow:var(--shadow-sm); transition:all .18s; text-decoration:none; }
+    .toc a:hover { background:var(--navy); color:#fff; border-color:var(--navy); }
+
+    section { margin-bottom:52px; scroll-margin-top:16px; }
+    .sec-head { display:flex; align-items:baseline; gap:10px; margin-bottom:4px; }
+    .sec-head h2 { font-family:var(--font-display); font-size:22px; font-weight:700; color:var(--navy-dark); }
+    .sec-head .n { font-size:12px; font-weight:800; color:var(--gold-dark); background:var(--gold-light); border-radius:6px; padding:2px 8px; }
+    .sec-note { font-size:13px; color:var(--gray-600); margin-bottom:20px; max-width:720px; }
+
+    /* ---- colors ---- */
+    .swatches { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:14px; }
+    .swatch { border-radius:var(--radius); overflow:hidden; background:var(--white); box-shadow:var(--dbezel); outline:1px solid rgba(27,58,107,.07); }
+    .swatch .chip { height:76px; }
+    .swatch .meta { padding:10px 12px; }
+    .swatch .nm { font-size:12.5px; font-weight:700; color:var(--navy-dark); }
+    .swatch .hex { font-size:11.5px; color:var(--gray-600); font-family:ui-monospace,monospace; text-transform:uppercase; }
+    .swatch .var { font-size:11px; color:var(--gray-400); font-family:ui-monospace,monospace; }
+
+    /* ---- type ---- */
+    .type-row { display:flex; align-items:baseline; gap:16px; padding:14px 0; border-bottom:1px solid var(--gray-100); flex-wrap:wrap; }
+    .type-row .lbl { width:150px; font-size:11.5px; color:var(--gray-400); font-family:ui-monospace,monospace; flex-shrink:0; }
+    .d1 { font-family:var(--font-display); font-size:34px; font-weight:800; color:var(--navy-dark); letter-spacing:-.5px; }
+    .d2 { font-family:var(--font-display); font-size:24px; font-weight:700; color:var(--navy-dark); }
+    .d3 { font-family:var(--font-display); font-size:18px; font-weight:700; color:var(--navy); }
+    .b1 { font-size:15px; } .b2 { font-size:13px; color:var(--gray-600); }
+    .price { font-family:var(--font-display); font-size:22px; font-weight:800; color:var(--navy); font-variant-numeric:tabular-nums; }
+
+    /* ---- panels ---- */
+    .panel { background:var(--white); border-radius:var(--radius-lg); padding:24px; box-shadow:var(--dbezel); outline:1px solid rgba(27,58,107,.07); }
+    .cluster { display:flex; flex-wrap:wrap; gap:12px; align-items:center; }
+
+    /* ---- buttons (repris du site) ---- */
+    .btn { display:inline-flex; align-items:center; gap:8px; padding:11px 20px; border-radius:10px; font-size:14px; font-weight:700; transition:all .18s; text-decoration:none; }
+    .btn-primary { background:var(--navy); color:#fff; } .btn-primary:hover { background:var(--navy-dark); transform:translateY(-1px); }
+    .btn-gold { background:var(--gold); color:var(--navy-dark); } .btn-gold:hover { background:var(--gold-dark); transform:translateY(-1px); }
+    .btn-outline { background:none; border:1.5px solid var(--gray-200); color:var(--navy); } .btn-outline:hover { border-color:var(--navy); background:var(--navy-light); }
+    .btn-ghost { background:var(--gray-100); color:var(--navy); } .btn-ghost:hover { background:var(--gray-200); }
+    .btn-wa { background:#25D366; color:#fff; } .btn-wa:hover { background:#1eb658; }
+    .btn-sm { padding:8px 14px; font-size:12.5px; }
+    .btn-lg { padding:14px 26px; font-size:15px; }
+    .btn:disabled, .btn.is-disabled { opacity:.5; pointer-events:none; }
+    /* pill gold with nested dark capsule (button-in-button) */
+    .btn-pill { display:inline-flex; align-items:center; gap:12px; padding:6px 18px 6px 6px; background:linear-gradient(135deg,var(--gold),#D4940F); color:var(--navy-dark); border-radius:14px; font-weight:800; box-shadow:0 6px 24px rgba(230,168,23,.4); }
+    .btn-pill .cap { width:40px; height:40px; border-radius:10px; background:var(--navy-dark); color:#fff; display:flex; align-items:center; justify-content:center; font-size:17px; box-shadow:inset 0 0 0 1px rgba(255,255,255,.12); }
+
+    /* ---- badges (repris du site) ---- */
+    .badge { display:inline-flex; align-items:center; gap:5px; padding:3px 10px; border-radius:50px; font-size:11px; font-weight:700; }
+    .badge-vente { background:#e3f2fd; color:#1565c0; }
+    .badge-location { background:#e8f5e9; color:#2e7d32; }
+    .badge-neuf { background:var(--gold-light); color:var(--gold-dark); }
+    .badge-verified { background:#e8f6f4; color:var(--green); }
+    .badge-solid-vente { background:var(--navy); color:#fff; }
+    .badge-solid-loc { background:var(--green); color:#fff; }
+    /* price tiers (carte-prix) */
+    .tier { display:inline-flex; align-items:center; gap:7px; font-size:12.5px; font-weight:600; color:var(--gray-800); }
+    .tier .dot { width:14px; height:14px; border-radius:50%; border:2px solid rgba(0,0,0,.12); }
+
+    /* ---- property card (canonical) ---- */
+    .pcard { display:flex; gap:14px; background:var(--white); border-radius:var(--radius-lg); overflow:hidden; box-shadow:var(--dbezel); outline:1px solid rgba(27,58,107,.07); max-width:520px; }
+    .pcard-img { width:200px; flex-shrink:0; position:relative; align-self:stretch; overflow:hidden; background:var(--navy-light); }
+    .pcard-img img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+    .pcard-img .fav { position:absolute; top:10px; right:10px; width:30px; height:30px; border-radius:50%; background:rgba(255,255,255,.92); display:flex; align-items:center; justify-content:center; color:var(--navy); box-shadow:var(--shadow-sm); }
+    .pcard-body { flex:1; padding:14px 14px 14px 0; display:flex; flex-direction:column; justify-content:space-between; min-height:150px; }
+    .pcard-name { font-family:var(--font-display); font-size:15px; font-weight:700; color:var(--navy-dark); margin:6px 0 4px; }
+    .pcard-loc { font-size:12px; color:var(--gray-600); margin-bottom:8px; }
+    .pcard-meta { display:flex; gap:14px; font-size:12px; color:var(--gray-600); margin-bottom:auto; }
+    .pcard-price { font-family:var(--font-display); font-size:16px; font-weight:800; color:var(--navy); font-variant-numeric:tabular-nums; margin-top:10px; }
+
+    /* ---- form ---- */
+    .field { max-width:360px; margin-bottom:14px; }
+    .field label { display:block; font-size:12.5px; font-weight:600; color:var(--navy); margin-bottom:5px; }
+    .field input, .field select { width:100%; padding:10px 12px; border:1.5px solid var(--gray-200); border-radius:9px; font-size:13.5px; font-family:inherit; outline:none; transition:border-color .15s; background:#fff; }
+    .field input:focus { border-color:var(--navy); }
+    .field.invalid input { border-color:var(--red); background:#fdf3f3; }
+    .field-err { display:flex; align-items:center; gap:5px; font-size:12px; color:var(--red); font-weight:600; margin-top:5px; }
+
+    /* ---- shadow demo ---- */
+    .shadow-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:20px; }
+    .shadow-box { background:#fff; border-radius:var(--radius); height:90px; display:flex; align-items:center; justify-content:center; font-size:12px; color:var(--gray-600); font-family:ui-monospace,monospace; }
+    .radius-grid { display:flex; gap:18px; flex-wrap:wrap; }
+    .radius-box { width:90px; height:90px; background:var(--navy-light); border:1.5px solid var(--navy); display:flex; align-items:center; justify-content:center; font-size:11px; color:var(--navy); font-family:ui-monospace,monospace; }
+  </style>
+</head>
+<body>
+  <header class="page-head">
+    <div class="wrap">
+      <span class="tag">Design System · référence</span>
+      <h1>Charte visuelle Immo24</h1>
+      <p>La référence unique du design : couleurs, typographie, boutons, cartes, badges, formulaires. À valider formellement — chaque nouvel écran (front ou backend) doit s'y conformer. Tokens CSS repris à l'identique du site.</p>
+    </div>
+  </header>
+
+  <div class="container">
+    <nav class="toc">
+      <a href="#couleurs">Couleurs</a>
+      <a href="#typo">Typographie</a>
+      <a href="#boutons">Boutons</a>
+      <a href="#badges">Badges</a>
+      <a href="#cartes">Cartes</a>
+      <a href="#form">Formulaires</a>
+      <a href="#ombres">Ombres &amp; rayons</a>
+    </nav>
+
+    <!-- COULEURS -->
+    <section id="couleurs">
+      <div class="sec-head"><span class="n">1</span><h2>Couleurs</h2></div>
+      <p class="sec-note">Navy (marque) &amp; Gold (accent) sont les deux piliers. Le vert signale la location / la vérification. Les gris structurent l'interface.</p>
+      <div class="swatches">
+        <div class="swatch"><div class="chip" style="background:#1B3A6B"></div><div class="meta"><div class="nm">Navy</div><div class="hex">#1B3A6B</div><div class="var">--navy</div></div></div>
+        <div class="swatch"><div class="chip" style="background:#122952"></div><div class="meta"><div class="nm">Navy dark</div><div class="hex">#122952</div><div class="var">--navy-dark</div></div></div>
+        <div class="swatch"><div class="chip" style="background:#EEF2F9"></div><div class="meta"><div class="nm">Navy light</div><div class="hex">#EEF2F9</div><div class="var">--navy-light</div></div></div>
+        <div class="swatch"><div class="chip" style="background:#E6A817"></div><div class="meta"><div class="nm">Gold</div><div class="hex">#E6A817</div><div class="var">--gold</div></div></div>
+        <div class="swatch"><div class="chip" style="background:#C8900E"></div><div class="meta"><div class="nm">Gold dark</div><div class="hex">#C8900E</div><div class="var">--gold-dark</div></div></div>
+        <div class="swatch"><div class="chip" style="background:#FFF8E6"></div><div class="meta"><div class="nm">Gold light</div><div class="hex">#FFF8E6</div><div class="var">--gold-light</div></div></div>
+        <div class="swatch"><div class="chip" style="background:#2A9D8F"></div><div class="meta"><div class="nm">Green</div><div class="hex">#2A9D8F</div><div class="var">--green</div></div></div>
+        <div class="swatch"><div class="chip" style="background:#D64545"></div><div class="meta"><div class="nm">Red</div><div class="hex">#D64545</div><div class="var">--red</div></div></div>
+        <div class="swatch"><div class="chip" style="background:#F8F9FA;box-shadow:inset 0 0 0 1px #E9ECEF"></div><div class="meta"><div class="nm">Gray 50</div><div class="hex">#F8F9FA</div><div class="var">--gray-50</div></div></div>
+        <div class="swatch"><div class="chip" style="background:#E9ECEF"></div><div class="meta"><div class="nm">Gray 200</div><div class="hex">#E9ECEF</div><div class="var">--gray-200</div></div></div>
+        <div class="swatch"><div class="chip" style="background:#ADB5BD"></div><div class="meta"><div class="nm">Gray 400</div><div class="hex">#ADB5BD</div><div class="var">--gray-400</div></div></div>
+        <div class="swatch"><div class="chip" style="background:#343A40"></div><div class="meta"><div class="nm">Gray 800</div><div class="hex">#343A40</div><div class="var">--gray-800</div></div></div>
+      </div>
+    </section>
+
+    <!-- TYPO -->
+    <section id="typo">
+      <div class="sec-head"><span class="n">2</span><h2>Typographie</h2></div>
+      <p class="sec-note"><strong>Fraunces</strong> (serif) pour les titres, prix et chiffres clés. <strong>Plus Jakarta Sans</strong> pour le corps. Les prix utilisent <code>tabular-nums</code>. Aucune autre police n'est autorisée.</p>
+      <div class="panel">
+        <div class="type-row"><span class="lbl">Fraunces 800 · 34</span><span class="d1">Trouvez votre bien idéal</span></div>
+        <div class="type-row"><span class="lbl">Fraunces 700 · 24</span><span class="d2">The Pantheon Residence</span></div>
+        <div class="type-row"><span class="lbl">Fraunces 700 · 18</span><span class="d3">Titre de section</span></div>
+        <div class="type-row"><span class="lbl">Fraunces · prix</span><span class="price">680 000 TND</span></div>
+        <div class="type-row"><span class="lbl">Jakarta 400 · 15</span><span class="b1">Corps de texte — description d'une annonce, paragraphe courant.</span></div>
+        <div class="type-row"><span class="lbl">Jakarta 400 · 13</span><span class="b2">Texte secondaire, métadonnées, libellés.</span></div>
+      </div>
+    </section>
+
+    <!-- BOUTONS -->
+    <section id="boutons">
+      <div class="sec-head"><span class="n">3</span><h2>Boutons</h2></div>
+      <p class="sec-note">Primaire = navy (action principale). Gold = conversion (publier, prendre RDV). Outline / ghost = secondaire. WhatsApp = vert dédié.</p>
+      <div class="panel" style="display:flex;flex-direction:column;gap:18px">
+        <div class="cluster">
+          <button class="btn btn-primary"><i class="fas fa-phone"></i> Appeler</button>
+          <button class="btn btn-gold"><i class="fas fa-calendar-check"></i> Prendre rendez-vous</button>
+          <button class="btn btn-outline"><i class="fas fa-heart"></i> Sauvegarder</button>
+          <button class="btn btn-ghost"><i class="fas fa-share-alt"></i> Partager</button>
+          <button class="btn btn-wa"><i class="fab fa-whatsapp"></i> WhatsApp</button>
+        </div>
+        <div class="cluster">
+          <button class="btn btn-primary btn-sm">Petit</button>
+          <button class="btn btn-primary">Normal</button>
+          <button class="btn btn-primary btn-lg">Grand</button>
+          <button class="btn btn-primary is-disabled">Désactivé</button>
+        </div>
+        <div class="cluster">
+          <button class="btn-pill"><span class="cap"><i class="fas fa-map-marked-alt"></i></span> Retrouver sur la carte</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- BADGES -->
+    <section id="badges">
+      <div class="sec-head"><span class="n">4</span><h2>Badges &amp; pastilles</h2></div>
+      <p class="sec-note">Statut d'annonce, vérification, et paliers de prix (observatoire).</p>
+      <div class="panel" style="display:flex;flex-direction:column;gap:16px">
+        <div class="cluster">
+          <span class="badge badge-vente">Vente</span>
+          <span class="badge badge-location">Location</span>
+          <span class="badge badge-neuf">Projet neuf</span>
+          <span class="badge badge-verified"><i class="fas fa-circle-check"></i> Agence vérifiée</span>
+        </div>
+        <div class="cluster">
+          <span class="badge badge-solid-vente">Vente</span>
+          <span class="badge badge-solid-loc">Location</span>
+        </div>
+        <div class="cluster" style="gap:20px">
+          <span class="tier"><span class="dot" style="background:#C0392B"></span> Premium</span>
+          <span class="tier"><span class="dot" style="background:#E67E22"></span> Élevé</span>
+          <span class="tier"><span class="dot" style="background:#E6A817"></span> Intermédiaire</span>
+          <span class="tier"><span class="dot" style="background:#2A9D8F"></span> Accessible</span>
+          <span class="tier"><span class="dot" style="background:#2980B9"></span> Abordable</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- CARTES -->
+    <section id="cartes">
+      <div class="sec-head"><span class="n">5</span><h2>Cartes</h2></div>
+      <p class="sec-note">Carte annonce canonique : image à hauteur fixe (position absolue → jamais d'étirement), corps piloté par le contenu, prix ancré en bas. Double-Bezel : <code>box-shadow: var(--shadow-sm), inset 0 0 0 1px rgba(255,255,255,.9)</code> + fin liseré.</p>
+      <div class="cluster" style="align-items:stretch">
+        <article class="pcard">
+          <div class="pcard-img">
+            <img src="https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=400&q=80" alt="" />
+            <button class="fav"><i class="far fa-heart"></i></button>
+          </div>
+          <div class="pcard-body">
+            <div>
+              <span class="badge badge-vente">Vente</span>
+              <div class="pcard-name">Villa de luxe avec piscine</div>
+              <div class="pcard-loc"><i class="fas fa-location-dot" style="color:var(--gold)"></i> Sidi Bou Saïd, Tunis</div>
+              <div class="pcard-meta"><span>320 m²</span><span>S+6</span><span>4 SDB</span></div>
+            </div>
+            <div class="pcard-price">890 000 TND</div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- FORM -->
+    <section id="form">
+      <div class="sec-head"><span class="n">6</span><h2>Champs de formulaire</h2></div>
+      <p class="sec-note">Bordure grise au repos, navy au focus, rouge en erreur (validation inline).</p>
+      <div class="panel">
+        <div class="field"><label>Nom complet</label><input type="text" value="Karim Saidi" /></div>
+        <div class="field"><label>Type de bien</label><select><option>Appartement</option><option>Villa</option><option>Terrain</option></select></div>
+        <div class="field invalid"><label>Téléphone</label><input type="tel" value="12" /><div class="field-err"><i class="fas fa-circle-exclamation"></i> Numéro tunisien invalide (8 chiffres).</div></div>
+      </div>
+    </section>
+
+    <!-- OMBRES -->
+    <section id="ombres">
+      <div class="sec-head"><span class="n">7</span><h2>Ombres &amp; rayons</h2></div>
+      <p class="sec-note">Trois niveaux d'élévation et l'échelle de rayons.</p>
+      <div class="panel" style="display:flex;flex-direction:column;gap:26px">
+        <div class="shadow-grid">
+          <div class="shadow-box" style="box-shadow:var(--shadow-sm)">--shadow-sm</div>
+          <div class="shadow-box" style="box-shadow:var(--shadow)">--shadow</div>
+          <div class="shadow-box" style="box-shadow:var(--shadow-lg)">--shadow-lg</div>
+          <div class="shadow-box" style="box-shadow:var(--dbezel);outline:1px solid rgba(27,58,107,.07)">Double-Bezel</div>
+        </div>
+        <div class="radius-grid">
+          <div class="radius-box" style="border-radius:var(--radius-sm)">6px · sm</div>
+          <div class="radius-box" style="border-radius:var(--radius)">12px</div>
+          <div class="radius-box" style="border-radius:var(--radius-lg)">20px · lg</div>
+          <div class="radius-box" style="border-radius:50px">pill</div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</body>
+</html>
