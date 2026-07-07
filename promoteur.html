@@ -671,6 +671,7 @@
 </section>
 
 <script src="https://api.mapbox.com/mapbox-gl-js/v3.9.0/mapbox-gl.js"></script>
+<script src="assets/map-helpers.js"></script>
 <script>
 function switchTab(id, btn) {
   ['projets','about'].forEach(t => {
@@ -695,23 +696,8 @@ document.querySelectorAll('.proj-filter-btn').forEach(btn => {
   });
 });
 
-/* MAP (Mapbox GL — tuiles CARTO light, sans clé) */
-mapboxgl.accessToken = window.MAPBOX_TOKEN || 'MAPBOX_TOKEN_PLACEHOLDER';
-function cartoStyle() {
-  return {
-    version: 8,
-    sources: { carto: { type: 'raster', tileSize: 256,
-      tiles: ['https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
-              'https://b.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png'],
-      attribution: '© OpenStreetMap © CARTO' } },
-    layers: [{ id: 'carto', type: 'raster', source: 'carto' }]
-  };
-}
-function htmlMarker(html, anchor) {
-  const el = document.createElement('div');
-  el.innerHTML = html;
-  return new mapboxgl.Marker({ element: el.firstElementChild, anchor: anchor || 'center' });
-}
+/* MAP (Mapbox GL — tuiles CARTO light, sans clé)
+   cartoStyle() et htmlMarker() proviennent de assets/map-helpers.js */
 
 const map = new mapboxgl.Map({ container: 'promoMap', style: cartoStyle(), center: [10.1762, 36.8205], zoom: 15, scrollZoom: false, attributionControl: false });
 
