@@ -94,3 +94,11 @@
   .navbar { height: 56px !important; min-height: 56px !important; }
   .nav-mobile { top: 56px !important; }
 }
+
+/* ── Repli texte du logo navbar (si le SVG ne charge pas) ── */
+.nav-logo-fallback {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 22px; font-weight: 800; line-height: 1;
+  color: #fff; letter-spacing: -.5px; white-space: nowrap;
+}
+.nav-logo-fallback b { color: var(--gold, #E6A817); font-weight: 800; }

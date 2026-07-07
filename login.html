@@ -219,6 +219,8 @@
       .login-card-body { padding: 24px 24px 28px; }
       .navbar { padding: 0 16px; }
     }
+      .nav-logo-fallback { font-family:'Fraunces',Georgia,serif; font-size:22px; font-weight:800; line-height:1; color:#fff; letter-spacing:-.5px; white-space:nowrap; }
+    .nav-logo-fallback b { color:var(--gold,#E6A817); font-weight:800; }
   </style>
 </head>
 <body>
@@ -226,7 +228,7 @@
 <!-- NAVBAR -->
 <nav class="navbar">
   <a class="nav-logo" href="index.html">
-    <img src="immo24-light-navbar.svg" height="48" alt="Immo24.tn" />
+    <img src="immo24-light-navbar.svg" height="48" alt="Immo24.tn" onerror="this.onerror=null;this.outerHTML=&quot;<span class='nav-logo-fallback'>Immo<b>24</b>.tn</span>&quot;" />
   </a>
 </nav>
 
