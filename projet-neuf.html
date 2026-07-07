@@ -625,6 +625,13 @@
       .similar-grid { grid-template-columns: 1fr; }
       .plan-grid { grid-template-columns: 1fr; }
       .nav-menu { display: none; }
+      /* table des lots : défilement horizontal interne au lieu de déborder la page */
+      .lots-table { display: block; overflow-x: auto; white-space: nowrap; }
+      .map-cta-strip { flex-wrap: wrap; }
+      /* barre d'onglets : défilement horizontal (les onglets ne rentrent pas à 390px) */
+      .tabs-bar { overflow-x: auto; }
+      .tabs-bar::-webkit-scrollbar { display: none; }
+      .tab-btn { flex-shrink: 0; }
     }
 
     /* Regarder sur la carte */

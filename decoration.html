@@ -333,6 +333,10 @@
     .cat-grid { grid-template-columns: repeat(4, 1fr); }
     .shops-grid { grid-template-columns: 1fr; }
     .inspo-grid { grid-template-columns: 1fr 1fr; grid-auto-rows: auto; }
+    /* barre d'onglets annuaire : défilement horizontal au lieu de déborder */
+    .annuaire-tabs { overflow-x: auto; flex-wrap: nowrap; -webkit-overflow-scrolling: touch; }
+    .annuaire-tabs::-webkit-scrollbar { display: none; }
+    .annuaire-tab { flex: 0 0 auto; white-space: nowrap; }
   }
   </style>
 <link rel="stylesheet" href="responsive.css" />

@@ -253,6 +253,7 @@
   /* ===== RESPONSIVE — terrain.html ===== */
   @media (max-width: 900px) {
     .listing-layout { grid-template-columns: 1fr; }
+    .listing-main, .sidebar { min-width: 0; }
     .sidebar { position: static; }
     .gallery-main { height: 280px !important; }
     .gallery-thumbs { display: none; }
@@ -261,6 +262,8 @@
     .gallery-main { height: 220px !important; }
     .prop-stats { flex-wrap: wrap; }
     .prop-stat { flex: 1 1 calc(50% - 1px); }
+    .map-cta-strip { flex-wrap: wrap; }
+    .sim-grid { grid-template-columns: 1fr 1fr !important; }
   }
 
     /* --- agent card hover (remplace onmouseover inline) --- */

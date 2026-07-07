@@ -514,6 +514,9 @@
   /* ===== RESPONSIVE — listing.html ===== */
   @media (max-width: 900px) {
     .listing-layout { grid-template-columns: 1fr; }
+    /* autorise les colonnes de la grille à rétrécir sous leur min-content
+       (sinon un enfant large force la piste 1fr à déborder) */
+    .listing-main, .sidebar { min-width: 0; }
     .sidebar { position: static; }
     .gallery-main { height: 280px !important; }
     .gallery-thumbs { display: none; }
@@ -523,6 +526,12 @@
     .prop-title { font-size: 18px; }
     .prop-stats { flex-wrap: wrap; }
     .prop-stat { flex: 1 1 calc(50% - 1px); }
+    .map-cta-strip { flex-wrap: wrap; }
+    .sim-grid { grid-template-columns: 1fr 1fr !important; }
+    /* boutons d'action : autoriser à rétrécir sous leur libellé */
+    .action-row .btn-action { min-width: 0; padding: 9px 4px; font-size: 12px; }
+    .breadcrumb-inner { padding: 0 12px; }
+    .breadcrumb-trail { overflow: hidden; }
   }
 /* Fraunces pour prix et titres */
 .prop-title, .prop-price-inline, .price-main { font-family: var(--font-display); }
