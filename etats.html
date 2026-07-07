@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>États & cas limites – Immo24.tn</title>
+  <meta name="robots" content="noindex" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,700;0,9..144,800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    :root {
+      --gold:#E6A817; --gold-dark:#C8900E; --gold-light:#FFF8E6;
+      --navy:#1B3A6B; --navy-dark:#122952; --navy-light:#EEF2F9;
+      --gray-50:#F8F9FA; --gray-100:#F1F3F5; --gray-200:#E9ECEF; --gray-300:#DEE2E6;
+      --gray-400:#ADB5BD; --gray-600:#6C757D; --gray-800:#343A40; --white:#FFFFFF;
+      --green:#2A9D8F; --red:#D64545;
+      --radius:12px; --radius-lg:20px;
+      --shadow-sm:0 1px 8px rgba(27,58,107,.08);
+      --shadow:0 4px 24px rgba(27,58,107,.13), 0 1px 4px rgba(27,58,107,.06);
+      --font-display:'Fraunces',Georgia,serif; --font-body:'Plus Jakarta Sans',sans-serif;
+    }
+    *,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+    body { font-family:var(--font-body); color:var(--gray-800); background:var(--gray-50); line-height:1.5; }
+    img { display:block; max-width:100%; }
+    button { cursor:pointer; font-family:inherit; border:none; background:none; }
+
+    /* ---- page chrome ---- */
+    .page-head { background:var(--navy); color:#fff; padding:34px 24px; }
+    .page-head .wrap { max-width:1080px; margin:0 auto; }
+    .page-head .tag { display:inline-block; font-size:11px; font-weight:800; letter-spacing:1px; text-transform:uppercase; color:var(--gold); background:rgba(230,168,23,.14); padding:4px 12px; border-radius:50px; margin-bottom:12px; }
+    .page-head h1 { font-family:var(--font-display); font-size:30px; font-weight:800; margin-bottom:8px; }
+    .page-head p { font-size:14px; color:rgba(255,255,255,.75); max-width:640px; }
+    .page-head a { color:var(--gold); font-weight:600; }
+
+    .container { max-width:1080px; margin:0 auto; padding:32px 24px 80px; }
+    .toc { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:36px; }
+    .toc a { font-size:12.5px; font-weight:600; color:var(--navy); background:var(--white); border:1px solid var(--gray-200); padding:7px 13px; border-radius:50px; box-shadow:var(--shadow-sm); transition:all .18s; }
+    .toc a:hover { background:var(--navy); color:#fff; border-color:var(--navy); }
+
+    section.state { margin-bottom:44px; scroll-margin-top:20px; }
+    .state-head { display:flex; align-items:baseline; gap:10px; margin-bottom:6px; }
+    .state-head h2 { font-family:var(--font-display); font-size:19px; font-weight:700; color:var(--navy-dark); }
+    .state-head .n { font-size:12px; font-weight:800; color:var(--gold-dark); background:var(--gold-light); border-radius:6px; padding:2px 8px; }
+    .state-note { font-size:13px; color:var(--gray-600); margin-bottom:16px; max-width:720px; }
+    .state-note code { background:var(--gray-100); padding:1px 6px; border-radius:5px; font-size:12px; color:var(--navy); }
+    .demo { background:var(--white); border-radius:var(--radius-lg); padding:24px; box-shadow:var(--shadow-sm), inset 0 0 0 1px rgba(255,255,255,.9); outline:1px solid rgba(27,58,107,.07); }
+    .demo-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:18px; }
+
+    /* ---- generic property card (repris du design system) ---- */
+    .pcard { border-radius:var(--radius); overflow:hidden; background:var(--white); box-shadow:var(--shadow-sm), inset 0 0 0 1px rgba(255,255,255,.9); outline:1px solid rgba(27,58,107,.07); }
+    .pcard-media { position:relative; height:150px; background:var(--gray-100); overflow:hidden; }
+    .pcard-media img { width:100%; height:100%; object-fit:cover; }
+    .pcard-body { padding:12px 14px 14px; }
+    .pcard-title { font-family:var(--font-display); font-size:15px; font-weight:700; color:var(--navy); margin-bottom:4px; line-height:1.3; }
+    .pcard-loc { font-size:12px; color:var(--gray-600); margin-bottom:8px; }
+    .pcard-price { font-size:16px; font-weight:800; color:var(--navy-dark); font-variant-numeric:tabular-nums; }
+    .badge-status { position:absolute; top:10px; left:10px; font-size:11px; font-weight:700; padding:4px 9px; border-radius:6px; color:#fff; display:flex; align-items:center; gap:5px; }
+
+    /* no photo */
+    .no-photo { height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; color:var(--gray-400); background:repeating-linear-gradient(45deg,var(--gray-100),var(--gray-100) 10px,var(--gray-50) 10px,var(--gray-50) 20px); }
+    .no-photo i { font-size:26px; }
+    .no-photo span { font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.5px; }
+
+    /* status overlays */
+    .pcard.is-off .pcard-media img { filter:grayscale(1) brightness(.75); }
+    .status-veil { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; }
+    .status-stamp { font-family:var(--font-display); font-size:17px; font-weight:800; color:#fff; letter-spacing:1px; text-transform:uppercase; padding:7px 18px; border:2.5px solid #fff; border-radius:8px; transform:rotate(-8deg); background:rgba(18,41,82,.55); }
+    .status-stamp.sold { background:rgba(214,69,69,.6); }
+    .status-stamp.reserved { background:rgba(230,168,23,.7); color:var(--navy-dark); border-color:var(--navy-dark); }
+
+    /* empty state */
+    .empty { text-align:center; padding:48px 24px; }
+    .empty-ico { width:72px; height:72px; margin:0 auto 16px; border-radius:50%; background:var(--navy-light); display:flex; align-items:center; justify-content:center; font-size:28px; color:var(--navy); }
+    .empty h3 { font-family:var(--font-display); font-size:18px; color:var(--navy-dark); margin-bottom:6px; }
+    .empty p { font-size:13.5px; color:var(--gray-600); max-width:380px; margin:0 auto 18px; }
+    .empty-actions { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
+    .btn { display:inline-flex; align-items:center; gap:7px; padding:10px 18px; border-radius:10px; font-size:13.5px; font-weight:700; transition:all .18s; }
+    .btn-primary { background:var(--navy); color:#fff; } .btn-primary:hover { background:var(--navy-dark); }
+    .btn-ghost { background:var(--gray-100); color:var(--navy); } .btn-ghost:hover { background:var(--gray-200); }
+    .btn-gold { background:var(--gold); color:var(--navy-dark); } .btn-gold:hover { background:var(--gold-dark); }
+
+    /* empty map */
+    .map-empty { height:230px; border-radius:var(--radius); background:linear-gradient(135deg,#e9eef5,#f3f6fa); display:flex; align-items:center; justify-content:center; position:relative; overflow:hidden; }
+    .map-empty::before { content:''; position:absolute; inset:0; background-image:linear-gradient(rgba(27,58,107,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(27,58,107,.05) 1px,transparent 1px); background-size:32px 32px; }
+    .map-empty-card { position:relative; background:var(--white); border-radius:12px; padding:16px 22px; box-shadow:var(--shadow); text-align:center; }
+    .map-empty-card i { font-size:22px; color:var(--gold); margin-bottom:6px; }
+    .map-empty-card div { font-size:13px; font-weight:600; color:var(--navy); }
+
+    /* forms */
+    .form-demo { max-width:420px; }
+    .field { margin-bottom:14px; }
+    .field label { display:block; font-size:12.5px; font-weight:600; color:var(--navy); margin-bottom:5px; }
+    .field input { width:100%; padding:10px 12px; border:1.5px solid var(--gray-200); border-radius:9px; font-size:13.5px; font-family:inherit; outline:none; transition:border-color .15s; }
+    .field input:focus { border-color:var(--navy); }
+    .field.invalid input { border-color:var(--red); background:#fdf3f3; }
+    .field-err { display:flex; align-items:center; gap:5px; font-size:12px; color:var(--red); font-weight:600; margin-top:5px; }
+    .alert { display:flex; gap:10px; align-items:flex-start; padding:12px 14px; border-radius:10px; font-size:13px; margin-bottom:16px; }
+    .alert-server { background:#fdf3f3; border-left:3px solid var(--red); color:#9a2b2b; }
+    .alert-server i { color:var(--red); font-size:15px; margin-top:1px; }
+    .alert-ok { background:#eef7f5; border-left:3px solid var(--green); color:#1c6b60; }
+    .alert-ok i { color:var(--green); font-size:15px; margin-top:1px; }
+
+    /* auth-gate favorite */
+    .authgate { max-width:340px; text-align:center; padding:26px 22px; border-radius:var(--radius); background:var(--white); box-shadow:var(--shadow); }
+    .authgate .heart { width:56px; height:56px; margin:0 auto 12px; border-radius:50%; background:var(--gold-light); display:flex; align-items:center; justify-content:center; font-size:22px; color:var(--gold-dark); }
+    .authgate h3 { font-family:var(--font-display); font-size:17px; color:var(--navy-dark); margin-bottom:5px; }
+    .authgate p { font-size:13px; color:var(--gray-600); margin-bottom:16px; }
+
+    /* skeletons */
+    @keyframes shimmer { 0%{background-position:-400px 0} 100%{background-position:400px 0} }
+    .sk { background:linear-gradient(90deg,var(--gray-100) 25%,var(--gray-200) 37%,var(--gray-100) 63%); background-size:800px 100%; animation:shimmer 1.4s linear infinite; border-radius:6px; }
+    .sk-media { height:150px; border-radius:0; }
+    .sk-line { height:12px; margin:10px 14px 0; }
+    .sk-line.w60 { width:60%; } .sk-line.w40 { width:40%; } .sk-line.w80 { width:80%; }
+    @media (prefers-reduced-motion:reduce){ .sk{ animation:none; } }
+
+    .fav-btn { position:absolute; top:10px; right:10px; width:32px; height:32px; border-radius:50%; background:rgba(255,255,255,.92); display:flex; align-items:center; justify-content:center; color:var(--navy); box-shadow:var(--shadow-sm); }
+    .row { display:flex; gap:18px; flex-wrap:wrap; align-items:flex-start; }
+  </style>
+</head>
+<body>
+  <header class="page-head">
+    <div class="wrap">
+      <span class="tag">Référence QA · interne</span>
+      <h1>États &amp; cas limites de l'interface</h1>
+      <p>Les écrans que la maquette « tout va bien » ne montre pas. Cette page sert de spécification visuelle pour le développement backend : chaque état correspond à une valeur de <code>status</code> ou à une situation d'API. Voir aussi <a href="data/schema.json">data/schema.json</a>.</p>
+    </div>
+  </header>
+
+  <div class="container">
+    <nav class="toc">
+      <a href="#sans-photo">Annonce sans photo</a>
+      <a href="#statuts">Statuts d'annonce</a>
+      <a href="#vide-liste">Recherche · 0 résultat</a>
+      <a href="#vide-carte">Carte vide</a>
+      <a href="#form-erreur">Formulaire · erreur serveur</a>
+      <a href="#favori">Favori · non connecté</a>
+      <a href="#skeleton">Chargement · skeleton</a>
+    </nav>
+
+    <!-- 1. SANS PHOTO -->
+    <section class="state" id="sans-photo">
+      <div class="state-head"><span class="n">1</span><h2>Annonce sans photo</h2></div>
+      <p class="state-note">Quand <code>img</code> est nul / <code>photos: 0</code>. Placeholder au lieu d'une image cassée.</p>
+      <div class="demo">
+        <div class="demo-grid">
+          <article class="pcard">
+            <div class="pcard-media">
+              <div class="no-photo"><i class="fas fa-image"></i><span>Photo à venir</span></div>
+              <button class="fav-btn"><i class="far fa-heart"></i></button>
+            </div>
+            <div class="pcard-body">
+              <div class="pcard-title">Appartement S+2 — La Marsa</div>
+              <div class="pcard-loc"><i class="fas fa-location-dot" style="color:var(--gold)"></i> La Marsa, Tunis</div>
+              <div class="pcard-price">1 900 TND<span style="font-size:11px;font-weight:500;color:var(--gray-600)"> / mois</span></div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. STATUTS -->
+    <section class="state" id="statuts">
+      <div class="state-head"><span class="n">2</span><h2>Statuts d'annonce</h2></div>
+      <p class="state-note">Valeurs de <code>status</code> : <code>reserved</code>, <code>sold</code> / <code>rented</code>, <code>expired</code>, <code>suspended</code>. L'annonce reste visible mais son état est signalé (et elle sort des résultats « actifs » par défaut).</p>
+      <div class="demo">
+        <div class="demo-grid">
+          <article class="pcard is-off">
+            <div class="pcard-media">
+              <img src="https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=400&q=80" alt="">
+              <div class="status-veil"><span class="status-stamp reserved">Réservé</span></div>
+            </div>
+            <div class="pcard-body"><div class="pcard-title">Villa avec piscine</div><div class="pcard-loc">Sidi Bou Saïd</div><div class="pcard-price">890 000 TND</div></div>
+          </article>
+          <article class="pcard is-off">
+            <div class="pcard-media">
+              <img src="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400&q=80" alt="">
+              <div class="status-veil"><span class="status-stamp sold">Vendu</span></div>
+            </div>
+            <div class="pcard-body"><div class="pcard-title">Appartement S+3</div><div class="pcard-loc">Carthage</div><div class="pcard-price">395 000 TND</div></div>
+          </article>
+          <article class="pcard is-off">
+            <div class="pcard-media">
+              <img src="https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=400&q=80" alt="">
+              <span class="badge-status" style="background:var(--gray-600)"><i class="fas fa-clock-rotate-left"></i> Expirée</span>
+            </div>
+            <div class="pcard-body"><div class="pcard-title">Studio meublé</div><div class="pcard-loc">Centre Ville</div><div class="pcard-price">750 TND / mois</div></div>
+          </article>
+          <article class="pcard is-off">
+            <div class="pcard-media">
+              <img src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=400&q=80" alt="">
+              <span class="badge-status" style="background:var(--red)"><i class="fas fa-ban"></i> Suspendue</span>
+            </div>
+            <div class="pcard-body"><div class="pcard-title">Penthouse Ennasr</div><div class="pcard-loc">Ariana</div><div class="pcard-price">650 000 TND</div></div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. VIDE LISTE -->
+    <section class="state" id="vide-liste">
+      <div class="state-head"><span class="n">3</span><h2>Recherche · aucun résultat</h2></div>
+      <p class="state-note">La réponse API renvoie une liste vide. On propose de réinitialiser les filtres ou d'élargir la zone — jamais un écran blanc.</p>
+      <div class="demo">
+        <div class="empty">
+          <div class="empty-ico"><i class="fas fa-magnifying-glass"></i></div>
+          <h3>Aucun bien ne correspond à votre recherche</h3>
+          <p>Essayez d'élargir la zone, d'augmenter le budget ou de retirer certains filtres.</p>
+          <div class="empty-actions">
+            <button class="btn btn-primary"><i class="fas fa-rotate-left"></i> Réinitialiser les filtres</button>
+            <button class="btn btn-ghost"><i class="fas fa-bell"></i> Créer une alerte</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. CARTE VIDE -->
+    <section class="state" id="vide-carte">
+      <div class="state-head"><span class="n">4</span><h2>Carte sans annonce dans la vue</h2></div>
+      <p class="state-note">L'utilisateur a déplacé/zoomé la carte sur une zone sans bien. On l'invite à dézoomer plutôt que de laisser une carte muette.</p>
+      <div class="demo">
+        <div class="map-empty">
+          <div class="map-empty-card">
+            <i class="fas fa-map-location-dot"></i>
+            <div>Aucun bien dans cette zone</div>
+            <div style="font-size:11.5px;font-weight:500;color:var(--gray-600);margin-top:2px">Dézoomez ou déplacez la carte</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. FORM ERREUR -->
+    <section class="state" id="form-erreur">
+      <div class="state-head"><span class="n">5</span><h2>Formulaire · erreur serveur vs validation</h2></div>
+      <p class="state-note">À distinguer : l'<strong>erreur de validation client</strong> (champ en rouge, inline) et l'<strong>erreur serveur</strong> (bandeau global, l'envoi a échoué côté API). Plus l'état de succès.</p>
+      <div class="demo">
+        <div class="row">
+          <form class="form-demo" onsubmit="return false">
+            <div class="alert alert-server"><i class="fas fa-triangle-exclamation"></i><div><strong>L'envoi a échoué.</strong> Une erreur est survenue de notre côté. Réessayez dans un instant.</div></div>
+            <div class="field"><label>Nom complet</label><input type="text" value="Karim Saidi" /></div>
+            <div class="field invalid">
+              <label>Téléphone</label>
+              <input type="tel" value="12" />
+              <div class="field-err"><i class="fas fa-circle-exclamation"></i> Numéro tunisien invalide (8 chiffres attendus).</div>
+            </div>
+            <button class="btn btn-gold" style="width:100%;justify-content:center"><i class="fas fa-paper-plane"></i> Envoyer la demande</button>
+          </form>
+          <form class="form-demo" onsubmit="return false">
+            <div class="alert alert-ok"><i class="fas fa-circle-check"></i><div><strong>Demande envoyée !</strong> L'agence vous recontacte sous 1 h.</div></div>
+            <div class="field"><label>Nom complet</label><input type="text" value="Nadia Belhaj" /></div>
+            <div class="field"><label>Téléphone</label><input type="tel" value="22 888 999" /></div>
+            <button class="btn btn-gold" style="width:100%;justify-content:center" disabled><i class="fas fa-check"></i> Envoyé</button>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. FAVORI NON CONNECTÉ -->
+    <section class="state" id="favori">
+      <div class="state-head"><span class="n">6</span><h2>Favori · utilisateur non connecté</h2></div>
+      <p class="state-note">Clic sur le cœur sans session : on n'ignore pas l'action, on invite à se connecter (et on reprend le favori après login).</p>
+      <div class="demo">
+        <div class="authgate">
+          <div class="heart"><i class="fas fa-heart"></i></div>
+          <h3>Enregistrez vos favoris</h3>
+          <p>Connectez-vous pour sauvegarder ce bien et le retrouver sur tous vos appareils.</p>
+          <div class="empty-actions">
+            <button class="btn btn-primary">Se connecter</button>
+            <button class="btn btn-ghost">Créer un compte</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7. SKELETON -->
+    <section class="state" id="skeleton">
+      <div class="state-head"><span class="n">7</span><h2>Chargement · skeleton</h2></div>
+      <p class="state-note">Pendant l'attente de la réponse API. Évite le saut de mise en page et le spinner plein écran.</p>
+      <div class="demo">
+        <div class="demo-grid">
+          <article class="pcard"><div class="sk sk-media"></div><div style="padding-bottom:14px"><div class="sk sk-line w80"></div><div class="sk sk-line w60"></div><div class="sk sk-line w40" style="height:16px;margin-top:12px"></div></div></article>
+          <article class="pcard"><div class="sk sk-media"></div><div style="padding-bottom:14px"><div class="sk sk-line w80"></div><div class="sk sk-line w60"></div><div class="sk sk-line w40" style="height:16px;margin-top:12px"></div></div></article>
+          <article class="pcard"><div class="sk sk-media"></div><div style="padding-bottom:14px"><div class="sk sk-line w80"></div><div class="sk sk-line w60"></div><div class="sk sk-line w40" style="height:16px;margin-top:12px"></div></div></article>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</body>
+</html>

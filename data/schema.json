@@ -1,0 +1,33 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Immo24 — Annonce",
+  "description": "Schéma unifié d'une annonce immobilière. Source de vérité pour l'API backend. Les pages front (map-listings, index, agence, listing, terrain, projet-neuf) doivent toutes consommer ce format.",
+  "type": "object",
+  "required": ["id", "kind", "transaction", "title", "type", "price", "currency", "status"],
+  "properties": {
+    "id":          { "type": "integer", "description": "Identifiant unique de l'annonce." },
+    "kind":        { "type": "string", "enum": ["neuf", "agence"], "description": "neuf = projet promoteur (adresse exacte) ; agence = bien d'agence/occasion (localisation approximative côté carte)." },
+    "transaction": { "type": "string", "enum": ["vente", "location"] },
+    "title":       { "type": "string" },
+    "type":        { "type": "string", "enum": ["Appartement", "Appartement & Duplex", "Duplex", "Villa", "Studio", "Penthouse", "Terrain", "Bureau"], "description": "Typologie du bien." },
+    "price":       { "type": "integer", "description": "Prix en TND. Prix total pour la vente, loyer mensuel pour la location." },
+    "currency":    { "type": "string", "enum": ["TND"], "default": "TND" },
+    "surface":     { "type": ["integer", "null"], "description": "Surface en m²." },
+    "rooms":       { "type": ["integer", "null"], "description": "Nombre de chambres (0 pour terrain/bureau)." },
+    "pieces":      { "type": ["integer", "null"], "description": "Nombre de pièces au sens S+N (S+2 = pieces:2)." },
+    "bathrooms":   { "type": ["integer", "null"] },
+    "location":    { "type": ["string", "null"], "description": "Adresse / libellé lisible." },
+    "zone":        { "type": ["string", "null"], "description": "Zone/quartier normalisé, utilisé par le filtre carte." },
+    "agence":      { "type": ["string", "null"], "description": "Nom de l'agence ou du promoteur. À remplacer par agence_id (FK) en base." },
+    "badge":       { "type": "array", "items": { "type": "string", "enum": ["new", "livraison", "exclusive", "promo"] }, "description": "Badges d'affichage." },
+    "img":         { "type": ["string", "null"], "format": "uri", "description": "URL photo principale. TEMP: pointent vers Unsplash / bullaregia-immobiliere.com — à remplacer par le stockage média du backend." },
+    "logo":        { "type": ["string", "null"], "format": "uri", "description": "Logo promoteur (kind=neuf uniquement)." },
+    "photos":      { "type": "integer", "default": 0, "description": "Nombre de photos dans la galerie." },
+    "lat":         { "type": ["number", "null"] },
+    "lng":         { "type": ["number", "null"] },
+    "delivery":    { "type": ["string", "null"], "description": "Statut/échéance de livraison (ex: 'Livré', 'Livraison imminente', 'T2 2026', 'Disponible')." },
+    "tf":          { "type": ["boolean", "null"], "description": "Titre foncier (terrains)." },
+    "date":        { "type": ["string", "null"], "description": "TEMP: fraîcheur relative ('2j', '1s'). À remplacer par published_at (ISO 8601) côté backend, la fraîcheur étant calculée à l'affichage." },
+    "status":      { "type": "string", "enum": ["active", "reserved", "sold", "rented", "expired", "suspended", "draft"], "default": "active", "description": "Cycle de vie de l'annonce. Seules les 'active' sont exposées publiquement par défaut." }
+  }
+}
